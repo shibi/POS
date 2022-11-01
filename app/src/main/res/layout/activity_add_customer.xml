@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_primary"
+    tools:context=".presentation.ui.customer.addcustomer.AddCustomerActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/ll_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="@dimen/back_image_size"
+                        android:layout_height="@dimen/back_image_size"
+                        android:src="@drawable/ic_left_arrow"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:layout_weight="3">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/customer_title"
+                        android:textSize="26dp"
+                        android:typeface="normal"
+                        android:textStyle="bold"
+                        android:textColor="@color/color_accent_secondary"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_add_customer"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="@dimen/back_image_size"
+                        android:layout_height="@dimen/back_image_size"
+                        android:src="@drawable/ic_save" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center">
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_customerName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/BorderedInputWhiteBgStyle"
+                    android:hint="@string/customer_name"
+                    android:textAlignment="viewStart"
+                    android:paddingTop="@dimen/add_customer_padding_top_bottom"
+                    android:paddingBottom="@dimen/add_customer_padding_top_bottom"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="25dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_taxid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/BorderedInputWhiteBgStyle"
+                    android:textAlignment="viewStart"
+                    android:hint="@string/tax_id_label"
+                    android:paddingTop="@dimen/add_customer_padding_top_bottom"
+                    android:paddingBottom="@dimen/add_customer_padding_top_bottom"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="25dp"/>
+
+            </LinearLayout>
+
+            <!--Split-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_creditlimit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedInputWhiteBgStyle"
+                        android:textAlignment="viewStart"
+                        android:inputType="numberSigned"
+                        android:hint="@string/credit_limit_label"
+                        android:paddingTop="@dimen/add_customer_padding_top_bottom"
+                        android:paddingBottom="@dimen/add_customer_padding_top_bottom"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginStart="25dp"
+                        android:layout_marginEnd="10dp"/>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_creditDays"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedInputWhiteBgStyle"
+                        android:textAlignment="viewStart"
+                        android:inputType="numberSigned"
+                        android:hint="@string/credit_days_label"
+                        android:paddingTop="@dimen/add_customer_padding_top_bottom"
+                        android:paddingBottom="@dimen/add_customer_padding_top_bottom"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="25dp"/>
+
+
+                </LinearLayout>
+
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_loyalityPid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/BorderedInputWhiteBgStyle"
+                    android:hint="Loyalty program"
+                    android:text="Test Loyalty Program"
+                    android:textAlignment="viewStart"
+                    android:clickable="false"
+                    android:enabled="false"
+                    android:paddingTop="@dimen/add_customer_padding_top_bottom"
+                    android:paddingBottom="@dimen/add_customer_padding_top_bottom"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="25dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_mobile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/BorderedInputWhiteBgStyle"
+                    android:hint="@string/mobile_number"
+                    android:inputType="numberSigned"
+                    android:textAlignment="viewStart"
+                    android:paddingTop="@dimen/add_customer_padding_top_bottom"
+                    android:paddingBottom="@dimen/add_customer_padding_top_bottom"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="25dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/BorderedInputWhiteBgStyle"
+                    android:hint="Email Id"
+                    android:textAlignment="viewStart"
+                    android:paddingTop="@dimen/add_customer_padding_top_bottom"
+                    android:paddingBottom="@dimen/add_customer_padding_top_bottom"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="25dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    style="@style/BorderedInputWhiteBgStyle"
+                    android:hint="Address"
+                    android:textAlignment="viewStart"
+                    android:gravity="start"
+                    android:maxLines="8"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="10dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="25dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

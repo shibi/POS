@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layoutDirection="ltr"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RadioGroup
+        android:id="@+id/rb_switchTab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="1dp">
+
+        <RadioButton
+            android:id="@+id/rb_left"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:paddingStart="22dp"
+            android:paddingEnd="22dp"
+            android:text="@string/list_view"
+            android:textColor="@color/switch_tab_text_color"
+            android:background="@drawable/shape_oneside_rountrect_left"
+            android:button="@null"/>
+
+        <RadioButton
+            android:id="@+id/rb_right"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_oneside_rountrect_right"
+            android:text="@string/card_view"
+            android:textColor="@color/switch_tab_text_color"
+            android:paddingStart="22dp"
+            android:paddingEnd="22dp"
+            android:button="@null"/>
+
+    </RadioGroup>
+
+</LinearLayout>

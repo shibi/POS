@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="60dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:background="@color/color_primarydark"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <LinearLayout
+            android:id="@+id/ll_back"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="0dp">
+
+            <ImageView
+                android:id="@+id/iv_leftIcon"
+                android:layout_width="@dimen/back_image_size"
+                android:layout_height="@dimen/back_image_size"
+                tools:src="@drawable/ic_left_arrow"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_weight="4">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="22dp"
+                android:typeface="normal"
+                android:textStyle="bold"
+                android:textColor="@color/color_accent_secondary"
+                tools:text="POS"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_rightMenu"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:gravity="center"
+            android:focusable="true">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/iv_rightIcon"
+                    android:layout_width="@dimen/back_image_size"
+                    android:layout_height="@dimen/back_image_size"
+                    tools:src="@drawable/ic_save"/>
+
+                <TextView
+                    android:id="@+id/tv_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@drawable/shape_primary_inputfield_bg"
+                    android:backgroundTint="#ff0000"
+                    android:gravity="center"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="00"
+                    android:textColor="@color/color_primarydark"
+                    android:textSize="10dp"
+                    android:visibility="invisible" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+</LinearLayout>

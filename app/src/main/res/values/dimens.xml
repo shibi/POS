@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="home_top_bottom_margin">16dp</dimen>
+    <dimen name="checkout_item_spacing">6dp</dimen>
+    <dimen name="back_image_size">32dp</dimen>
+    <dimen name="item_selection_increment_btn_size">32dp</dimen>
+    <dimen name="bill_to_text_size">13dp</dimen>
+    <dimen name="bill_start_end_margin">20dp</dimen>
+    <dimen name="add_item_field_top_bottom_padding">8dp</dimen>
+    <dimen name="add_customer_padding_top_bottom">11dp</dimen>
+    <dimen name="item_price_details_size">10dp</dimen>
+    <dimen name="bill_address_fields_margin_top_bottom">4dp</dimen>
+
+</resources>

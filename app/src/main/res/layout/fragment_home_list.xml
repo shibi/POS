@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/color_primary"
+    android:layout_height="wrap_content">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp">
+
+
+            <include
+                android:id="@+id/view_sales_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_purchase_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_item_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_customer_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_shift_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_category_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_uom_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_payment_mode_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_tax_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_supplier_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_pricelist_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_itemPrice_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_report_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+            <include
+                android:id="@+id/view_settings_btn"
+                layout="@layout/ll_dashboard_button"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

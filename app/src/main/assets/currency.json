@@ -1,0 +1,92 @@
+[
+	 {
+	   "id":1,
+	   "currencyName":"rupees",
+	   "country":"india",
+	   "symbol":"₹",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":2,
+	   "currencyName":"US dollar",
+	   "country":"USA",
+	   "symbol":"$",
+	   "fraction":"Penny",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":3,
+	   "currencyName":"ARB",
+	   "country":"UAE",
+	   "symbol":"AED",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":4,
+	   "currencyName":"Saudi riyal",
+	   "country":"Saudi Arabia",
+	   "symbol":"SAR",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":5,
+	   "currencyName":"Oman Riyal",
+	   "country":"Oman",
+	   "symbol":"OMR",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":6,
+	   "currencyName":"Kuwait dinar",
+	   "country":"Kuwait",
+	   "symbol":"KWD",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":7,
+	   "currencyName":"Bahrain Dinar",
+	   "country":"Bahrain",
+	   "symbol":"BHD",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":8,
+	   "currencyName":"EURO",
+	   "country":"Europe",
+	   "symbol":"EURO",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	},
+	{
+	   "id":9,
+	   "currencyName":"Qatar Riyal",
+	   "country":"Qatar",
+	   "symbol":"QAR",
+	   "fraction":"Paisa",
+	   "fractionUnit":100,
+	   "SmallestFraction":0.0,
+	   "numberFormat":"#,##,###.##"
+   	}
+]

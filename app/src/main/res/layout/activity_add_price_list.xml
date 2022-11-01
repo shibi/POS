@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_primary"
+    tools:context=".presentation.ui.price_variations.pricelist.add.AddPriceListActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:background="@color/color_primarydark">
+
+            <LinearLayout
+                android:id="@+id/ll_back"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="@dimen/back_image_size"
+                    android:layout_height="@dimen/back_image_size"
+                    android:src="@drawable/ic_left_arrow"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_weight="3">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/price_list"
+                    android:textSize="22dp"
+                    android:typeface="normal"
+                    android:textStyle="bold"
+                    android:textColor="@color/color_accent_secondary"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_save"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="@dimen/back_image_size"
+                    android:layout_height="@dimen/back_image_size"
+                    android:src="@drawable/ic_save" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="22dp"
+                        android:layout_marginEnd="22dp">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/price_list_name"
+                                android:layout_marginTop="6dp"
+                                android:layout_marginBottom="6dp"/>
+
+                            <androidx.appcompat.widget.AppCompatEditText
+                                android:id="@+id/et_priceListName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                style="@style/BorderedInputWhiteBgStyle"
+                                android:textColor="@color/color_accent_secondary"
+                                android:paddingStart="15dp"
+                                android:paddingEnd="15dp"
+                                android:paddingTop="8dp"
+                                android:paddingBottom="8dp"/>
+
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginStart="22dp"
+                        android:layout_marginEnd="22dp">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/currency"
+                            android:layout_marginTop="6dp"
+                            android:layout_marginBottom="6dp"/>
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_currencyName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/BorderedInputWhiteBgStyle"
+                            android:textColor="@color/color_accent_secondary"
+                            android:text="None"
+                            android:textIsSelectable="false"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="20dp"
+                        android:gravity="center">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:layout_margin="10dp"
+                            android:text="@string/price_type"/>
+
+                        <RadioGroup
+                            android:id="@+id/rg_priceType"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center">
+
+                            <RadioButton
+                                android:id="@+id/rb_buying"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/buying"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginEnd="10dp"/>
+
+                            <RadioButton
+                                android:id="@+id/rb_selling"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/selling"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginEnd="10dp"/>
+
+                        </RadioGroup>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp">
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </ScrollView>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

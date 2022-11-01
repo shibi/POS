@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked='true'>
+        <shape
+            android:shape="rectangle">
+
+            <stroke
+                android:width="1dp"
+                android:color="@color/color_accent"/>
+
+            <solid
+                android:color="@color/color_accent"/>
+
+            <corners
+                android:bottomLeftRadius="15dp"
+                android:topLeftRadius="15dp"/>
+
+        </shape>
+
+    </item>
+
+    <item>
+        <shape
+            android:shape="rectangle">
+
+            <stroke
+                android:width="1dp"
+                android:color="@color/color_accent_secondary"/>
+
+            <solid
+                android:color="@color/color_primary"/>
+
+            <corners
+                android:bottomLeftRadius="15dp"
+                android:topLeftRadius="15dp"/>
+
+        </shape>
+    </item>
+
+    <!--<item android:state_checked="true" android:state_window_focused="false"
+        android:drawable="@drawable/shape_oneside_rountrect_right" />
+    <item android:state_checked="false" android:state_window_focused="false"
+        android:drawable="@drawable/shape_oneside_rountrect_right" />
+
+    <item android:state_checked="true" android:state_pressed="true"
+        android:drawable="@drawable/shape_oneside_rountrect_right" />
+    <item android:state_checked="false" android:state_pressed="true"
+        android:drawable="@drawable/shape_oneside_rountrect_right" />
+
+    <item android:state_checked="true" android:state_focused="true"
+        android:drawable="@drawable/shape_oneside_rountrect_right" />
+    <item android:state_checked="false" android:state_focused="true"
+        android:drawable="@drawable/shape_oneside_rountrect_right" />
+
+    <item android:state_checked="false" android:drawable="@drawable/shape_oneside_rountrect_right" />
+    <item android:state_checked="true" android:drawable="@drawable/shape_oneside_rountrect_right" />
+-->
+</selector>

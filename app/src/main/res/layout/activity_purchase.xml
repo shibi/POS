@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_primary"
+    tools:context=".presentation.ui.purchase.list.PurchaseActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginBottom="8dp">
+
+        <com.rpos.pos.domain.utils.AppHeader
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_primarydark"
+            app:title="@string/purchase_label"
+            app:leftIcon="@drawable/ic_left_arrow"
+            app:rightIcon="@drawable/ic_baseline_shopping_cart_24"/>
+
+        <include
+            layout="@layout/layout_search_category_customer_combo_strip"/>
+
+        <include
+            layout="@layout/view_filter_bar"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_purchaseList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:orientation="vertical"/>
+
+        </LinearLayout>
+
+</LinearLayout>
+
+
+    <include
+        android:id="@+id/view_empty"
+        layout="@layout/view_data_empty"/>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

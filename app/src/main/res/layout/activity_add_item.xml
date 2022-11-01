@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.ui.item.add.AddItemActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="@color/color_primary">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/ll_back"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="@dimen/back_image_size"
+                            android:layout_height="@dimen/back_image_size"
+                            android:src="@drawable/ic_left_arrow"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:layout_weight="3">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/add_item"
+                            android:textSize="22dp"
+                            android:typeface="normal"
+                            android:textStyle="bold"
+                            android:textColor="@color/color_accent_secondary"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/ll_add_item"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="@dimen/back_image_size"
+                            android:layout_height="@dimen/back_image_size"
+                            android:src="@drawable/ic_save" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_itemName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedInputWhiteBgStyle"
+                        android:hint="@string/item_name_label"
+                        android:gravity="center"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                        android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_item_desc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedInputWhiteBgStyle"
+                        android:hint="@string/item_description"
+                        android:gravity="center"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                        android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <Spinner
+                            android:id="@+id/sp_uom"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/shape_uom_spinner_bg"
+                            android:spinnerMode="dropdown"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginBottom="3dp"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="20dp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <!--<androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_rate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/BorderedTextviewStyle"
+                            android:inputType="numberDecimal"
+                            android:hint="@string/rate_label"
+                            android:text="0.0"
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:gravity="center"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginBottom="3dp"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="20dp"
+                            android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                            android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>-->
+
+                        <Spinner
+                            android:id="@+id/sp_category"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/shape_uom_spinner_bg"
+                            android:spinnerMode="dropdown"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginBottom="3dp"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="20dp"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/cb_maintainStock"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="false"
+                            android:buttonTint="@color/color_accent_secondary"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/maintain_stock"/>
+
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!--<LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_avl_stock_qty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedTextviewStyle"
+                        android:hint="@string/available_stock_qty"
+                        android:gravity="center"
+                        android:enabled="false"
+                        android:focusable="false"
+                        android:text="0"
+                        android:inputType="numberSigned"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                        android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                </LinearLayout>-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_barcode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedInputWhiteBgStyle"
+                        android:hint="@string/barcode"
+                        android:gravity="center"
+                        android:inputType="numberSigned"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                        android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_itemtax"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedInputWhiteBgStyle"
+                        android:hint="@string/item_tax"
+                        android:gravity="center"
+                        android:inputType="numberDecimal"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                        android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="600dp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center">
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

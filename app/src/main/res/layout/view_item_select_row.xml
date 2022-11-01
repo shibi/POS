@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_itemName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SelectItemTheme"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            tools:text="#124556"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:gravity="center">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_qty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SelectItemTheme"
+            android:inputType="numberSigned"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            tools:text="#12"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:gravity="center">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_rate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SelectItemTheme"
+            android:inputType="numberSigned"
+            android:textIsSelectable="false"
+            android:focusable="false"
+            android:clickable="false"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            tools:text="#124556"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:gravity="center">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_total"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SelectItemTheme"
+            android:inputType="numberSigned"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:textIsSelectable="false"
+            android:focusable="false"
+            android:clickable="false"
+            tools:text="#124556"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_close"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+

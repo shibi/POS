@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_primary"
+    tools:context=".presentation.ui.settings.company_address.CompanyAddressActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.rpos.pos.domain.utils.AppHeader
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_primarydark"
+            app:title="@string/company_address"
+            app:leftIcon="@drawable/ic_left_arrow"
+            app:rightIcon="@drawable/ic_save"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/company_name_in_english"
+                            android:textColor="@color/color_accent_secondary"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"/>
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_companyNameEn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/BorderedInputWhiteBgStyle"
+                            android:hint="@string/name_in_english"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="start"
+                        android:layoutDirection="rtl"
+                        android:orientation="vertical"
+                        android:layout_marginTop="@dimen/bill_address_fields_margin_top_bottom"
+                        android:layout_marginBottom="@dimen/bill_address_fields_margin_top_bottom">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/company_name_arabic"
+                            android:textColor="@color/color_accent_secondary"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"/>
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_companyNameAr"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layoutDirection="rtl"
+                            android:gravity="end"
+                            style="@style/BorderedInputWhiteBgStyle"
+                            android:hint="@string/name_in_arabic"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"/>
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:layout_marginTop="@dimen/bill_address_fields_margin_top_bottom"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/mobile_number"
+                            android:textColor="@color/color_accent_secondary"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"/>
+
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_mobile"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/BorderedInputWhiteBgStyle"
+                            android:hint="@string/mobile_number"
+                            android:inputType="numberSigned"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:layout_marginTop="@dimen/bill_address_fields_margin_top_bottom"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/email_id"
+                            android:textColor="@color/color_accent_secondary"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"/>
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/BorderedInputWhiteBgStyle"
+                            android:hint="@string/email_id"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"/>
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:layout_marginTop="@dimen/bill_address_fields_margin_top_bottom"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/address_label"
+                            android:textColor="@color/color_accent_secondary"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"/>
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:textAlignment="viewStart"
+                            android:gravity="start"
+                            style="@style/BorderedInputWhiteBgStyle"
+                            android:hint="@string/address_label"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="8dp"
+                            android:maxLines="8"
+                            android:paddingBottom="8dp"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

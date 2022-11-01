@@ -68,8 +68,6 @@ public class PurchaseOrderCheckout extends SharedActivity {
         btn_cancel = findViewById(R.id.btn_cancel);
         btn_checkout = findViewById(R.id.btn_checkout);
 
-
-
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
 
@@ -105,13 +103,9 @@ public class PurchaseOrderCheckout extends SharedActivity {
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
 
-        //checkout button click
-        btn_checkout.setOnClickListener(view -> {
+        //show confirmation window on checkout click
+        btn_checkout.setOnClickListener(this::showCheckoutConfirmation);
 
-            //show confirmation dialog
-            showCheckoutConfirmation();
-
-        });
 
         et_roundOfDiscount.addTextChangedListener(roundOffTextWatcher);
 
@@ -216,7 +210,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
     /**
      * to show confirmation before proceeding to checkout
      * */
-    private void showCheckoutConfirmation(){
+    private void showCheckoutConfirmation(View view){
         try {
 
             AppDialogs checkoutConfirm = new AppDialogs(PurchaseOrderCheckout.this);
@@ -285,13 +279,15 @@ public class PurchaseOrderCheckout extends SharedActivity {
                         invoice.setPaymentType(Constants.PAY_TYPE_NONE);
                         invoice.setPaymentAmount(0.0f); // customers payment against bill amount
                         invoice.setDate(date);
+                        invoice.setStatus(Constants.PAYMENT_UNPAID);
+
                         long invoiceId = localDb.purchaseInvoiceDao().insertInvoice(invoice);
 
 
                         //items list
                         List<PurchaseOrderDetailsEntity> orderDetailsList = localDb.purchaseOrderDetailsDao().getAllItemsInOrder(_orderId);
                         if(orderDetailsList!=null){
-                            //to fetch all ordered item fro db at once,
+                            //to fetch all ordered item from db at once,
                             //first get all ids of ordered item to one list
                             List<Integer> itemIdsList = new ArrayList<>();
                             for (PurchaseOrderDetailsEntity orderDetails: orderDetailsList){

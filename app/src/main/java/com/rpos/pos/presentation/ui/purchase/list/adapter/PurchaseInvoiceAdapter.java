@@ -9,6 +9,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +34,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
     private String DATE_PREFIX;
     private String AMOUNT_PREFIX;
     private String SUPPLIER_PREFIX;
+    private String CANCELLED;
 
 
     public PurchaseInvoiceAdapter(Context context, List<PurchaseInvoiceEntity> purchaseInvoiceEntityList, PurchaseInvoiceListener listener) {
@@ -44,6 +46,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
         SUPPLIER_PREFIX = context.getString(R.string.supplier_label) +" : ";
         AMOUNT_PREFIX = context.getResources().getString(R.string.amount_label) + " : ";
         DATE_PREFIX = context.getString(R.string.date_label) + " : ";
+        CANCELLED = context.getResources().getString(R.string.cancelled);
     }
 
     @NonNull
@@ -65,11 +68,15 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
             holder.tv_amount.setText(AMOUNT_PREFIX +" : "+ invoice.getBillAmount());
             holder.tv_date.setText(DATE_PREFIX+ " : "+invoice.getDate().substring(0,10));
 
-            if(invoice.getPaymentAmount() < invoice.getBillAmount())
-            {
+            if(invoice.getStatus().equals(Constants.PAYMENT_PAID)){
+                holder.tv_status.setTextColor(Color.GREEN);
+                paymentStatus = Constants.PAYMENT_PAID;
+            }else if(invoice.getStatus().equals(Constants.PAYMENT_RETURN)){
+                holder.tv_status.setTextColor(Color.BLUE);
+                paymentStatus = Constants.PAYMENT_RETURN;
+            }else if(invoice.getStatus().equals(Constants.PAYMENT_UNPAID)){
                 //check whether invoice is credit sale
                 isCreditSale = (invoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE);
-
                 if(isCreditSale){
 
                     if(DateTimeUtils.checkDatePassed(invoice.getDate())) {
@@ -82,13 +89,25 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                 }
 
                 holder.tv_status.setTextColor(Color.RED);
-            }else {
-
-                holder.tv_status.setTextColor(Color.GREEN);
-                paymentStatus = Constants.PAYMENT_PAID;
             }
+
             holder.tv_status.setText(paymentStatus);
 
+            if(!invoice.getStatus().equals(Constants.PAYMENT_RETURN)) {
+                //cancel click
+                holder.btn_cancel.setOnClickListener(null); //clearing previous listeners
+                holder.btn_cancel.setOnClickListener(view -> {
+                    try {
+                        if (listener != null) {
+                            listener.onCancelPurchaseInvoice(invoice);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }else {
+                holder.btn_cancel.setText(CANCELLED);
+            }
 
             holder.itemView.setOnClickListener(null);
             holder.itemView.setOnClickListener(view -> {
@@ -108,6 +127,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
     public static class PurchaseInvoiceViewHolder extends RecyclerView.ViewHolder{
 
         private AppCompatTextView tv_invoiceId, tv_amount,tv_date, tv_supplierName, tv_status;
+        private AppCompatButton btn_cancel;
 
         public PurchaseInvoiceViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -117,6 +137,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
             tv_amount = itemView.findViewById(R.id.tv_invoiceAmount);
             tv_date = itemView.findViewById(R.id.tv_invoiceDate);
             tv_status = itemView.findViewById(R.id.tv_customerStatus);
+            btn_cancel = itemView.findViewById(R.id.btn_cancel);
         }
     }
 
@@ -152,7 +173,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                             case Constants.FILTER_PAID:
 
                                 for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
-                                    if(invoice.getPaymentAmount() >= invoice.getBillAmount()){
+                                    if(invoice.getStatus().equals(Constants.PAYMENT_PAID)){
                                         filteredList.add(invoice);
                                     }
                                 }
@@ -161,7 +182,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                             case Constants.FILTER_UNPAID:
 
                                 for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
-                                    if(invoice.getPaymentAmount() < invoice.getBillAmount()){
+                                    if(invoice.getStatus().equals(Constants.PAYMENT_UNPAID)){
                                         filteredList.add(invoice);
                                     }
                                 }
@@ -186,6 +207,20 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                                 }
 
                                 break;
+
+                            case Constants.FILTER_RETURN:
+
+                                //loop through invoice list
+                                for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
+                                    //find the credit sale type invoices
+                                    if(invoice.getStatus().equals(Constants.PAYMENT_RETURN)){
+                                        //check amount paid. find unpaid with balance payable
+                                        filteredList.add(invoice);
+                                    }
+                                }
+
+                                break;
+
                             default:
                                 break;
                         }
@@ -221,5 +256,6 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
 
     public interface PurchaseInvoiceListener{
         void onClickPurchaseInvoice(int invoiceId);
+        void onCancelPurchaseInvoice(PurchaseInvoiceEntity pInvoice);
     }
 }

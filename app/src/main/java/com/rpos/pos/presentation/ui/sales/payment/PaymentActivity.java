@@ -491,6 +491,9 @@ public class PaymentActivity extends SharedActivity {
             currentInvoice.setReferenceNo(referenceNo);
             currentInvoice.setDate(dueDate);
             currentInvoice.setCurrency(tv_currency.getText().toString());
+            final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+            currentInvoice.setStatus((balance>0)?Constants.PAYMENT_UNPAID:Constants.PAYMENT_PAID);
+
 
             appExecutors.diskIO().execute(() -> {
                 try {

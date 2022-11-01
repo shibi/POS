@@ -289,16 +289,25 @@ public class PurchasePaymentActivity extends SharedActivity {
                         et_date.setEnabled(false);
                     }
 
-                    btn_invoice.setVisibility((isCreditSale)?View.VISIBLE:View.GONE);
+                    if(!currentInvoice.getStatus().equals(Constants.PAYMENT_RETURN)) {
+                        btn_invoice.setVisibility((isCreditSale) ? View.VISIBLE : View.GONE);
 
-                    //to avoid selecting payment type and other fields
-                    //check the payment status and hide them
+                        //to avoid selecting payment type and other fields
+                        //check the payment status and hide them
 
-                    //hide pay type if fully paid
-                    chipGroup_pay_type.setVisibility((isFullyPaid)?View.GONE:View.VISIBLE);
+                        //hide pay type if fully paid
+                        chipGroup_pay_type.setVisibility((isFullyPaid) ? View.GONE : View.VISIBLE);
 
-                    //if paid, hide payment views, else show
-                    ll_payBalanceView.setVisibility((isFullyPaid)?View.GONE:View.VISIBLE);
+                        //if paid, hide payment views, else show
+                        ll_payBalanceView.setVisibility((isFullyPaid) ? View.GONE : View.VISIBLE);
+
+                    }else {
+                        //RETURNED
+                        //No need to show payment options
+                        ll_payBalanceView.setVisibility(View.VISIBLE);
+                        btn_pay.setVisibility(View.GONE);
+                        btn_invoice.setVisibility(View.GONE);
+                    }
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -321,6 +330,7 @@ public class PurchasePaymentActivity extends SharedActivity {
             return 0.0f;
         }
     }
+
 
     /**
      *
@@ -435,6 +445,9 @@ public class PurchasePaymentActivity extends SharedActivity {
             currentInvoice.setDate(todayDate);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
+            final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+            currentInvoice.setStatus((balance>0)?Constants.PAYMENT_UNPAID:Constants.PAYMENT_PAID);
+
 
             //For invoices generated with credit sale
             //always save payment mode as credit sale, regardless of which other pay types
@@ -449,7 +462,6 @@ public class PurchasePaymentActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
                     long id = localDb.purchaseInvoiceDao().insertInvoice(currentInvoice);
-                    double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
                     if(balance> 0){
                         finish();
                     }else {
@@ -492,6 +504,10 @@ public class PurchasePaymentActivity extends SharedActivity {
             currentInvoice.setReferenceNo(referenceNo);
             currentInvoice.setDate(dueDate);
             currentInvoice.setCurrency(tv_currency.getText().toString());
+
+            final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+            currentInvoice.setStatus((balance>0)?Constants.PAYMENT_UNPAID:Constants.PAYMENT_PAID);
+
 
             appExecutors.diskIO().execute(() -> {
                 try {

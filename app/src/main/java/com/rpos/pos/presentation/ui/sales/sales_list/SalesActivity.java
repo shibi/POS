@@ -9,6 +9,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.ChipGroup;
@@ -21,6 +23,7 @@ import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.category.list.CategoryListActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.customer.addcustomer.AddCustomerActivity;
+import com.rpos.pos.presentation.ui.purchase.list.PurchaseActivity;
 import com.rpos.pos.presentation.ui.sales.order.list.OrderQueueActivity;
 import com.rpos.pos.presentation.ui.sales.payment.PaymentActivity;
 import com.rpos.pos.presentation.ui.sales.adapter.InvoiceAdapter;
@@ -116,6 +119,8 @@ public class SalesActivity extends SharedActivity {
         filter_chipGroup.check(R.id.chip_all);
 
         //filter on chip select
+        filter_chipGroup.setOnCheckedStateChangeListener(invoiceFilterListener);
+
         filter_chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
             try {
 
@@ -180,7 +185,6 @@ public class SalesActivity extends SharedActivity {
     /**
      * to filter invoice adapter
      *  NB: pass filterPrefix - filter identify search and sort with prefix
-     *
      * */
     private void filterList(String filterPrefix,String filterString){
         try {
@@ -207,9 +211,11 @@ public class SalesActivity extends SharedActivity {
         //get all invoices
         getAllInvoices();
 
-
     }
 
+    /**
+     * to get all invoices list
+     * */
     private void getAllInvoices(){
         try {
 
@@ -269,10 +275,16 @@ public class SalesActivity extends SharedActivity {
      * */
     private void onClickInvoiceReturn(InvoiceEntity invoice){
         try {
+
+            if(invoice.getStatus().equals(Constants.PAYMENT_RETURN)){
+                showToast(getString(R.string.cancelled), SalesActivity.this);
+                return;
+            }
+
             //inform user for confirmation with dialog box
             AppDialogs appDialogs = new AppDialogs(SalesActivity.this);
             String title = getString(R.string.return_label);
-            String message = getString(R.string.mas_as_return);
+            String message = getString(R.string.mark_as_return);
             appDialogs.showCommonDualActionAlertDialog(title, message, new AppDialogs.OnDualActionButtonClickListener() {
                 @Override
                 public void onClickPositive(String id) {
@@ -313,7 +325,40 @@ public class SalesActivity extends SharedActivity {
     }
 
     /**
-     *
+     * invoice filter
+     * */
+    private ChipGroup.OnCheckedStateChangeListener invoiceFilterListener = (group, checkedIds) -> {
+        try {
+
+            if(!checkedIds.isEmpty()){
+                int selectedChipId = checkedIds.get(0);
+                switch (selectedChipId) {
+
+                    case R.id.chip_all:
+                        filterList(Constants.FILTER_SORT, ""+Constants.FILTER_ALL);
+                        break;
+                    case R.id.chip_paid:
+                        filterList(Constants.FILTER_SORT, ""+Constants.FILTER_PAID);
+                        break;
+                    case R.id.chip_unpaid:
+                        filterList(Constants.FILTER_SORT, ""+Constants.FILTER_UNPAID);
+                        break;
+                    case R.id.chip_overdue:
+                        filterList(Constants.FILTER_SORT, ""+Constants.FILTER_OVERDUE);
+                        break;
+                    case R.id.chip_return:
+                        filterList(Constants.FILTER_SORT, ""+Constants.FILTER_RETURN);
+                        break;
+                }
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    };
+
+    /**
+     * adapter refresh
      * */
     private void updateInvoiceAdapter(List<InvoiceEntity> _invoicesList){
         try {

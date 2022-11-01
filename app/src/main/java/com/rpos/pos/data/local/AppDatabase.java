@@ -53,7 +53,7 @@ import com.rpos.pos.presentation.ui.settings.company_address.CompanyAddressActiv
         SupplierEntity.class , PurchaseOrderEntity.class,
         PurchaseOrderDetailsEntity.class, PriceListEntity.class,
         ItemPriceEntity.class, PurchaseInvoiceEntity.class,
-        PurchaseInvoiceItemHistory.class , CompanyAddressEntity.class }, version = 31, exportSchema = false)
+        PurchaseInvoiceItemHistory.class , CompanyAddressEntity.class }, version = 32, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 

@@ -59,24 +59,8 @@ public class PurchaseOrderListActivity extends SharedActivity {
 
             @Override
             public void onRemove(int orderId) {
-                try {
-
-                    appDialogs.showCommonDualActionAlertDialog(getString(R.string.alert), getString(R.string.delete_confirmation), new AppDialogs.OnDualActionButtonClickListener() {
-                        @Override
-                        public void onClickPositive(String id) {
-                            //delete order
-                            deleteOrder(orderId);
-                        }
-
-                        @Override
-                        public void onClickNegetive(String id) {
-                            //do nothing
-                        }
-                    });
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+                //requires user confirmation to delete
+                showDeleteConfirmationDialog(orderId);
             }
         });
         rv_purchase_orders.setAdapter(purchaseOrderListAdapter);
@@ -166,6 +150,29 @@ public class PurchaseOrderListActivity extends SharedActivity {
         }
     }
 
+    /**
+     * to prompt user to allow permission for deleting order
+     * */
+    private void showDeleteConfirmationDialog(int orderId){
+        try{
+
+            appDialogs.showCommonDualActionAlertDialog(getString(R.string.alert), getString(R.string.delete_confirmation), new AppDialogs.OnDualActionButtonClickListener() {
+                @Override
+                public void onClickPositive(String id) {
+                    //delete order
+                    deleteOrder(orderId);
+                }
+
+                @Override
+                public void onClickNegetive(String id) {
+                    //do nothing
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     private void deleteOrder(int orderId){
         try {

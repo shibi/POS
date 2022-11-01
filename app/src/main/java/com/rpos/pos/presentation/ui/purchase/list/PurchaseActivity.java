@@ -12,7 +12,12 @@ import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
+import com.rpos.pos.data.local.entity.InvoiceEntity;
+import com.rpos.pos.data.local.entity.InvoiceItemHistory;
+import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
+import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
+import com.rpos.pos.data.local.entity.PurchaseOrderDetailsEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.address.list.AddressListActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
@@ -20,6 +25,7 @@ import com.rpos.pos.presentation.ui.purchase.list.adapter.PurchaseInvoiceAdapter
 import com.rpos.pos.presentation.ui.purchase.order.create.CreatePurchaseActivity;
 import com.rpos.pos.presentation.ui.purchase.order.list.PurchaseOrderListActivity;
 import com.rpos.pos.presentation.ui.purchase.order.payment.PurchasePaymentActivity;
+import com.rpos.pos.presentation.ui.sales.sales_list.SalesActivity;
 import com.rpos.pos.presentation.ui.supplier.lsit.SuppliersListActivity;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,6 +209,7 @@ public class PurchaseActivity extends SharedActivity {
         }
     }
 
+
     private void onClickView(View view){
         try {
 
@@ -230,13 +237,15 @@ public class PurchaseActivity extends SharedActivity {
     /**
      * Listener call back for invoice item click
      * */
-    private PurchaseInvoiceAdapter.PurchaseInvoiceListener purchaseInvoiceCallBack = invoiceId -> {
-        try {
-
+    private PurchaseInvoiceAdapter.PurchaseInvoiceListener purchaseInvoiceCallBack = new PurchaseInvoiceAdapter.PurchaseInvoiceListener() {
+        @Override
+        public void onClickPurchaseInvoice(int invoiceId) {
             gotoPurchasePaymentScreen(invoiceId);
+        }
 
-        }catch (Exception e){
-            e.printStackTrace();
+        @Override
+        public void onCancelPurchaseInvoice(PurchaseInvoiceEntity pInvoice) {
+            onClickInvoiceReturn(pInvoice);
         }
     };
 
@@ -252,7 +261,6 @@ public class PurchaseActivity extends SharedActivity {
 
                     case R.id.chip_all:
                         filterList(Constants.FILTER_SORT, ""+Constants.FILTER_ALL);
-                        Log.e("-----------","Filter all");
                         break;
                     case R.id.chip_paid:
                         filterList(Constants.FILTER_SORT, ""+Constants.FILTER_PAID);
@@ -264,7 +272,7 @@ public class PurchaseActivity extends SharedActivity {
                         filterList(Constants.FILTER_SORT, ""+Constants.FILTER_OVERDUE);
                         break;
                     case R.id.chip_return:
-                        filterList(Constants.FILTER_SORT, "-1");
+                        filterList(Constants.FILTER_SORT, ""+Constants.FILTER_RETURN);
                         break;
                 }
             }
@@ -273,6 +281,97 @@ public class PurchaseActivity extends SharedActivity {
             e.printStackTrace();
         }
     };
+
+    /**
+     * on click cancel ( return )
+     *  show confirmation for user and mark invoice as return when user allows
+     * */
+    private void onClickInvoiceReturn(PurchaseInvoiceEntity invoice){
+        try {
+            if(invoice.getStatus().equals(Constants.PAYMENT_RETURN)){
+                showToast(getString(R.string.cancelled),PurchaseActivity.this);
+                return;
+            }
+
+            //inform user for confirmation with dialog box
+            AppDialogs appDialogs = new AppDialogs(PurchaseActivity.this);
+            String title = getString(R.string.return_label);
+            String message = getString(R.string.mark_as_return);
+            appDialogs.showCommonDualActionAlertDialog(title, message, new AppDialogs.OnDualActionButtonClickListener() {
+                @Override
+                public void onClickPositive(String id) {
+                    markInvoiceAsReturn(invoice);
+                }
+
+                @Override
+                public void onClickNegetive(String id) {
+                    //do nothing
+                }
+            });
+
+        }catch (Exception e){
+            throw e;
+        }
+    }
+
+    /**
+     * to change and save invoice status to RETURN.
+     * */
+    private void markInvoiceAsReturn(PurchaseInvoiceEntity invoice){
+        try {
+
+            appExecutors.diskIO().execute(() -> {
+                try {
+
+                    invoice.setStatus(Constants.PAYMENT_RETURN);
+                    localDb.purchaseInvoiceDao().insertInvoice(invoice);
+
+                   /* List<PurchaseInvoiceItemHistory> invoiceItemsList = localDb.purchaseInvoiceDao().getInvoiceItemsWithId(invoice.getId());
+                    if(invoiceItemsList!=null && invoiceItemsList.size()>0){
+
+                        List<Integer> itemIdsList = new ArrayList<>();
+                        for (PurchaseInvoiceItemHistory invoiceItem: invoiceItemsList){
+                            itemIdsList.add(invoiceItem.getItemId());
+                        }
+
+                        //then get the items with ids list
+                        List<ItemEntity> selectedItems = localDb.itemDao().getSelectedItems(itemIdsList);
+                        if(selectedItems !=null && selectedItems.size()>0){
+
+                            for(PurchaseInvoiceItemHistory invoiceItem:invoiceItemsList){
+                                for (ItemEntity item:selectedItems){
+                                    if(invoiceItem.getItemId() == item.getItemId()){
+
+                                    }
+                                }
+                            }
+
+
+                        }else {
+                            //TODO need to work out what to do when items are deleted
+                        }
+
+
+                    }else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AppDialogs appDialogs = new AppDialogs(PurchaseActivity.this);
+
+                            }
+                        });
+                    }*/
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * To set badge count and visibility
@@ -303,10 +402,6 @@ public class PurchaseActivity extends SharedActivity {
         viewEmpty.setVisibility(View.GONE);
     }
 
-    private void showToast(String msg){
-        showToast(msg,PurchaseActivity.this);
-    }
-
     private void gotoPurchasePaymentScreen(int invoice_id){
         Intent intent = new Intent(PurchaseActivity.this, PurchasePaymentActivity.class);
         intent.putExtra(Constants.INVOICE_ID, invoice_id);
@@ -321,11 +416,6 @@ public class PurchaseActivity extends SharedActivity {
     private void gotoCreatePurchaseScreen(){
         Intent createPurchase = new Intent(PurchaseActivity.this, CreatePurchaseActivity.class);
         startActivity(createPurchase);
-    }
-
-    private void gotoAddressListScreen(){
-        Intent addressListIntent = new Intent(PurchaseActivity.this, AddressListActivity.class);
-        startActivity(addressListIntent);
     }
 
     private void gotoPurchaseOrderListActivity(){

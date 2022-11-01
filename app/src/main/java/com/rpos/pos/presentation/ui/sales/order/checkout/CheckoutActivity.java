@@ -280,6 +280,7 @@ public class CheckoutActivity extends SharedActivity {
                         invoice.setPaymentAmount(0.0f); // customers payment against bill amount
                         invoice.setDate(date);
                         invoice.setStatus(Constants.PAYMENT_UNPAID);
+
                         long invoiceId = localDb.invoiceDao().insertInvoice(invoice);
 
 

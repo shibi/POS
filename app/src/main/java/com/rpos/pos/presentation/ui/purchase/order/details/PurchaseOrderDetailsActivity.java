@@ -892,8 +892,6 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
         }
     }
 
-
-
     /**
      * to get all taxes
      * */

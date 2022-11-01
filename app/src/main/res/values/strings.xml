@@ -309,7 +309,7 @@
     <string name="no_image">No image received</string>
     <string name="log_save_success">Logo saved successfully</string>
     <string name="return_label">Return</string>
-    <string name="mas_as_return">Are you sure want to Mark as return ?</string>
+    <string name="mark_as_return">Are you sure want to mark as return ?</string>
     <string name="cancelled">Cancelled</string>
 
 </resources>

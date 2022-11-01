@@ -248,6 +248,9 @@ public class SalesActivity extends SharedActivity {
         });
     }
 
+    /**
+     * on select invoice
+     * */
     private void onSelectedInvoice(InvoiceEntity invoice){
         try {
 
@@ -260,9 +263,13 @@ public class SalesActivity extends SharedActivity {
         }
     }
 
+    /**
+     * on click cancel ( return )
+     *  show confirmation for user and mark invoice as return when user allows
+     * */
     private void onClickInvoiceReturn(InvoiceEntity invoice){
         try {
-
+            //inform user for confirmation with dialog box
             AppDialogs appDialogs = new AppDialogs(SalesActivity.this);
             String title = getString(R.string.return_label);
             String message = getString(R.string.mas_as_return);
@@ -304,6 +311,10 @@ public class SalesActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
+
+    /**
+     *
+     * */
     private void updateInvoiceAdapter(List<InvoiceEntity> _invoicesList){
         try {
 

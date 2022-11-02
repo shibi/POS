@@ -381,12 +381,7 @@ public class SalesActivity extends SharedActivity {
     }
 
     private void showToast(String msg){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showToast(msg, SalesActivity.this);
-            }
-        });
+        runOnUiThread(() -> showToast(msg, SalesActivity.this));
     }
 
     private void hideKeyboardOnSearchView(){

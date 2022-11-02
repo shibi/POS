@@ -19,6 +19,7 @@ public class Constants {
 
 
     public static final String CATEGORY_ID = "categoryId";
+    public static final String CATEGORY_NAME = "categoryName";
     public static final String CUSTOMER_ID = "customerId";
 
     public static final String ORDER_ID = "OrderId";

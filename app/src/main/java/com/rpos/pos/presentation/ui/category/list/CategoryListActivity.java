@@ -26,11 +26,13 @@ import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
 import com.rpos.pos.data.remote.dto.category.list.GetCategoryResponse;
 import com.rpos.pos.data.remote.dto.items.list.ItemData;
+import com.rpos.pos.domain.models.item.PickedItem;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.category.add.AddCategoryActivity;
 import com.rpos.pos.presentation.ui.category.list.adapter.CategoryListAdapter;
 import com.rpos.pos.presentation.ui.category.view.CategoryViewActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
+import com.rpos.pos.presentation.ui.sales.order.create.CreateOrderActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +133,7 @@ public class CategoryListActivity extends SharedActivity {
     private void gotoCategoryViewScreen(String categoryId){
         Intent categoryViewIntent = new Intent(this, CategoryViewActivity.class);
         categoryViewIntent.putExtra(Constants.CATEGORY_ID,categoryId);
-        startActivity(categoryViewIntent);
+        viewCategoryLauncher.launch(categoryViewIntent);
     }
 
     private void gotoAddCategoryScreen(){
@@ -217,6 +219,48 @@ public class CategoryListActivity extends SharedActivity {
         }
     }
 
+
+    private ActivityResultLauncher<Intent> viewCategoryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if(result.getResultCode() == RESULT_OK){
+                Intent data = result.getData();
+                if(data!=null){
+                    String cateId = data.getStringExtra(Constants.CATEGORY_ID);
+                    String catName = data.getStringExtra(Constants.CATEGORY_NAME);
+                    //To immediately reflect the updated name change in category list item
+                    // We need to find the item in list and update name. Then refresh adapter
+                    findCategoryAndRefresh(cateId, catName);
+                }
+            }
+        }
+    });
+
+    /**
+     * To find the category and update name change
+     * then refresh adapter to reflect change
+     * */
+    private void findCategoryAndRefresh(String cateId,String cateName){
+        try {
+            //check id is valid
+            if(cateId!=null && !cateId.isEmpty()){
+                //loop through and find the category with id
+                for (int i=0; i<categoryItemsArray.size(); i++){
+                    //match id to find category
+                    if(categoryItemsArray.get(i).getCategoryId().equals(cateId)){
+                        //update category name in the list
+                        categoryItemsArray.get(i).setCategory(cateName);
+                        //refresh adapter
+                        categoryListAdapter.notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 
     private void processCategoryList(List<CategoryEntity> savedCategory){

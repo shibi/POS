@@ -429,7 +429,8 @@ public class ItemSelectActivity extends SharedActivity {
                     try {
                         //check stock type
                         if(isMaintainStock){
-                            //if stock is maintained, then need to check available stock and price list to proceed.
+                            //if stock is maintained, then need to check
+                            // available stock and price list to proceed.
                             if(item.getAvailableQty() > 0){
                                 //retrieve the item price for the item.
                                 ItemPriceEntity itemPrice = localDb.itemPriceListDao().findPriceForItemWithPriceListId(priceListId, item.getItemId());
@@ -437,13 +438,11 @@ public class ItemSelectActivity extends SharedActivity {
                                 if(itemPrice!=null) {
                                     //item rate is fetched from the variable price list
                                     item.setRate(itemPrice.getRate());
-                                    //to show unit in item picker dialog box
-                                    int uomId = Integer.parseInt(item.getUom());
-                                    UomItem uomItem = localDb.uomDao().getUomDetailsWithId(uomId);
-                                    String uomName = (uomItem != null) ? uomItem.getUomName() : item.getUom();
+
                                     //to show the item picker dialog
-                                    showItemQuantitySelectionDialog(item, uomName, isMaintainStock, Constants.PARENT_SALES);
+                                    showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_SALES);
                                 }else {
+                                    //item price not found, show alert dialog to inform user
                                     PriceListEntity priceList = localDb.priceListDao().getPriceListWithId(priceListId);
                                     //show alert , item price not set
                                     showAlertItemPriceNotSet(item.getItemName(), priceList.getPriceListName());

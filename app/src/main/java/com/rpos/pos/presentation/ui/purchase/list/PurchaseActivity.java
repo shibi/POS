@@ -323,29 +323,63 @@ public class PurchaseActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
 
-                    invoice.setStatus(Constants.PAYMENT_RETURN);
-                    localDb.purchaseInvoiceDao().insertInvoice(invoice);
+                    //BEFORE RETURNING ITEMS , CHECK WHETHER ITEMS ARE AVAILABLE TO RETURN
 
-                   /* List<PurchaseInvoiceItemHistory> invoiceItemsList = localDb.purchaseInvoiceDao().getInvoiceItemsWithId(invoice.getId());
+                    //first get the items ids and quantity from invoice items table
+                    List<PurchaseInvoiceItemHistory> invoiceItemsList = localDb.purchaseInvoiceDao().getInvoiceItemsWithId(invoice.getId());
+                    //check whether items are not null or empty
                     if(invoiceItemsList!=null && invoiceItemsList.size()>0){
-
+                        //To fetch ALL original items and available quantity at once , gather the item id's of all items from invoice items list
+                        //and put the ids in an list
                         List<Integer> itemIdsList = new ArrayList<>();
                         for (PurchaseInvoiceItemHistory invoiceItem: invoiceItemsList){
                             itemIdsList.add(invoiceItem.getItemId());
                         }
 
-                        //then get the items with ids list
+                        //Use the item ids list to fetch the original items from database with query
                         List<ItemEntity> selectedItems = localDb.itemDao().getSelectedItems(itemIdsList);
+                        //check the item list not null or empty
                         if(selectedItems !=null && selectedItems.size()>0){
-
+                            //flag to check item stock available
+                            boolean isQuantityInsufficient = false;
+                            //loop through and find the original item has enough stock to deduct after returned
                             for(PurchaseInvoiceItemHistory invoiceItem:invoiceItemsList){
                                 for (ItemEntity item:selectedItems){
                                     if(invoiceItem.getItemId() == item.getItemId()){
-
+                                        if(item.getAvailableQty() < invoiceItem.getQuantity()){
+                                            isQuantityInsufficient = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
 
+                            //if any items have insufficient stock to deduct
+                            //show alert message
+                            if(isQuantityInsufficient){
+                                //CANNOT RETURN ITEMS, SOME ITEMS ARE ALREADY SOLD OUT
+                                showSomeItemsAlreadySold();
+                            }else {
+                                //items available for return
+                                invoice.setStatus(Constants.PAYMENT_RETURN);
+                                localDb.purchaseInvoiceDao().insertInvoice(invoice);
+
+                                int balanceStock;
+                                //loop through and find the original item has enough stock to deduct after returned
+                                for(PurchaseInvoiceItemHistory invoiceItem:invoiceItemsList){
+                                    for (ItemEntity item:selectedItems){
+                                        if(invoiceItem.getItemId() == item.getItemId()){
+                                            balanceStock = item.getAvailableQty() - invoiceItem.getQuantity();
+                                            item.setAvailableQty(balanceStock);
+                                        }
+                                    }
+                                }
+                                //update items with new quantity
+                                localDb.itemDao().updateList(selectedItems);
+
+                                //refresh the adapter to reflect change
+                                refreshInvoiceInAdapter(invoice.getId());
+                            }
 
                         }else {
                             //TODO need to work out what to do when items are deleted
@@ -353,18 +387,67 @@ public class PurchaseActivity extends SharedActivity {
 
 
                     }else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                AppDialogs appDialogs = new AppDialogs(PurchaseActivity.this);
 
-                            }
-                        });
-                    }*/
+                    }
 
                 }catch (Exception e){
                     e.printStackTrace();
                 }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * To find the position of invoice in array list and refresh adapter in that position
+     * So that the cancelled is reflected in recyclerview list item
+     * */
+    private void refreshInvoiceInAdapter(int invoice_id){
+        try {
+
+            runOnUiThread(() -> {
+                try {
+
+                    int refreshPosition = 0;
+                    boolean isRefresh = false;
+
+                    //find the invoice position in array list with invoice id
+                    for (int i=0;i<invoiceArrayList.size();i++){
+                        if(invoiceArrayList.get(i).getId() == invoice_id){
+                            isRefresh = true;
+                            refreshPosition = i;
+                            break;
+                        }
+                    }
+
+                    //refresh only if needed.
+                    if(isRefresh) {
+                        purchaseInvoiceAdapter.notifyItemChanged(refreshPosition);
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+
+        }catch (Exception e){
+           throw e;
+        }
+    }
+
+    /**
+     * some items already sold. Cannot return
+     * */
+    private void showSomeItemsAlreadySold(){
+        try {
+
+            runOnUiThread(() -> {
+                //alert dialog box
+                //items already sold
+                AppDialogs appDialogs = new AppDialogs(PurchaseActivity.this);
+                appDialogs.showCommonAlertDialog(getString(R.string.some_items_sold), null);
             });
 
         }catch (Exception e){

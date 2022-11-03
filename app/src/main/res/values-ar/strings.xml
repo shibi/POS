@@ -312,5 +312,7 @@
     <string name="mark_as_return">Are you sure want to mark as return ?</string>
     <string name="cancelled">Cancelled</string>
     <string name="some_items_sold">Return failed.\nSome of the purchased items are already sold. </string>
+    <string name="mop">MOP</string>
+    <string name="tax_label">Tax</string>
 
 </resources>

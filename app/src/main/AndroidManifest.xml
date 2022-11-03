@@ -10,8 +10,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -28,7 +28,9 @@
         android:theme="@style/Theme.POS"
         android:usesCleartextTraffic="true"
         tools:replace="android:theme">
-        <activity android:name=".presentation.ui.settings.company_address.CompanyAddressActivity"/>
+        <activity android:name=".presentation.ui.report.ReportViewerActivity"></activity>
+        <activity android:name=".presentation.ui.report.ReportActivity" />
+        <activity android:name=".presentation.ui.settings.company_address.CompanyAddressActivity" />
         <activity android:name=".presentation.ui.purchase.bill.PurchaseBillView" />
         <activity android:name=".presentation.ui.purchase.order.payment.PurchasePaymentActivity" />
         <activity android:name=".presentation.ui.price_variations.itemprice.edit.ItemPriceEditActivity" />
@@ -121,9 +123,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
 
         <provider
             android:name="androidx.core.content.FileProvider"

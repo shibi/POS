@@ -8,15 +8,10 @@ public class Constants {
 
     public static final String FRAGMENT_HOME_LIST = "fragment_home_list";
     public static final String FRAGMENT_HOME_CARD = "fragment_home_card";
-
     public static final String FRAGMENT_ITEM_LIST = "fragment_item_list";
-
     public static final String FRAGMENT_SHIFT = "fragment_shift";
-    public static final String FRAGMENT_SHIFT_REPORT = "fragment_shift_report";
-
-    public static final String FRAGMENT_CUSTOMER_LIST = "fragment_customer_list";
-    public static final String FRAGMENT_ADD_CUSTOMER = "fragment_add_customer";
-
+    public static final String FRAGMENT_SALES_REPORT = "fragment_sales_report";
+    public static final String FRAGMENT_PURCHASE_REPORT = "fragment_purchase_report";
 
     public static final String CATEGORY_ID = "categoryId";
     public static final String CATEGORY_NAME = "categoryName";
@@ -136,6 +131,8 @@ public class Constants {
     public static final int ITEM_SELECTION_SINGLE_PICK = 1;
     public static final int ITEM_SELECTION_QUANTITY_PICK  = 2;
 
+
+    public static final String REPORT_TYPE = "Report_Type";
 
 
 }

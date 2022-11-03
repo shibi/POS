@@ -499,6 +499,7 @@ public class PaymentActivity extends SharedActivity {
                 try {
 
                     long id = localDb.invoiceDao().insertInvoice(currentInvoice);
+                    gotoBillViewScreen();
                     finish();
 
                 } catch (Exception e) {

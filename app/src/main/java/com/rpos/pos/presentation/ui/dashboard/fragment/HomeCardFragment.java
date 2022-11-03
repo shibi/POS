@@ -154,6 +154,11 @@ public class HomeCardFragment extends DashboardBaseFragment {
             gotoItemPriceListActivity();
         });
 
+        //report home
+        reportView.setOnClickListener(view -> {
+            gotoReportHomeActivity();
+        });
+
     }
 
     @Override

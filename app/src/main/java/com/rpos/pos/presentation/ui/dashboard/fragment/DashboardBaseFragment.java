@@ -105,4 +105,11 @@ public abstract class DashboardBaseFragment extends SharedFragment {
             getDashboardActivity().gotoItemPriceListActivity();
         }
     }
+
+    //Report home activity
+    protected void gotoReportHomeActivity(){
+        if(getDashboardActivity()!=null) {
+            getDashboardActivity().gotoReportHomeActivity();
+        }
+    }
 }

@@ -54,7 +54,7 @@ public class AddPriceListActivity extends SharedActivity {
 
         rg_type = findViewById(R.id.rg_priceType);
         ll_back = findViewById(R.id.ll_back);
-        ll_save = findViewById(R.id.ll_save);
+        ll_save = findViewById(R.id.ll_rightMenu);
         et_priceListName = findViewById(R.id.et_priceListName);
         et_currencyName = findViewById(R.id.et_currencyName);
 

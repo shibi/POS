@@ -27,6 +27,7 @@ import com.rpos.pos.presentation.ui.price_variations.itemprice.list.ItemPriceLis
 import com.rpos.pos.presentation.ui.paymentmodes.list.PaymentModeListActivity;
 import com.rpos.pos.presentation.ui.price_variations.pricelist.list.PriceListActivity;
 import com.rpos.pos.presentation.ui.purchase.list.PurchaseActivity;
+import com.rpos.pos.presentation.ui.report.ReportActivity;
 import com.rpos.pos.presentation.ui.sales.sales_list.SalesActivity;
 import com.rpos.pos.presentation.ui.settings.SettingsActivity;
 import com.rpos.pos.presentation.ui.shift.ShiftActivity;
@@ -217,6 +218,11 @@ public class DashboardActivity extends SharedActivity{
     public void gotoItemPriceListActivity(){
         Intent itemPriceList = new Intent(this, ItemPriceListActivity.class);
         startActivity(itemPriceList);
+    }
+
+    public void gotoReportHomeActivity(){
+        Intent reportsHomeIntent = new Intent(this, ReportActivity.class);
+        startActivity(reportsHomeIntent);
     }
 
 

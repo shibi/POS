@@ -104,21 +104,11 @@ public class CategoryListActivity extends SharedActivity {
 
         rv_category.setAdapter(categoryListAdapter);
 
-        ll_back.setOnClickListener(view -> {
-            try {
-                onBackPressed();
-            }catch (Exception e){e.printStackTrace();}
-        });
+        //back press
+        ll_back.setOnClickListener(view -> onBackPressed());
 
-        ll_add_category.setOnClickListener(view -> {
-            try{
-
-                gotoAddCategoryScreen();
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        });
+        //Add category
+        ll_add_category.setOnClickListener(this::gotoAddCategoryScreen);
 
         //getCategoryListApi();
         getCategoryFromLocalDb();
@@ -136,7 +126,7 @@ public class CategoryListActivity extends SharedActivity {
         viewCategoryLauncher.launch(categoryViewIntent);
     }
 
-    private void gotoAddCategoryScreen(){
+    private void gotoAddCategoryScreen(View view){
         Intent addCategoryIntent = new Intent(this, AddCategoryActivity.class);
         addCategoryActivityResultLauncher.launch(addCategoryIntent);
     }

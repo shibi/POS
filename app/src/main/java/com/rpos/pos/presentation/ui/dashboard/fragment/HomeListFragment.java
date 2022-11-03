@@ -177,6 +177,10 @@ public class HomeListFragment extends DashboardBaseFragment {
             gotoItemPriceListActivity();
         });
 
+        //Report home activity
+        view_report.setOnClickListener(view -> {
+            gotoReportHomeActivity();
+        });
     }
 
     @Override

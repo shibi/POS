@@ -226,7 +226,7 @@ public class PurchasePaymentActivity extends SharedActivity {
                 appDialogs.showCommonSingleAlertDialog(getString(R.string.alert), msg, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        //Do nothing
                     }
                 });
             }
@@ -513,6 +513,7 @@ public class PurchasePaymentActivity extends SharedActivity {
                 try {
 
                     long id = localDb.purchaseInvoiceDao().insertInvoice(currentInvoice);
+                    gotoBillViewScreen();
                     finish();
 
                 } catch (Exception e) {

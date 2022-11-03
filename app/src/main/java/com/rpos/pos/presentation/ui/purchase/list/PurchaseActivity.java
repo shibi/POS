@@ -2,7 +2,6 @@ package com.rpos.pos.presentation.ui.purchase.list;
 
 import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -12,20 +11,15 @@ import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
-import com.rpos.pos.data.local.entity.InvoiceEntity;
-import com.rpos.pos.data.local.entity.InvoiceItemHistory;
 import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
-import com.rpos.pos.data.local.entity.PurchaseOrderDetailsEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
-import com.rpos.pos.presentation.ui.address.list.AddressListActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.list.adapter.PurchaseInvoiceAdapter;
 import com.rpos.pos.presentation.ui.purchase.order.create.CreatePurchaseActivity;
 import com.rpos.pos.presentation.ui.purchase.order.list.PurchaseOrderListActivity;
 import com.rpos.pos.presentation.ui.purchase.order.payment.PurchasePaymentActivity;
-import com.rpos.pos.presentation.ui.sales.sales_list.SalesActivity;
 import com.rpos.pos.presentation.ui.supplier.lsit.SuppliersListActivity;
 import java.util.ArrayList;
 import java.util.List;
@@ -208,7 +202,6 @@ public class PurchaseActivity extends SharedActivity {
             throw e;
         }
     }
-
 
     private void onClickView(View view){
         try {

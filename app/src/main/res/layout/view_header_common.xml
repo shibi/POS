@@ -60,8 +60,7 @@
                 <ImageView
                     android:id="@+id/iv_rightIcon"
                     android:layout_width="@dimen/back_image_size"
-                    android:layout_height="@dimen/back_image_size"
-                    tools:src="@drawable/ic_save"/>
+                    android:layout_height="@dimen/back_image_size" />
 
                 <TextView
                     android:id="@+id/tv_badge"

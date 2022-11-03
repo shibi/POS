@@ -49,4 +49,8 @@ public abstract class SharedFragment extends Fragment {
     protected void showToast(String msg){
         Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT).show();
     }
+
+    protected CoreApp getCoreApp(){
+        return ((CoreApp) getActivity().getApplication());
+    }
 }

@@ -163,15 +163,9 @@ public class CreateOrderActivity extends SharedActivity {
         //Submit order
         btn_confirm_order.setOnClickListener(this::createOfflineOrder);
 
-        //not using
+        //not using right now
         cv_customer_view.setOnClickListener(view -> {
-            try {
-
-                //selectCustomer();
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            //selectCustomer();
         });
 
         //add item click
@@ -236,22 +230,33 @@ public class CreateOrderActivity extends SharedActivity {
         }
     }
 
-
-
+    /**
+     *  To SELECT  OR REMOVE CUSTOMER
+     *  toggle action.
+     *  if customer is present, then removes the customer on click.
+     *  if no customer is selected , then redirect to select customer screen on click
+     * */
     private void selectCustomer(View view){
         try {
-
+            //check whether customer id is present
             if(customerId ==null || customerId.isEmpty()){
-                Intent selecteIntent = new Intent(CreateOrderActivity.this, CustomerSelectActivity.class);
-                launchCustomerPicker.launch(selecteIntent);
+                //No customer id , no customer selected
+                // then on click goto customer select screen
+                //after customer selected , change button name to "remove customer"
+                Intent selectIntent = new Intent(CreateOrderActivity.this, CustomerSelectActivity.class);
+                launchCustomerPicker.launch(selectIntent);
             }else {
+                //Customer already selected,
+                // then remove customer
+
+                //clear customer id
                 customerId = "";
+                //set default "none" value in fields
                 tv_customerName.setText(Constants.NONE);
                 tv_taxid.setText(Constants.NONE);
-
+                //change button name to select customer
                 tv_customerChooseBtn.setText(R.string.select_customer);
             }
-
 
         }catch (Exception e){
             e.printStackTrace();
@@ -265,10 +270,10 @@ public class CreateOrderActivity extends SharedActivity {
     private void selectItem(View view){
         try {
 
-            Intent selecteIntent = new Intent(CreateOrderActivity.this, ItemSelectActivity.class);
-            selecteIntent.putExtra(Constants.ITEM_REQUESTED_PARENT, Constants.PARENT_SALES); // Mandatory field
-            selecteIntent.putExtra(Constants.ITEM_SELECTION_TYPE, Constants.ITEM_SELECTION_QUANTITY_PICK); // Mandatory field
-            launchItemPicker.launch(selecteIntent);
+            Intent selectIntent = new Intent(CreateOrderActivity.this, ItemSelectActivity.class);
+            selectIntent.putExtra(Constants.ITEM_REQUESTED_PARENT, Constants.PARENT_SALES); // Mandatory field
+            selectIntent.putExtra(Constants.ITEM_SELECTION_TYPE, Constants.ITEM_SELECTION_QUANTITY_PICK); // Mandatory field
+            launchItemPicker.launch(selectIntent);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -368,6 +373,9 @@ public class CreateOrderActivity extends SharedActivity {
         }
     });
 
+    /**
+     * To create offline order
+     * */
     private void createOfflineOrder(View view){
         try{
 

@@ -14,7 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:title="Purchase report"
-            app:leftIcon="@drawable/ic_left_arrow"/>
+            app:leftIcon="@drawable/ic_left_arrow"
+            app:rightIcon="@drawable/ic_baseline_download_for_offline_24"/>
 
 
         <LinearLayout

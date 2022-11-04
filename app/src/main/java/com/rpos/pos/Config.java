@@ -86,6 +86,9 @@ public interface Config {
 
     String LOGO_DIRECTORY = "POS/LOGO";
 
+    String SALES_REPORT_FILE_PREFIX = "SalesReport";
+    String PURCHASE_REPORT_FILE_PREFIX = "PurchaseReport";
+
 }
 
 

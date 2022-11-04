@@ -314,5 +314,7 @@
     <string name="some_items_sold">Return failed.\nSome of the purchased items are already sold. </string>
     <string name="mop">MOP</string>
     <string name="tax_label">Tax</string>
+    <string name="report_saved">Report saved</string>
+    <string name="saving">Saving</string>
 
 </resources>

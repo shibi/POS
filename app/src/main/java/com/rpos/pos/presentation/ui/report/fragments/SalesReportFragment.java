@@ -25,8 +25,6 @@ public class SalesReportFragment extends ReportBaseFragment {
         return R.layout.fragment_sales_report;
     }
 
-
-
     @Override
     protected void intiViews(View getView) {
 
@@ -163,6 +161,9 @@ public class SalesReportFragment extends ReportBaseFragment {
 
             }//end of for loop
 
+
+            //N.B
+            // * FILENAME AND DIRECTORY NAMES ARE MANDATORY
             FILE_NAME = Config.SALES_REPORT_FILE_PREFIX + System.currentTimeMillis()+".xls";
             DIRECTORY = "Pos_Reports/Sales";
 

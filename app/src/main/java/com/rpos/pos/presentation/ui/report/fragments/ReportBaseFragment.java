@@ -122,8 +122,13 @@ public abstract class ReportBaseFragment extends SharedFragment {
         }
     }
 
+    /**
+     * to prepare excel with data
+     * */
     protected void prepareExcel(){
         try {
+
+            progressDialog.showProgressBar();
 
             //adjust width for each columns
             adjustColumnWidth(sheet);

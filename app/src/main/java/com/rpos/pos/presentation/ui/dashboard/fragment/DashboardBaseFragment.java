@@ -1,7 +1,5 @@
 package com.rpos.pos.presentation.ui.dashboard.fragment;
 
-import android.app.Activity;
-
 import com.rpos.pos.presentation.ui.common.SharedFragment;
 import com.rpos.pos.presentation.ui.dashboard.DashboardActivity;
 

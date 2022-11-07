@@ -462,12 +462,15 @@ public class PurchasePaymentActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
                     long id = localDb.purchaseInvoiceDao().insertInvoice(currentInvoice);
-                    if(balance> 0){
+                    /*if(balance> 0){
                         finish();
                     }else {
                         gotoBillViewScreen();
                         finish();
-                    }
+                    }*/
+
+                    gotoBillViewScreen();
+                    finish();
 
                 } catch (Exception e) {
                     showToast(getString(R.string.invoice_update_failed));

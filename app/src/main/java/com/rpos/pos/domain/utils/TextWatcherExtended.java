@@ -24,4 +24,6 @@ public abstract class TextWatcherExtended implements TextWatcher {
     public void afterTextChanged(Editable editable) {
         onAfterTextChange(editable.toString());
     }
+
+
 }

@@ -449,12 +449,16 @@ public class PaymentActivity extends SharedActivity {
                 try {
                     long id = localDb.invoiceDao().insertInvoice(currentInvoice);
 
-                    if(balance> 0){
+                    /*if(balance> 0){
+                        gotoBillViewScreen();
                         finish();
                     }else {
                         gotoBillViewScreen();
                         finish();
-                    }
+                    }*/
+
+                    gotoBillViewScreen();
+                    finish();
 
                 } catch (Exception e) {
                     showToast(getString(R.string.invoice_update_failed));

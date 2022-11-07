@@ -99,7 +99,8 @@ public abstract class ReportBaseFragment extends SharedFragment {
     protected abstract void prepareDataForExcel(Sheet sheet);
 
     /**
-     *
+     * to do primary setup for exporting report as excel
+     *  check storage access permission before proceeding
      * */
     protected void onClickDownload(){
         try {
@@ -192,7 +193,7 @@ public abstract class ReportBaseFragment extends SharedFragment {
     protected void createExcelTitleRow(Row row){
         try {
 
-            // Cell style for a cell
+            // Cell style for a cell (background color added)
             CellStyle cellStyle = workbook.createCellStyle();
             cellStyle.setFillForegroundColor(HSSFColor.AQUA.index);
             cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
@@ -201,53 +202,31 @@ public abstract class ReportBaseFragment extends SharedFragment {
             //HEADERS
             //SL NO
             // Creating a cell and assigning it to a row
-            cell = row.createCell(0);
-            cell.setCellValue("SL No");
-            cell.setCellStyle(cellStyle);
+            createCellWithData(row, 0, "SL No", cellStyle);
 
             //INV ID
-            cell = row.createCell(1);
-            cell.setCellValue("Invoice id");
-            cell.setCellStyle(cellStyle);
-
+            createCellWithData(row, 1, "Invoice id", cellStyle);
 
             //customer name
-            cell = row.createCell(2);
-            cell.setCellValue("Customer name");
-            cell.setCellStyle(cellStyle);
-
+            createCellWithData(row, 2, "Customer name", cellStyle);
 
             //Date
-            cell = row.createCell(3);
-            cell.setCellValue("Date");
-            cell.setCellStyle(cellStyle);
-
+            createCellWithData(row, 3, "Date", cellStyle);
 
             //MOP
-            cell = row.createCell(4);
-            cell.setCellValue("MOP");
-            cell.setCellStyle(cellStyle);
+            createCellWithData(row, 4, "MOP", cellStyle);
 
             //TAX
-            cell = row.createCell(5);
-            cell.setCellValue("Tax amount");
-            cell.setCellStyle(cellStyle);
+            createCellWithData(row, 5, "Tax amount", cellStyle);
 
             //NET
-            cell = row.createCell(6);
-            cell.setCellValue("Net amount");
-            cell.setCellStyle(cellStyle);
-
+            createCellWithData(row, 6, "Net amount", cellStyle);
 
             //TOTAL
-            cell = row.createCell(7);
-            cell.setCellValue("Grand total");
-            cell.setCellStyle(cellStyle);
+            createCellWithData(row, 7, "Grand total", cellStyle);
 
             //Outstanding
-            cell = row.createCell(8);
-            cell.setCellValue("Outstanding");
-            cell.setCellStyle(cellStyle);
+            createCellWithData(row, 8, "Outstanding", cellStyle);
 
         }catch (Exception e){
             e.printStackTrace();

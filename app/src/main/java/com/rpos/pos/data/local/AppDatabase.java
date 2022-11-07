@@ -3,7 +3,6 @@ package com.rpos.pos.data.local;
 import androidx.room.Database;
 import androidx.room.TypeConverters;
 import androidx.room.RoomDatabase;
-
 import com.rpos.pos.data.local.dao.CategoryDao;
 import com.rpos.pos.data.local.dao.CompanyAddressDao;
 import com.rpos.pos.data.local.dao.CompanyDetailsDao;
@@ -18,6 +17,7 @@ import com.rpos.pos.data.local.dao.PriceListDao;
 import com.rpos.pos.data.local.dao.PurchaseInvoiceDao;
 import com.rpos.pos.data.local.dao.PurchaseOrderDao;
 import com.rpos.pos.data.local.dao.PurchaseOrderDetailsDao;
+import com.rpos.pos.data.local.dao.ShiftDao;
 import com.rpos.pos.data.local.dao.SupplierDao;
 import com.rpos.pos.data.local.dao.TaxesDao;
 import com.rpos.pos.data.local.dao.UomDao;
@@ -37,12 +37,10 @@ import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
 import com.rpos.pos.data.local.entity.PurchaseOrderDetailsEntity;
 import com.rpos.pos.data.local.entity.PurchaseOrderEntity;
+import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.data.local.entity.SupplierEntity;
 import com.rpos.pos.data.local.entity.TaxSlabEntity;
-import com.rpos.pos.data.remote.dto.Customer;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
-import com.rpos.pos.presentation.ui.settings.company_address.CompanyAddressActivity;
-
 
 @Database(entities = {ItemEntity.class,
         OrderEntity.class, OrderDetailsEntity.class,
@@ -53,7 +51,8 @@ import com.rpos.pos.presentation.ui.settings.company_address.CompanyAddressActiv
         SupplierEntity.class , PurchaseOrderEntity.class,
         PurchaseOrderDetailsEntity.class, PriceListEntity.class,
         ItemPriceEntity.class, PurchaseInvoiceEntity.class,
-        PurchaseInvoiceItemHistory.class , CompanyAddressEntity.class }, version = 32, exportSchema = false)
+        PurchaseInvoiceItemHistory.class , CompanyAddressEntity.class,
+        ShiftRegEntity.class }, version = 34, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -74,5 +73,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ItemPriceListDao itemPriceListDao();
     public abstract PurchaseInvoiceDao purchaseInvoiceDao();
     public abstract CompanyAddressDao companyAddressDao();
+    public abstract ShiftDao shiftDao();
 
 }

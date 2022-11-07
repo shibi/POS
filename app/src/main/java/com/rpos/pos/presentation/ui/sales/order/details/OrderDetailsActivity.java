@@ -257,7 +257,6 @@ public class OrderDetailsActivity extends SharedActivity {
                 }else {
                     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                 }
-
             }catch (Exception e){
                 e.printStackTrace();
             }

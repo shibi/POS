@@ -42,7 +42,6 @@ public class ReportViewerActivity extends SharedActivity {
             loadFragment(new SalesReportFragment(), Constants.FRAGMENT_SALES_REPORT);
         }
 
-
     }
 
     @Override

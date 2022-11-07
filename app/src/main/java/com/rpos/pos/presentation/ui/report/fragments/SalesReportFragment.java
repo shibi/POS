@@ -146,7 +146,6 @@ public class SalesReportFragment extends ReportBaseFragment {
                 //net amount
                 createCellWithData(row,6,temp_value,cellbodyStyle);
 
-
                 //TOTAL
                 createCellWithData(row,7,""+(invoice.getBillAmount()),cellbodyStyle);
 

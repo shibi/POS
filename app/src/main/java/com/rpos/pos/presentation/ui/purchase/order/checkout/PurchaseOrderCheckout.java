@@ -21,6 +21,7 @@ import com.rpos.pos.data.local.entity.PurchaseOrderDetailsEntity;
 import com.rpos.pos.data.local.entity.PurchaseOrderEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
+import com.rpos.pos.domain.utils.TextWatcherExtended;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.order.payment.PurchasePaymentActivity;
 
@@ -106,7 +107,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
         //show confirmation window on checkout click
         btn_checkout.setOnClickListener(this::showCheckoutConfirmation);
 
-
+        //
         et_roundOfDiscount.addTextChangedListener(roundOffTextWatcher);
 
         // go back on cancel click
@@ -114,7 +115,6 @@ public class PurchaseOrderCheckout extends SharedActivity {
 
         // back press
         ll_back.setOnClickListener(view -> onBackPressed());
-
 
         //calculate payable
         calculatePayable();
@@ -158,23 +158,12 @@ public class PurchaseOrderCheckout extends SharedActivity {
         }
     }
 
-
-    private TextWatcher roundOffTextWatcher = new TextWatcher() {
+    private TextWatcherExtended roundOffTextWatcher = new TextWatcherExtended() {
         @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
+        public void onAfterTextChange(String text) {
             try {
 
-                String str_roundOf = editable.toString();
+                String str_roundOf = text;//editable.toString();
                 float tempRoundOfAmount;
                 if(!str_roundOf.isEmpty()){
                     //TO AVOID ERROR WHILE PARSING NUMBER WITH DECIMAL POINT (".") . Example ".58"

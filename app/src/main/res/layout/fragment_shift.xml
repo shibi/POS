@@ -1,52 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/color_primary"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/beginning_cash"
-            android:textColor="@color/color_accent_secondary"
-            android:layout_marginStart="25dp"
-            android:layout_marginBottom="4dp"/>
-
-        <androidx.appcompat.widget.AppCompatEditText
+        <com.rpos.pos.domain.utils.AppHeader
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/BorderedTextviewStyle"
-            android:hint="@string/the_cash_by_the_start_of_shift"
-            android:paddingTop="13dp"
-            android:paddingBottom="13dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="10dp"
-            android:layout_marginStart="25dp"
-            android:layout_marginEnd="25dp"/>
+            app:title="@string/shift_label"
+            app:leftIcon="@drawable/ic_left_arrow"/>
 
         <LinearLayout
+            android:id="@+id/ll_openShift"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="end"
-            android:paddingEnd="25dp">
+            android:orientation="vertical"
+            android:visibility="gone">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                style="@style/AccentButtonStyle"
-                android:text="@string/open_shift"
+                android:layout_height="wrap_content"
+                android:text="@string/beginning_cash"
+                android:textColor="@color/color_accent_secondary"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="4dp"/>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/et_opening_cash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/BorderedInputWhiteBgStyle"
+                android:inputType="numberDecimal"
+                android:hint="@string/the_cash_by_the_start_of_shift"
+                android:paddingTop="13dp"
+                android:paddingBottom="13dp"
                 android:paddingStart="20dp"
-                android:paddingEnd="20dp"/>
+                android:paddingEnd="10dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="25dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="end"
+                android:paddingEnd="25dp">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_openshift"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    style="@style/AccentButtonStyle"
+                    android:text="@string/open_shift"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/ll_closeShift"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/start_time"
+                android:textSize="15dp"
+                android:textColor="@color/color_accent_secondary"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="0dp"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_startTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00:00"
+                android:textSize="12dp"
+                android:textColor="@color/color_accent"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00:00"
+                    android:textSize="50dp"
+                    android:textStyle="normal"
+                    app:fontFamily="sans-serif-condensed-medium"
+                    android:textColor="@color/primary_bttn_text_colorlist"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hours"
+                    android:textSize="12dp"
+                    android:textColor="@color/primary_bttn_text_colorlist"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginBottom="1dp"/>
+
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ending_cash"
+                android:textColor="@color/color_accent_secondary"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="4dp"/>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/et_closing_cash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/BorderedInputWhiteBgStyle"
+                android:inputType="numberDecimal"
+                android:hint="@string/cash_by_the_end_of_the_shift"
+                android:paddingTop="13dp"
+                android:paddingBottom="13dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="10dp"
+                android:layout_marginStart="40dp"
+                android:layout_marginEnd="40dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_closeshift"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    style="@style/AccentButtonStyle"
+                    android:text="@string/close_shift"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
     </LinearLayout>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

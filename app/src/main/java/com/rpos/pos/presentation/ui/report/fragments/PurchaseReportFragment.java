@@ -91,6 +91,9 @@ public class PurchaseReportFragment extends ReportBaseFragment {
                 return;
             }
 
+            /**
+             * calling parent method to execute export methods
+             * */
             onClickDownload();
 
         }catch (Exception e){
@@ -98,6 +101,9 @@ public class PurchaseReportFragment extends ReportBaseFragment {
         }
     }
 
+    /**
+     * To create cell and fill invoice data
+     * */
     @Override
     protected void prepareDataForExcel(Sheet sheet) {
         try {
@@ -117,7 +123,6 @@ public class PurchaseReportFragment extends ReportBaseFragment {
 
                 //SLNO
                 createCellWithData(row,0,""+(i+1),cellbodyStyle);
-
                 //INV ID
                 createCellWithData(row,1,"#INV "+(invoice.getId()),cellbodyStyle);
                 //Customer name
@@ -143,7 +148,6 @@ public class PurchaseReportFragment extends ReportBaseFragment {
                 //TOTAL
                 createCellWithData(row,7,""+(invoice.getBillAmount()),cellbodyStyle);
 
-
                 try{
                     outstanding = invoice.getBillAmount() - invoice.getPaymentAmount();
                     decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
@@ -158,10 +162,10 @@ public class PurchaseReportFragment extends ReportBaseFragment {
 
             }//end of for loop
 
-
+            //N.B
+            // * FILENAME AND DIRECTORY NAMES ARE MANDATORY
             FILE_NAME = Config.PURCHASE_REPORT_FILE_PREFIX + System.currentTimeMillis()+".xls";
             DIRECTORY = "Pos_Reports/Purchase";
-
 
         }catch (Exception e){
             e.printStackTrace();

@@ -51,6 +51,28 @@ public class DateTimeUtils {
         }
     }
 
+    public static String getDiffBetweenTimeStamps(long timestamp1,long timestamp2){
+        try {
+
+            long diff = timestamp2 - timestamp1;
+            long seconds = diff / 1000;
+            long minutes = seconds / 60;
+            long hours = minutes / 60;
+
+            long secondsLeft = seconds % minutes;
+
+            //int days = ((int) (long) hours / 24);
+            String h = (hours<10)?("0"+hours):""+hours;
+            String m = (minutes<10)?("0"+minutes):""+minutes;
+            String s = (secondsLeft<10)?("0"+secondsLeft):""+secondsLeft;
+            return h+":"+m+":"+s;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return "00:00:00";
+        }
+    }
+
     public static String getCurrentDateTimeForInvoice(){
         try {
 
@@ -111,15 +133,12 @@ public class DateTimeUtils {
         }
     }
 
-    /*public static String getDateDiffInFullPassedTime(String strDate1, String strDate2) {
+    public static String getDateDiffInFullPassedTime(long strDate1, long strDate2) {
 
         logger("start date:"+strDate1+ "  end date:"+strDate2);
 
-        Date startDate = getDateFromString(strDate1);
-        Date endDate = getDateFromString(strDate2);
-
         //milliseconds
-        long different = endDate.getTime() - startDate.getTime();
+        long different = strDate2 - strDate1;
 
         long secondsInMilli = 1000;
         long minutesInMilli = secondsInMilli * 60;
@@ -141,7 +160,13 @@ public class DateTimeUtils {
         //TODO Here you will get the second
         long elapsedSeconds = different / secondsInMilli;
 
-        if(elapsedDays>0){
+        String hh = (elapsedHours<10)?"0"+elapsedHours:""+elapsedHours;
+        String mm = (elapsedMinutes<10)?"0"+elapsedMinutes:""+elapsedMinutes;
+        String ss = (elapsedSeconds<10)?"0"+elapsedSeconds:""+elapsedSeconds;
+
+        return hh+":"+mm+":"+ss;
+
+        /*if(elapsedDays>0){
             long days = elapsedDays;
             long years = days/365;
             logger("year>"+years);
@@ -173,8 +198,8 @@ public class DateTimeUtils {
             return ""+elapsedSeconds+" "+ Constants.SECONDS_AGO;
         }else {
             return "now";
-        }
-    }*/
+        }*/
+    }
 
     private static int findDaysDiff(long unixStartTime,long unixEndTime)
     {

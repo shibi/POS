@@ -134,5 +134,8 @@ public class Constants {
 
     public static final String REPORT_TYPE = "Report_Type";
 
+    public static final String SHIFT_OPEN = "Shift_open";
+    public static final String SHIFT_CLOSED = "Shift_closed";
+
 
 }

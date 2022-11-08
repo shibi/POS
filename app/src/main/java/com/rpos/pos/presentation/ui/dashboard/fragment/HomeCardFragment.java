@@ -19,6 +19,9 @@ public class HomeCardFragment extends DashboardBaseFragment {
     @Override
     protected void onCreateView(View getView) {
 
+        //local db access components
+        initDbComponents();
+
         //card views
         View salesView = getView.findViewById(R.id.view_sales);
         View purchaseView = getView.findViewById(R.id.view_purchase);
@@ -159,6 +162,10 @@ public class HomeCardFragment extends DashboardBaseFragment {
             gotoReportHomeActivity();
         });
 
+
+        progressDialog.showProgressBar();
+        loadCurrentShiftStatus(appExecutors,localDb, progressDialog);
+
     }
 
     @Override
@@ -171,5 +178,6 @@ public class HomeCardFragment extends DashboardBaseFragment {
     protected void initObservers() {
 
     }
+
 
 }

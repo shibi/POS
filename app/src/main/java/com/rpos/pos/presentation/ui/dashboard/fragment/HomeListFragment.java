@@ -4,13 +4,19 @@ package com.rpos.pos.presentation.ui.dashboard.fragment;
 import android.view.View;
 import android.widget.ImageView;
 import androidx.appcompat.widget.AppCompatTextView;
+
+import com.rpos.pos.AppExecutors;
 import com.rpos.pos.R;
+import com.rpos.pos.data.local.AppDatabase;
+import com.rpos.pos.domain.utils.AppDialogs;
 
 public class HomeListFragment extends DashboardBaseFragment {
 
     private View view_sales,view_purchase,view_item,view_customer,
             view_category,view_shift,view_uom,view_tax,view_paymentmode,
             view_report,view_settings, view_supplier, view_pricelist,view_itemPrice;
+
+
 
     public HomeListFragment(){
 
@@ -23,6 +29,9 @@ public class HomeListFragment extends DashboardBaseFragment {
 
     @Override
     protected void onCreateView(View getView) {
+
+        //local db access components
+        initDbComponents();
 
         view_sales = getView.findViewById(R.id.view_sales_btn);
         view_purchase = getView.findViewById(R.id.view_purchase_btn);
@@ -181,6 +190,13 @@ public class HomeListFragment extends DashboardBaseFragment {
         view_report.setOnClickListener(view -> {
             gotoReportHomeActivity();
         });
+
+
+        progressDialog.showProgressBar();
+
+        //load current shift status
+        loadCurrentShiftStatus(appExecutors,localDb,progressDialog);
+
     }
 
     @Override
@@ -191,6 +207,17 @@ public class HomeListFragment extends DashboardBaseFragment {
     @Override
     protected void initObservers() {
 
+    }
+
+    private void loadCurrentShiftStatus(){
+        try {
+
+            progressDialog.showProgressBar();
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

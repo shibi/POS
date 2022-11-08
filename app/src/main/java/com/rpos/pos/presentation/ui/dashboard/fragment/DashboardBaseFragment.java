@@ -1,9 +1,25 @@
 package com.rpos.pos.presentation.ui.dashboard.fragment;
 
+import com.rpos.pos.AppExecutors;
+import com.rpos.pos.data.local.AppDatabase;
+import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.common.SharedFragment;
 import com.rpos.pos.presentation.ui.dashboard.DashboardActivity;
 
 public abstract class DashboardBaseFragment extends SharedFragment {
+
+    protected AppDialogs progressDialog;
+    protected AppExecutors appExecutors;
+    protected AppDatabase localDb;
+
+    protected void initDbComponents(){
+
+        progressDialog = new AppDialogs(getContext());
+        appExecutors = new AppExecutors();
+        localDb = getCoreApp().getLocalDb();
+
+    }
+
 
     private DashboardActivity getDashboardActivity(){
         if(getActivity()!=null){
@@ -108,6 +124,12 @@ public abstract class DashboardBaseFragment extends SharedFragment {
     protected void gotoReportHomeActivity(){
         if(getDashboardActivity()!=null) {
             getDashboardActivity().gotoReportHomeActivity();
+        }
+    }
+
+    protected void loadCurrentShiftStatus(AppExecutors appExecutors, AppDatabase localDb, AppDialogs progress){
+        if(getDashboardActivity()!=null) {
+            getDashboardActivity().getCurrentShiftStatus(appExecutors,localDb,progress);
         }
     }
 }

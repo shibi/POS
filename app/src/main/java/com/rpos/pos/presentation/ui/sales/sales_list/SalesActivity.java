@@ -19,6 +19,7 @@ import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
+import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.category.list.CategoryListActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
@@ -173,13 +174,39 @@ public class SalesActivity extends SharedActivity {
         ll_add_sales.setOnClickListener(view -> {
             try {
 
-                gotoAddOrderActivity();
-
+                if(checkShiftOpen()){
+                    gotoAddOrderActivity();
+                }else {
+                    AppDialogs appDialogs = new AppDialogs(SalesActivity.this);
+                    appDialogs.showCommonAlertDialog(getString(R.string.shift_not_open_inform), null);
+                }
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
 
+    }
+
+
+    /**
+     * to check whether shift is opened
+     * step 1 : get running shift from application class(N.B -running shift data is loaded to application class from dashboardActivity on startup)
+     * step 2 : check shift status is OPEN
+     * */
+    private boolean checkShiftOpen(){
+        try {
+            //get running shift
+            ShiftRegEntity runningShift = getCoreApp().getRunningShift();
+            if(runningShift!=null){
+                //return status
+               return (runningShift.getStatus().equals(Constants.SHIFT_OPEN));
+            }else {
+                return false;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**

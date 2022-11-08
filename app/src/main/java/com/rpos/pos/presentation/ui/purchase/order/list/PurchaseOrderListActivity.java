@@ -86,6 +86,8 @@ public class PurchaseOrderListActivity extends SharedActivity {
         getPurchaseOrdersFromLocalDb();
     }
 
+
+
     /**
      * to get order list from local db
      * */

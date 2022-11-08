@@ -13,6 +13,7 @@ import com.mazenrashed.printooth.Printooth;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.CurrencyItem;
 import com.rpos.pos.data.local.entity.ItemEntity;
+import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
@@ -43,6 +44,8 @@ public class CoreApp extends Application {
     private List<ItemEntity> allItemsList;
 
     private String appIconPath;
+
+    private ShiftRegEntity runningShift;
 
     @Override
     public void onCreate() {
@@ -185,15 +188,6 @@ public class CoreApp extends Application {
         allItemsList = list;
     }
 
-
-    public String getAppIconPath(){
-        return this.appIconPath;
-    }
-
-    public void setAppIconPath(String path){
-        this.appIconPath = path;
-    }
-
     public Bitmap loadImageFromStorage(String path)
     {
         try {
@@ -222,6 +216,16 @@ public class CoreApp extends Application {
         }
     }
 
+
+    public void setCurrentShift(ShiftRegEntity shift){
+        runningShift = shift;
+    }
+
+    public ShiftRegEntity getRunningShift(){
+        return runningShift;
+    }
+
+
     /**
      * to clear all default values saved in shared preference
      */
@@ -249,6 +253,7 @@ public class CoreApp extends Application {
             e.printStackTrace();
         }
     }
+
 
 
 

@@ -322,5 +322,7 @@
     <string name="hours">hours</string>
     <string name="start_time">Start time</string>
     <string name="shift_closed">Shift closed</string>
+    <string name="close_shift_confirmation">Are you sure want to close shift</string>
+    <string name="shift_not_open_inform">Open shift before proceeding with order</string>
 
 </resources>

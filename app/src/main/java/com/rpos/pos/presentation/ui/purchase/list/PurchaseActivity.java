@@ -14,12 +14,14 @@ import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
+import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.list.adapter.PurchaseInvoiceAdapter;
 import com.rpos.pos.presentation.ui.purchase.order.create.CreatePurchaseActivity;
 import com.rpos.pos.presentation.ui.purchase.order.list.PurchaseOrderListActivity;
 import com.rpos.pos.presentation.ui.purchase.order.payment.PurchasePaymentActivity;
+import com.rpos.pos.presentation.ui.sales.sales_list.SalesActivity;
 import com.rpos.pos.presentation.ui.supplier.lsit.SuppliersListActivity;
 import java.util.ArrayList;
 import java.util.List;
@@ -189,6 +191,28 @@ public class PurchaseActivity extends SharedActivity {
         }
     }
 
+
+    /**
+     * to check whether shift is opened
+     * step 1 : get running shift from application class(N.B -running shift data is loaded to application class from dashboardActivity on startup)
+     * step 2 : check shift status is OPEN
+     * */
+    private boolean checkShiftOpen(){
+        try {
+            //get running shift
+            ShiftRegEntity runningShift = getCoreApp().getRunningShift();
+            if(runningShift!=null){
+                //return status
+                return (runningShift.getStatus().equals(Constants.SHIFT_OPEN));
+            }else {
+                return false;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * to filter invoice adapter
      *  NB: pass filterPrefix - filter identify search and sort with prefix
@@ -212,7 +236,7 @@ public class PurchaseActivity extends SharedActivity {
                     gotoSuppliersListScreen();
                     break;
                 case R.id.ll_rightIcon:
-                    gotoCreatePurchaseScreen();
+                    onClickCreatePurchase();
                     break;
                 case R.id.ll_rightMenu:
                     gotoPurchaseOrderListActivity();
@@ -222,6 +246,25 @@ public class PurchaseActivity extends SharedActivity {
                     break;
             }
 
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * create purchase view click
+     * step 1 : check whether shift is opened
+     * if true, goto ordering screen
+     * if false, show alert
+     * */
+    private void onClickCreatePurchase(){
+        try {
+            if(checkShiftOpen()){
+                gotoCreatePurchaseScreen();
+            }else {
+                AppDialogs appDialogs = new AppDialogs(PurchaseActivity.this);
+                appDialogs.showCommonAlertDialog(getString(R.string.shift_not_open_inform), null);
+            }
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -11,10 +11,13 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Config;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
+import com.rpos.pos.data.local.AppDatabase;
+import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.category.list.CategoryListActivity;
@@ -102,6 +105,7 @@ public class DashboardActivity extends SharedActivity{
 
         //get custom logo available
         getAvailableCustomLogo();
+
     }
 
     /**
@@ -156,6 +160,40 @@ public class DashboardActivity extends SharedActivity{
         }
     }
 
+    /**
+     * To check current shift status
+     * */
+    public void getCurrentShiftStatus(AppExecutors appExecutors, AppDatabase localDb, AppDialogs progress){
+        try {
+
+            appExecutors.diskIO().execute(() -> {
+                try {
+
+                    ShiftRegEntity shift = localDb.shiftDao().getLastEntryInShift();
+                    if(shift!=null){
+                        getCoreApp().setCurrentShift(shift);
+                    }else {
+                        //do nothing
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progress.hideProgressbar();
+                        }
+                    });
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void gotoSalesActivity(){
         Intent salesIntent = new Intent(this, SalesActivity.class);
         startActivity(salesIntent);
@@ -169,57 +207,46 @@ public class DashboardActivity extends SharedActivity{
         startActivity(settingsIntent);
         finish();
     }
-
     public void gotoShiftActivity(){
         Intent shiftIntent = new Intent(this, ShiftActivity.class);
         startActivity(shiftIntent);
     }
-
     public void gotoCustomerListActivity(){
         Intent customerListActivity = new Intent(this, CustomerListActivity.class);
         startActivity(customerListActivity);
     }
-
     public void gotoCategoryListActivity(){
         Intent categoryListActivity = new Intent(this, CategoryListActivity.class);
         startActivity(categoryListActivity);
     }
-
     public void gotoPurchaseActivity(){
         Intent purchaseIntent = new Intent(this, PurchaseActivity.class);
         startActivity(purchaseIntent);
     }
-
     public void gotoUOMListActivity(){
         Intent uomListActivity = new Intent(this, UOMListActivity.class);
         startActivity(uomListActivity);
     }
-
     public void gotoPaymentModeListActivity(){
         Intent paymentModeListActivity = new Intent(this, PaymentModeListActivity.class);
         startActivity(paymentModeListActivity);
     }
-
     public void gotoTaxesListActivity(){
         Intent taxListIntent = new Intent(this, TaxesActivity.class);
         startActivity(taxListIntent);
     }
-
     public void gotoSupplierListActivity(){
         Intent supplierList = new Intent(this, SuppliersListActivity.class);
         startActivity(supplierList);
     }
-
     public void gotoPriceListActivity(){
         Intent priceList = new Intent(this, PriceListActivity.class);
         startActivity(priceList);
     }
-
     public void gotoItemPriceListActivity(){
         Intent itemPriceList = new Intent(this, ItemPriceListActivity.class);
         startActivity(itemPriceList);
     }
-
     public void gotoReportHomeActivity(){
         Intent reportsHomeIntent = new Intent(this, ReportActivity.class);
         startActivity(reportsHomeIntent);

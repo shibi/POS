@@ -4,25 +4,35 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
+import com.rpos.pos.domain.utils.DateTimeUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.SalesReportViewHolder>{
+public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.SalesReportViewHolder> implements Filterable {
 
     private List<InvoiceEntity> invoiceEntityList;
+    private List<InvoiceEntity> filteredInvoiceList;
     private String DATE_PREFIX, MOP_PREFIX,NET_PREFIX,ID_PREFIX , GRAND_TOTAL_PREFIX, TAX_PREFIX;
     private String SEPARATOR = " : ";
     private float netAmount;
 
     public SalesReportAdapter(Context context, List<InvoiceEntity> invoiceEntityList) {
         this.invoiceEntityList = invoiceEntityList;
+        filteredInvoiceList = invoiceEntityList;
+
+        /*this.filteredInvoiceList = new ArrayList<>();
+        filteredInvoiceList.addAll(invoiceEntityList);*/
 
         DATE_PREFIX = context.getResources().getString(R.string.date_label) + SEPARATOR;
         MOP_PREFIX = context.getResources().getString(R.string.mop) + SEPARATOR;
@@ -30,8 +40,6 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
         GRAND_TOTAL_PREFIX = context.getResources().getString(R.string.gross_amount) + SEPARATOR;
         ID_PREFIX = "INV" + SEPARATOR;
         TAX_PREFIX = context.getResources().getString(R.string.tax_label) + SEPARATOR;
-
-
     }
 
     @NonNull
@@ -45,7 +53,7 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
     @Override
     public void onBindViewHolder(@NonNull SalesReportViewHolder holder, int position) {
 
-        InvoiceEntity invoice = invoiceEntityList.get(position);
+        InvoiceEntity invoice = filteredInvoiceList.get(position);
 
         holder.tv_custName.setText(invoice.getCustomerName());
         holder.tv_id.setText(ID_PREFIX + invoice.getId());
@@ -62,7 +70,7 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
 
     @Override
     public int getItemCount() {
-        return (invoiceEntityList!=null)?invoiceEntityList.size():0;
+        return (filteredInvoiceList!=null)?filteredInvoiceList.size():0;
     }
 
     public static class SalesReportViewHolder extends RecyclerView.ViewHolder{
@@ -80,5 +88,39 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
 
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return Searched_Filter;
+    }
+
+    private Filter Searched_Filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+
+            ArrayList<InvoiceEntity> filteredList = new ArrayList<>();
+            if (constraint == null) {
+                filteredList.addAll(invoiceEntityList);
+            } else {
+                String[] splitString = constraint.toString().split(":");
+                if(splitString.length==0 || splitString.length ==1){
+                    filteredList.addAll(invoiceEntityList);
+                }else {
+                    filteredList.addAll(invoiceEntityList);
+                }
+
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            filteredInvoiceList = (ArrayList) results.values;
+            notifyDataSetChanged();
+        }
+    };
+
+
 
 }

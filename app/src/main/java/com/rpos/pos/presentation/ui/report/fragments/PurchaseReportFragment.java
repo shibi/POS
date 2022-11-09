@@ -1,6 +1,6 @@
 package com.rpos.pos.presentation.ui.report.fragments;
 
-
+import android.util.Log;
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Config;
@@ -18,10 +18,8 @@ import java.util.List;
 
 public class PurchaseReportFragment extends ReportBaseFragment {
 
-
     private RecyclerView rv_purchaseReport;
     private PurchaseReportAdapter purchaseReportAdapter;
-    private List<PurchaseInvoiceEntity> invoiceEntityList;
 
     @Override
     protected int setContentLayout() {
@@ -118,7 +116,7 @@ public class PurchaseReportFragment extends ReportBaseFragment {
             cellbodyStyle.setAlignment(CellStyle.ALIGN_CENTER);
 
             for (int i=0;i<invoiceEntityList.size();i++){
-                invoice = invoiceEntityList.get(i);
+                invoice = (PurchaseInvoiceEntity)invoiceEntityList.get(i);
                 row = sheet.createRow(i+1);
 
                 //SLNO
@@ -171,6 +169,16 @@ public class PurchaseReportFragment extends ReportBaseFragment {
             e.printStackTrace();
             progressDialog.hideProgressbar();
         }
+    }
+
+    @Override
+    protected void onFilterReport(int type, String fromDate, String toDate) {
+
+        purchaseReportAdapter.getFilter().filter(fromDate + ":" + toDate, i -> {
+            Log.e("----------","complete");
+            progressDialog.hideProgressbar();
+        });
+
     }
 
 }

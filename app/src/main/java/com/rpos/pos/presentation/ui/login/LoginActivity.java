@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,7 +25,6 @@ import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.dashboard.DashboardActivity;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -73,12 +71,13 @@ public class LoginActivity extends SharedActivity {
         //progress dialog initialize
         progressDialog = new AppDialogs(this);
 
-
         //default selection
-        loginType = LOGIN_ERPNEXT;
-        rg_logintype.check(R.id.rb_erpnext);
-        //listener for radio button check change tracking
-        rg_logintype.setOnCheckedChangeListener(radioButtonListener);
+        loginType = LOGIN_LICENCE_SERVER;
+
+        //add listener
+        et_serverurl.setVisibility(View.VISIBLE);
+        et_username.setVisibility(View.GONE);
+        et_password.setVisibility(View.GONE);
 
         //password toggle
         ll_showPass.setOnClickListener(this::togglePasswordVisibility);
@@ -108,7 +107,6 @@ public class LoginActivity extends SharedActivity {
         Intent dashboardIntent = new Intent(this, DashboardActivity.class);
         startActivity(dashboardIntent);
     }
-
 
     //N.B Not using right now , APi is not accessible
     /**
@@ -350,7 +348,7 @@ public class LoginActivity extends SharedActivity {
                 //selected radio button
                 switch (radiobutton_id)
                 {
-                    case R.id.rb_erpnext:
+                    /*case R.id.rb_erpnext:
 
                         loginType = LOGIN_ERPNEXT;
                         et_serverurl.setVisibility(View.GONE);
@@ -358,7 +356,7 @@ public class LoginActivity extends SharedActivity {
                         et_username.setVisibility(View.VISIBLE);
                         et_password.setVisibility(View.VISIBLE);
 
-                        break;
+                        break;*/
 
                     case R.id.rb_licenceserver:
 

@@ -1,6 +1,12 @@
 package com.rpos.pos.presentation.ui.report.fragments;
 
+import android.util.Log;
 import android.view.View;
+import android.widget.Filter;
+import android.widget.LinearLayout;
+
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Config;
 import com.rpos.pos.R;
@@ -18,7 +24,6 @@ public class SalesReportFragment extends ReportBaseFragment {
 
     private RecyclerView rv_salesReport;
     private SalesReportAdapter salesReportAdapter;
-    private List<InvoiceEntity> invoiceEntityList;
 
     @Override
     protected int setContentLayout() {
@@ -29,7 +34,8 @@ public class SalesReportFragment extends ReportBaseFragment {
     protected void intiViews(View getView) {
 
         rv_salesReport = getView.findViewById(R.id.rv_salesReport);
-        invoiceEntityList = new ArrayList<>();
+
+        invoiceEntityList = new ArrayList<InvoiceEntity>();
         salesReportAdapter= new SalesReportAdapter(getContext(), invoiceEntityList);
         rv_salesReport.setAdapter(salesReportAdapter);
 
@@ -118,7 +124,7 @@ public class SalesReportFragment extends ReportBaseFragment {
             for (int i=0;i<invoiceEntityList.size();i++)
             {
                 //get the invoice
-                invoice = invoiceEntityList.get(i);
+                invoice = (InvoiceEntity)invoiceEntityList.get(i);
                 //create a row
                 row = sheet.createRow(i+1);
 
@@ -170,4 +176,16 @@ public class SalesReportFragment extends ReportBaseFragment {
            throw e;
         }
     }
+
+    @Override
+    protected void onFilterReport(int type, String fromDate, String toDate) {
+
+        salesReportAdapter.getFilter().filter(fromDate + ":" + toDate, i -> {
+            Log.e("----------","complete");
+            progressDialog.hideProgressbar();
+        });
+
+    }
+
+
 }

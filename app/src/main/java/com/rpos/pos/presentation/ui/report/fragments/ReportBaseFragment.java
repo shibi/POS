@@ -1,20 +1,26 @@
 package com.rpos.pos.presentation.ui.report.fragments;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
+import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.presentation.ui.common.SharedFragment;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -29,8 +35,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
-public abstract class ReportBaseFragment extends SharedFragment {
+public abstract class ReportBaseFragment<T> extends SharedFragment {
 
     protected LinearLayout ll_back;
     protected View viewEmpty;
@@ -49,6 +58,16 @@ public abstract class ReportBaseFragment extends SharedFragment {
     protected AppDialogs progressDialog;
     protected boolean isSaveButtonPressed;
 
+    protected CardView cv_fromDate,cv_toDate;
+    protected LinearLayout ll_filter;
+
+    protected AppCompatTextView tv_fromDate, tv_toDate;
+
+    protected List<T> invoiceEntityList;
+
+    protected final int FILTER_DATEWISE = 1;
+    protected final int FILTER_CUSTOMERWISE = 2;
+
     @Override
     protected void onCreateView(View getView) {
 
@@ -56,6 +75,12 @@ public abstract class ReportBaseFragment extends SharedFragment {
         ll_back = getView.findViewById(R.id.ll_back);
         viewEmpty = getView.findViewById(R.id.view_empty);
         ll_downloadFile = getView.findViewById(R.id.ll_rightMenu);
+
+        cv_fromDate = getView.findViewById(R.id.cv_fromdate);
+        cv_toDate = getView.findViewById(R.id.cv_todate);
+        ll_filter = getView.findViewById(R.id.ll_filter);
+        tv_fromDate = getView.findViewById(R.id.tv_fromdate);
+        tv_toDate = getView.findViewById(R.id.tv_todate);
 
         isSaveButtonPressed = false;
 
@@ -79,6 +104,11 @@ public abstract class ReportBaseFragment extends SharedFragment {
 
         ll_downloadFile.setOnClickListener(this::onClickDownloadReport);
 
+        cv_fromDate.setOnClickListener(this::pickFromDate);
+        cv_toDate.setOnClickListener(this::pickToDate);
+
+        ll_filter.setOnClickListener(this::onFilterClick);
+
         fetchAllInvoices();
 
     }
@@ -97,6 +127,7 @@ public abstract class ReportBaseFragment extends SharedFragment {
     protected abstract void fetchAllInvoices();
     protected abstract void onClickDownloadReport(View view);
     protected abstract void prepareDataForExcel(Sheet sheet);
+    protected abstract void onFilterReport(int type, String fromDate,String toDate);
 
     /**
      * to do primary setup for exporting report as excel
@@ -269,7 +300,6 @@ public abstract class ReportBaseFragment extends SharedFragment {
         return false;
     }
 
-    /*"Pos_Reports/Sales"*/
     /**
      * Store Excel Workbook in external storage
      * @param fileName - name of workbook which will be stored in device
@@ -320,6 +350,85 @@ public abstract class ReportBaseFragment extends SharedFragment {
             }
         }
         return isSuccess;
+    }
+
+
+    private void pickFromDate(View view){
+        openDatePickerDialog(tv_fromDate);
+    }
+
+    private void pickToDate(View view){
+        openDatePickerDialog(tv_toDate);
+    }
+
+    protected void openDatePickerDialog(AppCompatTextView tv_dateField){
+        try {
+
+            final Calendar newCalendar = Calendar.getInstance();
+            final DatePickerDialog datePicker = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+
+                    try {
+
+                        Calendar newDate = Calendar.getInstance();
+                        newDate.set(year, monthOfYear, dayOfMonth);
+                        String myFormat = "dd-MM-yyyy";
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(myFormat, Locale.US);
+                        String str_date = sdf.format(newDate.getTime());
+                        tv_dateField.setText(str_date);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+            }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+
+            datePicker.show();
+
+        }catch (Exception e){
+            throw e;
+        }
+    }
+
+    private void onFilterClick(View view){
+        try {
+
+
+
+            String fromDate = tv_fromDate.getText().toString();
+            String toDate = tv_toDate.getText().toString();
+
+            if(fromDate.isEmpty() || fromDate.equals("dd/mm/yyyy")){
+                showToast(getString(R.string.select_fromdate));
+                return;
+            }
+
+            if(toDate.isEmpty() || toDate.equals("dd/mm/yyyy")){
+                showToast(getString(R.string.select_todate));
+                return;
+            }
+
+            if(invoiceEntityList.isEmpty()){
+                showToast(getString(R.string.empty_data));
+                return;
+            }
+
+            progressDialog.showProgressBar();
+
+            boolean isDatesInAscending = DateTimeUtils.checkDatesInAscending(fromDate,toDate);
+            if(!isDatesInAscending){
+                showToast(getString(R.string.select_valid_todate));
+                progressDialog.hideProgressbar();
+                return;
+            }
+
+
+            onFilterReport(FILTER_DATEWISE, fromDate, toDate);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     protected void showEmptyList(){

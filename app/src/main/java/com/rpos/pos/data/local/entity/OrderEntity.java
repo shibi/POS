@@ -12,6 +12,7 @@ public class OrderEntity {
     private Integer id;
     private Integer customerId;
     private String customerName;
+    private Integer shift;
     private float amount;
     private String dateTime;
     private String status;
@@ -57,6 +58,14 @@ public class OrderEntity {
         this.dateTime = dateTime;
     }
 
+    public Integer getShift() {
+        return shift;
+    }
+
+    public void setShift(Integer shift) {
+        this.shift = shift;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -64,4 +73,5 @@ public class OrderEntity {
     public void setStatus(String status) {
         this.status = status;
     }
+
 }

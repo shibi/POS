@@ -62,6 +62,8 @@ public class CreateOrderActivity extends SharedActivity {
     private double grossAmount;
     private int totalItemCount;
 
+    private int presentShiftId;
+
     private Map<Integer, ItemEntity> hashmap_source;
 
     @Override
@@ -102,6 +104,14 @@ public class CreateOrderActivity extends SharedActivity {
         totalItemCount = 0;
 
         updateTotalInUi();
+
+        //get the shift id
+        //
+        if(getCoreApp().getRunningShift()!=null){
+            presentShiftId = getCoreApp().getRunningShift().getId();
+        }else {
+            presentShiftId = -1;
+        }
 
         pickedItemList = new ArrayList<>();
 
@@ -397,6 +407,7 @@ public class CreateOrderActivity extends SharedActivity {
             newOrder.setCustomerId(Integer.parseInt(customerId));
             newOrder.setCustomerName(customerName);
             newOrder.setDateTime(date_time);
+            newOrder.setShift(presentShiftId);
             newOrder.setStatus(Constants.ORDER_CREATED);
 
 

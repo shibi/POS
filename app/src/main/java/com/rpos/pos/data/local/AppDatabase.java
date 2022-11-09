@@ -52,7 +52,7 @@ import com.rpos.pos.data.remote.dto.uom.list.UomItem;
         PurchaseOrderDetailsEntity.class, PriceListEntity.class,
         ItemPriceEntity.class, PurchaseInvoiceEntity.class,
         PurchaseInvoiceItemHistory.class , CompanyAddressEntity.class,
-        ShiftRegEntity.class }, version = 34, exportSchema = false)
+        ShiftRegEntity.class }, version = 35, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 

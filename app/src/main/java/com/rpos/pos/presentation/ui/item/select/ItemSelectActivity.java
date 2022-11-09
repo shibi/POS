@@ -451,10 +451,7 @@ public class ItemSelectActivity extends SharedActivity {
                                 runOnUiThread(() -> showToast(getString(R.string.item_stock_update), ItemSelectActivity.this));
                             }
                         }else {
-                            int uomId = Integer.parseInt(item.getUom());
-                            UomItem uomItem = localDb.uomDao().getUomDetailsWithId(uomId);
-                            String uomName = (uomItem != null) ? uomItem.getUomName() : item.getUom();
-                            showItemQuantitySelectionDialog(item, uomName, isMaintainStock, Constants.PARENT_SALES);
+                            showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_SALES);
                         }
                     }catch (Exception e){
                         e.printStackTrace();
@@ -489,10 +486,7 @@ public class ItemSelectActivity extends SharedActivity {
                                     //set the item price rate
                                     item.setRate(itemPrice.getRate());
 
-                                    int uomId = Integer.parseInt(item.getUom());
-                                    UomItem uomItem = localDb.uomDao().getUomDetailsWithId(uomId);
-                                    String uomName = (uomItem != null) ? uomItem.getUomName() : item.getUom();
-                                    showItemQuantitySelectionDialog(item, uomName, isMaintainStock, Constants.PARENT_PURCHASE);
+                                    showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_PURCHASE);
 
                                 }else {
                                     PriceListEntity priceList = localDb.priceListDao().getPriceListWithId(priceListId);
@@ -504,10 +498,7 @@ public class ItemSelectActivity extends SharedActivity {
                         }else {
                             //no need to maintain stock
                             //simply select the item with quantity
-                            int uomId = Integer.parseInt(item.getUom());
-                            UomItem uomItem = localDb.uomDao().getUomDetailsWithId(uomId);
-                            String uomName = (uomItem != null) ? uomItem.getUomName() : item.getUom();
-                            showItemQuantitySelectionDialog(item, uomName, isMaintainStock, Constants.PARENT_PURCHASE);
+                            showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_PURCHASE);
                         }
 
                     }catch (Exception e){

@@ -181,7 +181,10 @@ public class CreatePurchaseActivity extends SharedActivity {
                         PickedItem item  = new PickedItem().getPickedItemFrom(itemId,itemName,rate,quantity,stock,isMaintainStock);
                         addItemToList(item);
                     }else {
+
                         existingItem.setQuantity(quantity);
+
+                        //refresh to reflect the change in recyclerview
                         selectedItemAdapter.notifyDataSetChanged();
                         showToast(getString(R.string.item_updated), CreatePurchaseActivity.this);
                     }

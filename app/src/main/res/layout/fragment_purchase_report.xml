@@ -18,6 +18,9 @@
             app:rightIcon="@drawable/ic_baseline_download_for_offline_24"/>
 
 
+        <!--Filter bar-->
+        <include layout="@layout/view_report_filter_bar"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">

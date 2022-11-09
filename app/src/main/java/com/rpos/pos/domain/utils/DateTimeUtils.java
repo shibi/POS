@@ -241,4 +241,21 @@ public class DateTimeUtils {
         }
     }
 
+    public static boolean checkDatesInAscending(String date1, String date2){
+        try{
+
+            SimpleDateFormat sdf1 = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+            Date fromatedDate1 = sdf1.parse(date1);
+
+            SimpleDateFormat sdf2 = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+            Date fromatedDate2 = sdf2.parse(date2);
+
+            return (fromatedDate2.getTime() > fromatedDate1.getTime());
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

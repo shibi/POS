@@ -324,5 +324,8 @@
     <string name="shift_closed">Shift closed</string>
     <string name="close_shift_confirmation">Are you sure want to close shift</string>
     <string name="shift_not_open_inform">Open shift before proceeding with order</string>
+    <string name="select_fromdate">Select from date</string>
+    <string name="select_todate">Select to date</string>
+    <string name="select_valid_todate">Select a valid to date</string>
 
 </resources>

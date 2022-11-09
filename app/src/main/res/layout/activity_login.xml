@@ -86,16 +86,17 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <RadioButton
+                    <!--<RadioButton
                         android:id="@+id/rb_erpnext"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/erpnext"/>
+                        android:text="@string/erpnext"/>-->
 
                     <RadioButton
                         android:id="@+id/rb_licenceserver"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="true"
                         android:text="@string/licence_server"/>
 
                 </RadioGroup>
@@ -116,7 +117,7 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:paddingTop="12dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:paddingBottom="12dp"/>
 
             <androidx.appcompat.widget.AppCompatEditText
@@ -130,6 +131,7 @@
                 android:layout_marginBottom="10dp"
                 android:hint="username"
                 android:text="test@gmail.com"
+                android:visibility="gone"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:paddingTop="12dp"
@@ -138,6 +140,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp">
 

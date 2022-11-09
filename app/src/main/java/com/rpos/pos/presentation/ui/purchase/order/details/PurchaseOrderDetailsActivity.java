@@ -75,7 +75,6 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
 
     private int orderId;
     private int supplierId;
-    private int priceListId;
     private String supplierName;
     private boolean isDbOperationOn;
     private int defaultSelectedTaxId;
@@ -94,7 +93,6 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
     }
 
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
-
 
     @Override
     public int setUpLayout() {
@@ -306,6 +304,8 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
             }
         });
 
+        ll_add_items.setOnClickListener(this::selectItem);
+
     }
 
     @Override
@@ -494,9 +494,9 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
         tv_itemCount.setText(""+count);
     }
 
-    private void selectItem(){
+    private void selectItem(View view){
         Intent selecteIntent = new Intent(PurchaseOrderDetailsActivity.this, ItemSelectActivity.class);
-        selecteIntent.putExtra(Constants.ITEM_REQUESTED_PARENT, Constants.PARENT_SALES); // Mandatory field
+        selecteIntent.putExtra(Constants.ITEM_REQUESTED_PARENT, Constants.PARENT_PURCHASE); // Mandatory field
         selecteIntent.putExtra(Constants.ITEM_SELECTION_TYPE, Constants.ITEM_SELECTION_QUANTITY_PICK); // Mandatory field
         launchItemPicker.launch(selecteIntent);
     }

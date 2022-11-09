@@ -4,25 +4,31 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rpos.pos.R;
+import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAdapter.SalesReportViewHolder>{
+public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAdapter.SalesReportViewHolder> implements Filterable {
 
     private List<PurchaseInvoiceEntity> invoiceEntityList;
+    private List<PurchaseInvoiceEntity> filteredInvoiceList;
     private String DATE_PREFIX, MOP_PREFIX,NET_PREFIX,ID_PREFIX , GRAND_TOTAL_PREFIX, TAX_PREFIX;
     private String SEPARATOR = " : ";
     private float netAmount;
 
     public PurchaseReportAdapter(Context context, List<PurchaseInvoiceEntity> invoiceEntityList) {
         this.invoiceEntityList = invoiceEntityList;
+        this.filteredInvoiceList = invoiceEntityList;
 
         DATE_PREFIX = context.getResources().getString(R.string.date_label) + SEPARATOR;
         MOP_PREFIX = context.getResources().getString(R.string.mop) + SEPARATOR;
@@ -45,7 +51,7 @@ public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAd
     @Override
     public void onBindViewHolder(@NonNull SalesReportViewHolder holder, int position) {
 
-        PurchaseInvoiceEntity invoice = invoiceEntityList.get(position);
+        PurchaseInvoiceEntity invoice = filteredInvoiceList.get(position);
 
         holder.tv_supplierName.setText(invoice.getCustomerName());
         holder.tv_id.setText(ID_PREFIX + invoice.getId());
@@ -62,7 +68,7 @@ public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAd
 
     @Override
     public int getItemCount() {
-        return (invoiceEntityList!=null)?invoiceEntityList.size():0;
+        return (filteredInvoiceList!=null)?filteredInvoiceList.size():0;
     }
 
     public static class SalesReportViewHolder extends RecyclerView.ViewHolder{
@@ -80,5 +86,40 @@ public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAd
 
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return Searched_Filter;
+    }
+
+    private Filter Searched_Filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+
+            ArrayList<PurchaseInvoiceEntity> filteredList = new ArrayList<>();
+            if (constraint == null) {
+                filteredList.addAll(invoiceEntityList);
+            } else {
+                String[] splitString = constraint.toString().split(":");
+                if(splitString.length==0 || splitString.length ==1){
+                    filteredList.addAll(invoiceEntityList);
+                }else {
+                    filteredList.addAll(invoiceEntityList);
+                }
+
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            filteredInvoiceList = (ArrayList) results.values;
+            notifyDataSetChanged();
+        }
+    };
+
+
+
 
 }

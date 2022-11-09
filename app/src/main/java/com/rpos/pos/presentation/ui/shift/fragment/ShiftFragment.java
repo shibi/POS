@@ -3,11 +3,9 @@ package com.rpos.pos.presentation.ui.shift.fragment;
 import android.os.Handler;
 import android.view.View;
 import android.widget.LinearLayout;
-
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
-
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.R;
@@ -16,7 +14,6 @@ import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.presentation.ui.common.SharedFragment;
-
 import java.util.Date;
 
 public class ShiftFragment extends SharedFragment {

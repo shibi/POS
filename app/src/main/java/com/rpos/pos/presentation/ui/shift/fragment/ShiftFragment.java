@@ -15,6 +15,7 @@ import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.presentation.ui.common.SharedFragment;
 import java.util.Date;
+import java.util.List;
 
 public class ShiftFragment extends SharedFragment {
 
@@ -260,29 +261,32 @@ public class ShiftFragment extends SharedFragment {
                         //insert
                         localDb.shiftDao().insertShift(shift);
 
-                        //ui thread to update the ui
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    //hide progress
-                                    progressDialog.hideProgressbar();
-                                    //show the shift running view
-                                    shiftStatusOpen(true);
-                                    //set the running shift object
-                                    runningShift = shift;
+                        final ShiftRegEntity lastEntry = localDb.shiftDao().getLastEntryInShift();
+                        if(lastEntry!=null){
+                            //set the running shift
+                            getCoreApp().setCurrentShift(lastEntry);
 
-                                    //set the running shift
-                                    getCoreApp().setCurrentShift(shift);
+                            //ui thread to update the ui
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        //hide progress
+                                        progressDialog.hideProgressbar();
+                                        //show the shift running view
+                                        shiftStatusOpen(true);
+                                        //set the running shift object
+                                        runningShift = lastEntry;
 
-                                    //start timer to show the elapsed time
-                                    startTimer();
+                                        //start timer to show the elapsed time
+                                        startTimer();
 
-                                }catch (Exception e){
-                                    e.printStackTrace();
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
 
                     }catch (Exception e){
                         e.printStackTrace();

@@ -35,6 +35,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
     private String AMOUNT_PREFIX;
     private String SUPPLIER_PREFIX;
     private String CANCELLED;
+    private String date;
 
 
     public PurchaseInvoiceAdapter(Context context, List<PurchaseInvoiceEntity> purchaseInvoiceEntityList, PurchaseInvoiceListener listener) {
@@ -66,7 +67,8 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
             holder.tv_invoiceId.setText("PNo : "+invoice.getId());
             holder.tv_supplierName.setText(SUPPLIER_PREFIX +" : "+ invoice.getCustomerName());
             holder.tv_amount.setText(AMOUNT_PREFIX +" : "+ invoice.getBillAmount());
-            holder.tv_date.setText(DATE_PREFIX+ " : "+invoice.getDate().substring(0,10));
+            date = DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp());
+            holder.tv_date.setText(DATE_PREFIX+ " : "+date);
 
             if(invoice.getStatus().equals(Constants.PAYMENT_PAID)){
                 holder.tv_status.setTextColor(Color.GREEN);
@@ -79,7 +81,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                 isCreditSale = (invoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE);
                 if(isCreditSale){
 
-                    if(DateTimeUtils.checkDatePassed(invoice.getDate())) {
+                    if(DateTimeUtils.checkDatePassed(invoice.getTimestamp())) {
                         paymentStatus = Constants.PAYMENT_OVERDUE;
                     }else {
                         paymentStatus = Constants.PAYMENT_UNPAID;
@@ -198,7 +200,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                                         //check amount paid. find unpaid with balance payable
                                         if(invoice.getPaymentAmount() < invoice.getBillAmount()){
                                             //check the due date passed
-                                            if(DateTimeUtils.checkDatePassed(invoice.getDate())){
+                                            if(DateTimeUtils.checkDatePassed(invoice.getTimestamp())){
                                                 //if date exceeded, then show it on overdue
                                                 filteredList.add(invoice);
                                             }

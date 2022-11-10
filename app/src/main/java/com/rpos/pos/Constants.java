@@ -48,6 +48,7 @@ public class Constants {
     public static final int PARENT_PRICE_LIST = 3;
     public static final int PARENT_SALES_ORDER_DETAILS = 4;
 
+    public static final String SHIFT_ID = "ShiftId";
 
     public static final String FILTER_SORT = "SORT";
     public static final String FILTER_SEARCH = "SEARCH";

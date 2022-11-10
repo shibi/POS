@@ -41,7 +41,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
     private AppExecutors appExecutors;
     private AppDatabase localDb;
 
-    private int orderId, supplierId;
+    private int orderId, supplierId , shiftId;
     private double totalAmount, taxPercent, taxAmount, itemDiscount,discountPercent, netPayable,roundOfDisc;
     private String supplierName;
 
@@ -87,6 +87,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
             discountPercent = data.getDoubleExtra(Constants.DISCOUNT_PERCENT, 0.0);
             supplierId =  data.getIntExtra(Constants.SUPPLIER_ID,Constants.EMPTY_INT);
             supplierName =  data.getStringExtra(Constants.SUPPLIER_NAME);
+            shiftId =  data.getIntExtra(Constants.SHIFT_ID, Constants.EMPTY_INT);
         }
 
         //check whether order id is empty, if yes then stop proceeding
@@ -221,7 +222,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
                         }else {
                             additional_discount = 0.0f;
                         }
-                        checkout(orderId, (float)totalAmount, (float) netPayable,(float)taxPercent,(float)taxAmount,(float)discountPercent,(float)itemDiscount,additional_discount, supplierId, supplierName);
+                        checkout(orderId, (float)totalAmount, (float) netPayable,(float)taxPercent,(float)taxAmount,(float)discountPercent,(float)itemDiscount,additional_discount, supplierId, supplierName,shiftId);
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -239,7 +240,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
         }
     }
 
-    private void checkout(int _orderId,float _grossAmount,float netPayable,float _taxPercent,float _taxAmount,float _discPercent,float _discAmount,float _additionalDiscount, int _suppId,String _suppName){
+    private void checkout(int _orderId,float _grossAmount,float netPayable,float _taxPercent,float _taxAmount,float _discPercent,float _discAmount,float _additionalDiscount, int _suppId,String _suppName, int _shiftId){
         try {
 
             appExecutors.diskIO().execute(() -> {
@@ -251,12 +252,13 @@ public class PurchaseOrderCheckout extends SharedActivity {
                         order.setStatus(Constants.ORDER_COMPLETED);
                         localDb.purchaseOrderDao().insertOrder(order);
 
-                        String date = DateTimeUtils.getCurrentDateTime();
+                        long todayTimestamp = DateTimeUtils.getCurrentDateTimeStamp();
 
                         PurchaseInvoiceEntity invoice = new PurchaseInvoiceEntity();
                         invoice.setOrderId(_orderId);
                         invoice.setCustomerId(_suppId);
                         invoice.setCustomerName(_suppName);
+                        invoice.setShiftId(_shiftId);
                         invoice.setGrossAmount(_grossAmount);
                         invoice.setBillAmount(netPayable);
                         invoice.setTaxPercent(_taxPercent);
@@ -264,10 +266,10 @@ public class PurchaseOrderCheckout extends SharedActivity {
                         invoice.setDiscountPercent(_discPercent);
                         invoice.setDiscountAmount(_discAmount);
                         invoice.setAdditionalDiscount(_additionalDiscount);
-                        invoice.setCurrency("USD");
+                        invoice.setCurrency("USD");   //TODO CURRENCY NEED TO BE UPDATED
                         invoice.setPaymentType(Constants.PAY_TYPE_NONE);
                         invoice.setPaymentAmount(0.0f); // customers payment against bill amount
-                        invoice.setDate(date);
+                        invoice.setTimestamp(todayTimestamp);
                         invoice.setStatus(Constants.PAYMENT_UNPAID);
 
                         long invoiceId = localDb.purchaseInvoiceDao().insertInvoice(invoice);

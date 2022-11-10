@@ -99,6 +99,21 @@ public class DateTimeUtils {
         }
     }
 
+    public static long getCurrentDateTimeStamp(){
+        return new Date().getTime();
+    }
+
+    public static String convertTimerStampToDateTime(long timestamp){
+        try {
+            Date date = new Date(timestamp);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd ", Locale.US);
+            return formatter.format(date);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return "00-00-0000 00:00:00";
+        }
+    }
 
 
 
@@ -238,6 +253,27 @@ public class DateTimeUtils {
         }catch (Exception e){
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static boolean checkDatePassed(long timeStampToCheck){
+        try{
+            long todayTimestamp = new Date().getTime();
+            return (todayTimestamp > timeStampToCheck);
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static long convertDateToTimeStamp(String date){
+        try {
+            SimpleDateFormat sdf1 = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+            Date formatedDate = sdf1.parse(date);
+            return formatedDate.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
         }
     }
 

@@ -29,6 +29,7 @@ import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.bill.PurchaseBillView;
 import com.rpos.pos.presentation.ui.sales.bill.BillViewActivity;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PurchasePaymentActivity extends SharedActivity {
@@ -253,13 +254,8 @@ public class PurchasePaymentActivity extends SharedActivity {
                     tv_invoiceId.setText("INV#"+invoiceId);
                     tv_billAmount.setText(""+billAmount);
                     et_referenceNo.setText(currentInvoice.getReferenceNo());
-                    String invoiceDate;
-                    if(currentInvoice.getDate()!=null){
-                        if(currentInvoice.getDate().length()>=10)
-                            invoiceDate = currentInvoice.getDate().substring(0,10);
-                        else
-                            invoiceDate = currentInvoice.getDate();
-                    }else {
+                    String invoiceDate = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+                    if(invoiceDate==null || invoiceDate.isEmpty()){
                         invoiceDate = getString(R.string.empty_data);
                     }
                     et_date.setText(invoiceDate);
@@ -435,14 +431,14 @@ public class PurchasePaymentActivity extends SharedActivity {
 
 
             String referenceNo = et_referenceNo.getText().toString();
-            String todayDate = et_date.getText().toString();
+            long todayDateTimestamp = DateTimeUtils.convertDateToTimeStamp(et_date.getText().toString());
 
             float lastPayment = currentInvoice.getPaymentAmount();
             float newPayment = lastPayment + payment;
 
             currentInvoice.setPaymentAmount(newPayment);
             currentInvoice.setReferenceNo(referenceNo);
-            currentInvoice.setDate(todayDate);
+            currentInvoice.setTimestamp(todayDateTimestamp);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
             final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
@@ -502,10 +498,12 @@ public class PurchasePaymentActivity extends SharedActivity {
                 return;
             }
 
+            long dueDateTimestamp = DateTimeUtils.convertDateToTimeStamp(et_date.getText().toString());
+
             String referenceNo = et_referenceNo.getText().toString();
             currentInvoice.setPaymentType(paymentType);
             currentInvoice.setReferenceNo(referenceNo);
-            currentInvoice.setDate(dueDate);
+            currentInvoice.setTimestamp(dueDateTimestamp);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
             final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();

@@ -253,7 +253,9 @@ public class PaymentActivity extends SharedActivity {
                     tv_invoiceId.setText("INV#"+invoiceId);
                     tv_billAmount.setText(""+billAmount);
                     et_referenceNo.setText(currentInvoice.getReferenceNo());
-                    et_date.setText(currentInvoice.getDate());
+
+                    String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+                    et_date.setText(date);
 
                     //check whether payment type is credit sale
                     isCreditSale = (currentInvoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE);
@@ -422,14 +424,14 @@ public class PaymentActivity extends SharedActivity {
 
 
             String referenceNo = et_referenceNo.getText().toString();
-            String todayDate = et_date.getText().toString();
+            long todayTimestamp = DateTimeUtils.getCurrentDateTimeStamp();
 
             float lastPayment = currentInvoice.getPaymentAmount();
             float newPayment = lastPayment + payment;
 
             currentInvoice.setPaymentAmount(newPayment);
             currentInvoice.setReferenceNo(referenceNo);
-            currentInvoice.setDate(todayDate);
+            currentInvoice.setTimestamp(todayTimestamp);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
             final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
@@ -490,10 +492,12 @@ public class PaymentActivity extends SharedActivity {
                 return;
             }
 
+            long dueDateTimeStand = DateTimeUtils.convertDateToTimeStamp(dueDate);
+
             String referenceNo = et_referenceNo.getText().toString();
             currentInvoice.setPaymentType(paymentType);
             currentInvoice.setReferenceNo(referenceNo);
-            currentInvoice.setDate(dueDate);
+            currentInvoice.setTimestamp(dueDateTimeStand);
             currentInvoice.setCurrency(tv_currency.getText().toString());
             final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
             currentInvoice.setStatus((balance>0)?Constants.PAYMENT_UNPAID:Constants.PAYMENT_PAID);

@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Config;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
+import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.presentation.ui.report.adapter.PurchaseReportAdapter;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -125,8 +125,10 @@ public class PurchaseReportFragment extends ReportBaseFragment {
                 createCellWithData(row,1,"#INV "+(invoice.getId()),cellbodyStyle);
                 //Customer name
                 createCellWithData(row,2,invoice.getCustomerName(),cellbodyStyle);
+
+                String date = DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp());
                 //DATE
-                createCellWithData(row,3,invoice.getDate().substring(0,10),cellbodyStyle);
+                createCellWithData(row,3,date,cellbodyStyle);
                 //MOP
                 createCellWithData(row,4,""+invoice.getGrossAmount(),cellbodyStyle);
                 //TAX
@@ -174,7 +176,13 @@ public class PurchaseReportFragment extends ReportBaseFragment {
     @Override
     protected void onFilterReport(int type, String fromDate, String toDate) {
 
-        purchaseReportAdapter.getFilter().filter(fromDate + ":" + toDate, i -> {
+
+        long fromTimeStamp = DateTimeUtils.convertDateToTimeStamp(fromDate);
+        long toTimeStamp = DateTimeUtils.convertDateToTimeStamp(toDate);
+
+        String filterString = ""+fromTimeStamp+":"+toTimeStamp;
+
+        purchaseReportAdapter.getFilter().filter(filterString, i -> {
             Log.e("----------","complete");
             progressDialog.hideProgressbar();
         });

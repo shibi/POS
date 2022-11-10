@@ -106,7 +106,6 @@ public class CreateOrderActivity extends SharedActivity {
         updateTotalInUi();
 
         //get the shift id
-        //
         if(getCoreApp().getRunningShift()!=null){
             presentShiftId = getCoreApp().getRunningShift().getId();
         }else {

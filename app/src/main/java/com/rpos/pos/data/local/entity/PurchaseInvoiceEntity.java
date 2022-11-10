@@ -17,6 +17,8 @@ public class PurchaseInvoiceEntity {
 
     private String customerName;
 
+    private int shiftId;
+
     private float grossAmount;
 
     private float taxPercent;
@@ -41,7 +43,7 @@ public class PurchaseInvoiceEntity {
 
     private Integer totalItemsCount;
 
-    private String date;
+    private long timestamp;
 
     private String status;
 
@@ -76,6 +78,14 @@ public class PurchaseInvoiceEntity {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public int getShiftId() {
+        return shiftId;
+    }
+
+    public void setShiftId(int shiftId) {
+        this.shiftId = shiftId;
     }
 
     public float getBillAmount() {
@@ -174,12 +184,12 @@ public class PurchaseInvoiceEntity {
         this.referenceNo = referenceNo;
     }
 
-    public String getDate() {
-        return date;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getStatus() {

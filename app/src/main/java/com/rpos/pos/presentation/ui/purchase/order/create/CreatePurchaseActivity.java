@@ -56,6 +56,8 @@ public class CreatePurchaseActivity extends SharedActivity {
 
     private Map<Integer, ItemEntity> hashmap_source;
 
+    private int presentShiftId;
+
     private double grossAmount;
     private int totalItemCount;
     private int supplierId;
@@ -87,6 +89,13 @@ public class CreatePurchaseActivity extends SharedActivity {
 
         localDb = getCoreApp().getLocalDb();
         appExecutors = new AppExecutors();
+
+        //get the shift id
+        if(getCoreApp().getRunningShift()!=null){
+            presentShiftId = getCoreApp().getRunningShift().getId();
+        }else {
+            presentShiftId = -1;
+        }
 
         grossAmount = 0;
         totalItemCount = 0;
@@ -419,6 +428,7 @@ public class CreatePurchaseActivity extends SharedActivity {
             newOrder.setSupplierId(supplierId);
             newOrder.setSupplierName(supplierName);
             newOrder.setDateTime(date_time);
+            newOrder.setShift(presentShiftId);
             newOrder.setStatus(Constants.ORDER_CREATED);
 
 

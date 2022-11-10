@@ -31,8 +31,6 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
         this.invoiceEntityList = invoiceEntityList;
         filteredInvoiceList = invoiceEntityList;
 
-        /*this.filteredInvoiceList = new ArrayList<>();
-        filteredInvoiceList.addAll(invoiceEntityList);*/
 
         DATE_PREFIX = context.getResources().getString(R.string.date_label) + SEPARATOR;
         MOP_PREFIX = context.getResources().getString(R.string.mop) + SEPARATOR;
@@ -57,7 +55,7 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
 
         holder.tv_custName.setText(invoice.getCustomerName());
         holder.tv_id.setText(ID_PREFIX + invoice.getId());
-        holder.tv_date.setText(DATE_PREFIX + invoice.getDate());
+        holder.tv_date.setText(DATE_PREFIX + DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp()));
         holder.tv_mop.setText(MOP_PREFIX + invoice.getGrossAmount());
         holder.tv_grosstotal.setText(GRAND_TOTAL_PREFIX + invoice.getBillAmount());
 
@@ -106,7 +104,15 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
                 if(splitString.length==0 || splitString.length ==1){
                     filteredList.addAll(invoiceEntityList);
                 }else {
-                    filteredList.addAll(invoiceEntityList);
+
+                    final long fromTimestamp = Long.parseLong(splitString[0]);
+                    final long toTimestamp = Long.parseLong(splitString[1]);
+
+                    for (InvoiceEntity invoice: invoiceEntityList){
+                        if(invoice.getTimestamp()>= fromTimestamp && invoice.getTimestamp() <= toTimestamp){
+                            filteredList.add(invoice);
+                        }
+                    }
                 }
 
             }
@@ -120,7 +126,5 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
             notifyDataSetChanged();
         }
     };
-
-
 
 }

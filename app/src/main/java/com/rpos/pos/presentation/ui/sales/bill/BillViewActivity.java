@@ -296,7 +296,8 @@ public class BillViewActivity extends SharedActivity {
 
                     tv_billTo.setText(""+currentInvoice.getCustomerName());
                     tv_billNo.setText("INV#"+invoiceId);
-                    tv_billDate.setText(currentInvoice.getDate());
+                    String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+                    tv_billDate.setText(date);
                     tv_billType.setText("Sales invoice");
                     tv_grossTotal.setText(""+currentInvoice.getGrossAmount());
                     tv_billCurrency.setText(currentInvoice.getCurrency());
@@ -457,7 +458,7 @@ public class BillViewActivity extends SharedActivity {
         String billTo = "To : "+currentInvoice.getCustomerName();
         String invoiceNo = "Invoice no : "+invoiceId;
         String billType = "Bill type : Sales invoice";
-        String billDate = "Bill date : "+currentInvoice.getDate();
+        String billDate = "Bill date : ";//+currentInvoice.getDate();
         String currency = "Currency : "+currentInvoice.getCurrency();
         String lineDraw = "-----------------------------";
         String item_title = "item";

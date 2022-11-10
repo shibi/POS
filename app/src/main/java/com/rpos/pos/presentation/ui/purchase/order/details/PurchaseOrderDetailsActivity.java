@@ -73,6 +73,8 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
 
     private List<TaxSlabEntity> taxSlabList;
 
+    private int presentShiftId;
+
     private int orderId;
     private int supplierId;
     private String supplierName;
@@ -135,6 +137,13 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
 
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
+
+        //get the shift id
+        if(getCoreApp().getRunningShift()!=null){
+            presentShiftId = getCoreApp().getRunningShift().getId();
+        }else {
+            presentShiftId = -1;
+        }
 
         sharedPref = SharedPrefHelper.getInstance(PurchaseOrderDetailsActivity.this);
         defaultSelectedTaxId = sharedPref.getDefaultTaxId();
@@ -413,7 +422,7 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
 
 
             //gotoCheckout(orderId,gross_amount, tax_amount, discount_amount,discountPercent, customerId, customerName);
-            gotoCheckout(orderId,gross_amount,tax_Percentage, tax_amount, discount_amount,discountPercent, supplierId, supplierName);
+            gotoCheckout(orderId,gross_amount,tax_Percentage, tax_amount, discount_amount,discountPercent, supplierId, supplierName, presentShiftId);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -945,7 +954,7 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
         }
     }
 
-    private void gotoCheckout(int _orderId, double total,double taxPercent,double taxAmount, double discountAmount, double discountPercent, int _supplierId, String _supplierName){
+    private void gotoCheckout(int _orderId, double total,double taxPercent,double taxAmount, double discountAmount, double discountPercent, int _supplierId, String _supplierName,int shiftId){
         Intent checkoutIntent = new Intent(PurchaseOrderDetailsActivity.this, PurchaseOrderCheckout.class);
         checkoutIntent.putExtra(Constants.ORDER_ID, _orderId);
         checkoutIntent.putExtra(Constants.TOTAL_AMOUNT, total);
@@ -955,6 +964,7 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
         checkoutIntent.putExtra(Constants.DISCOUNT_PERCENT, discountPercent);
         checkoutIntent.putExtra(Constants.SUPPLIER_ID, _supplierId);
         checkoutIntent.putExtra(Constants.SUPPLIER_NAME, _supplierName);
+        checkoutIntent.putExtra(Constants.SHIFT_ID, shiftId);
 
         startActivity(checkoutIntent);
 

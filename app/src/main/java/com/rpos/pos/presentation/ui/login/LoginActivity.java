@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
+
+import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
@@ -25,6 +27,8 @@ import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.dashboard.DashboardActivity;
+import com.rpos.pos.presentation.ui.testing.Testing;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -93,6 +97,9 @@ public class LoginActivity extends SharedActivity {
 
         //check custom logo available, show if any.
         getAvailableCustomLogo();
+
+        //Testing testing = new Testing(new AppExecutors(), getCoreApp().getLocalDb());
+        //testing.insetSampleData();
     }
 
     @Override

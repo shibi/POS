@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Config;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
+import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.presentation.ui.report.adapter.SalesReportAdapter;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,6 +19,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SalesReportFragment extends ReportBaseFragment {
@@ -134,8 +136,10 @@ public class SalesReportFragment extends ReportBaseFragment {
                 createCellWithData(row,1,"#INV "+(invoice.getId()),cellbodyStyle);
                 //Customer name
                 createCellWithData(row,2,invoice.getCustomerName(),cellbodyStyle);
+
+                String date = DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp());
                 //DATE
-                createCellWithData(row,3,invoice.getDate(),cellbodyStyle);
+                createCellWithData(row,3,date,cellbodyStyle);
                 //MOP
                 createCellWithData(row,4,""+invoice.getGrossAmount(),cellbodyStyle);
                 //TAX
@@ -180,7 +184,12 @@ public class SalesReportFragment extends ReportBaseFragment {
     @Override
     protected void onFilterReport(int type, String fromDate, String toDate) {
 
-        salesReportAdapter.getFilter().filter(fromDate + ":" + toDate, i -> {
+        long fromTimeStamp = DateTimeUtils.convertDateToTimeStamp(fromDate);
+        long toTimeStamp = DateTimeUtils.convertDateToTimeStamp(toDate);
+
+        String filterString = ""+fromTimeStamp+":"+toTimeStamp;
+
+        salesReportAdapter.getFilter().filter(filterString, i -> {
             Log.e("----------","complete");
             progressDialog.hideProgressbar();
         });

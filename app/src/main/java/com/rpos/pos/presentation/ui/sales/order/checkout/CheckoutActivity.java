@@ -38,7 +38,7 @@ public class CheckoutActivity extends SharedActivity {
     private AppCompatTextView tv_netPayable;
     private AppCompatButton btn_cancel, btn_checkout;
 
-    private int orderId, customerId;
+    private int orderId, customerId, shiftId;
     private double totalAmount, taxPercent, taxAmount, itemDiscount,discountPercent, netPayable,roundOfDisc;
     private String customerName;
 
@@ -88,6 +88,7 @@ public class CheckoutActivity extends SharedActivity {
             discountPercent = data.getDoubleExtra(Constants.DISCOUNT_PERCENT, 0.0);
             customerId =  data.getIntExtra(Constants.CUSTOMER_ID,Constants.EMPTY_INT);
             customerName =  data.getStringExtra(Constants.CUSTOMER_NAME);
+            shiftId =  data.getIntExtra(Constants.SHIFT_ID, Constants.EMPTY_INT);
         }
 
         if(orderId == Constants.EMPTY_INT){
@@ -99,7 +100,6 @@ public class CheckoutActivity extends SharedActivity {
         tv_tax_amount.setText(""+taxAmount);
         tv_item_discount.setText(""+itemDiscount);
         et_roundOfDiscount.setText("0");
-
 
 
         //checkout button click
@@ -232,7 +232,7 @@ public class CheckoutActivity extends SharedActivity {
                         }else {
                             additional_discount = 0.0f;
                         }
-                        checkout(orderId, (float)totalAmount, (float) netPayable,(float)taxPercent,(float)taxAmount,(float)discountPercent,(float)itemDiscount,additional_discount, customerId, customerName);
+                        checkout(orderId, (float)totalAmount, (float) netPayable,(float)taxPercent,(float)taxAmount,(float)discountPercent,(float)itemDiscount,additional_discount, customerId, customerName, shiftId);
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -250,7 +250,7 @@ public class CheckoutActivity extends SharedActivity {
         }
     }
 
-    private void checkout(int _orderId,float _grossAmount,float netPayable,float _taxPercent,float _taxAmount,float _discPercent,float _discAmount,float _additionalDiscount, int _custId,String _custName){
+    private void checkout(int _orderId,float _grossAmount,float netPayable,float _taxPercent,float _taxAmount,float _discPercent,float _discAmount,float _additionalDiscount, int _custId,String _custName, int _shiftId){
         try {
 
             appExecutors.diskIO().execute(() -> {
@@ -262,12 +262,13 @@ public class CheckoutActivity extends SharedActivity {
                         order.setStatus(Constants.ORDER_COMPLETED);
                         localDb.ordersDao().insertOrder(order);
 
-                        String date = DateTimeUtils.getCurrentDate();
+                        long timestamp = DateTimeUtils.getCurrentDateTimeStamp();
 
                         InvoiceEntity invoice = new InvoiceEntity();
                         invoice.setOrderId(_orderId);
                         invoice.setCustomerId(_custId);
                         invoice.setCustomerName(_custName);
+                        invoice.setShiftId(_shiftId);
                         invoice.setGrossAmount(_grossAmount);
                         invoice.setBillAmount(netPayable);
                         invoice.setTaxPercent(_taxPercent);
@@ -278,7 +279,7 @@ public class CheckoutActivity extends SharedActivity {
                         invoice.setCurrency("USD");
                         invoice.setPaymentType(Constants.PAY_TYPE_NONE);
                         invoice.setPaymentAmount(0.0f); // customers payment against bill amount
-                        invoice.setDate(date);
+                        invoice.setTimestamp(timestamp);
                         invoice.setStatus(Constants.PAYMENT_UNPAID);
 
                         long invoiceId = localDb.invoiceDao().insertInvoice(invoice);

@@ -12,6 +12,7 @@ public class PurchaseOrderEntity {
     private Integer id;
     private Integer supplierId;
     private String supplierName;
+    private Integer shift;
     private float amount;
     private String currencyId;
     private String dateTime;
@@ -72,5 +73,13 @@ public class PurchaseOrderEntity {
 
     public void setCurrencyId(String currencyId) {
         this.currencyId = currencyId;
+    }
+
+    public Integer getShift() {
+        return shift;
+    }
+
+    public void setShift(Integer shift) {
+        this.shift = shift;
     }
 }

@@ -15,6 +15,8 @@ public class InvoiceEntity {
 
     private Integer customerId;
 
+    private Integer shiftId;
+
     private String customerName;
 
     private float grossAmount;
@@ -41,7 +43,7 @@ public class InvoiceEntity {
 
     private Integer totalItemsCount;
 
-    private String date;
+    private long timestamp;
 
     private String status;
 
@@ -76,6 +78,14 @@ public class InvoiceEntity {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public Integer getShiftId() {
+        return shiftId;
+    }
+
+    public void setShiftId(Integer shiftId) {
+        this.shiftId = shiftId;
     }
 
     public float getBillAmount() {
@@ -174,12 +184,12 @@ public class InvoiceEntity {
         this.referenceNo = referenceNo;
     }
 
-    public String getDate() {
-        return date;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getStatus() {
@@ -189,4 +199,6 @@ public class InvoiceEntity {
     public void setStatus(String status) {
         this.status = status;
     }
+
+
 }

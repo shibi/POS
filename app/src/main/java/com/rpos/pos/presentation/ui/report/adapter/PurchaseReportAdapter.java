@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
+import com.rpos.pos.domain.utils.DateTimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAd
 
         holder.tv_supplierName.setText(invoice.getCustomerName());
         holder.tv_id.setText(ID_PREFIX + invoice.getId());
-        holder.tv_date.setText(DATE_PREFIX + invoice.getDate());
+        holder.tv_date.setText(DATE_PREFIX + DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp()));
         holder.tv_mop.setText(MOP_PREFIX + invoice.getGrossAmount());
         holder.tv_grosstotal.setText(GRAND_TOTAL_PREFIX + invoice.getBillAmount());
 
@@ -104,7 +105,15 @@ public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAd
                 if(splitString.length==0 || splitString.length ==1){
                     filteredList.addAll(invoiceEntityList);
                 }else {
-                    filteredList.addAll(invoiceEntityList);
+
+                    final long fromTimestamp = Long.parseLong(splitString[0]);
+                    final long toTimestamp = Long.parseLong(splitString[1]);
+
+                    for (PurchaseInvoiceEntity invoice: invoiceEntityList){
+                        if(invoice.getTimestamp()>= fromTimestamp && invoice.getTimestamp() <= toTimestamp){
+                            filteredList.add(invoice);
+                        }
+                    }
                 }
 
             }

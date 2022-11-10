@@ -27,6 +27,7 @@ import com.rpos.pos.data.local.entity.CompanyEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.sales.bill.BillViewActivity;
@@ -197,7 +198,8 @@ public class PurchaseBillView extends SharedActivity {
 
                     tv_billTo.setText(""+currentInvoice.getCustomerName());
                     tv_billNo.setText("INV#"+invoiceId);
-                    tv_billDate.setText(currentInvoice.getDate());
+                    String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+                    tv_billDate.setText(date);
                     tv_billType.setText("Sales invoice");
                     tv_grossTotal.setText(""+currentInvoice.getGrossAmount());
                     tv_billCurrency.setText(currentInvoice.getCurrency());
@@ -315,7 +317,7 @@ public class PurchaseBillView extends SharedActivity {
         String billTo = "To : "+currentInvoice.getCustomerName();
         String invoiceNo = "Invoice no : "+invoiceId;
         String billType = "Bill type : Sales invoice";
-        String billDate = "Bill date : "+currentInvoice.getDate();
+        String billDate = "Bill date : ";//+currentInvoice.getDate();
         String currency = "Currency : "+currentInvoice.getCurrency();
         String lineDraw = "-----------------------------";
         String item_title = "item";

@@ -327,5 +327,6 @@
     <string name="select_fromdate">Select from date</string>
     <string name="select_todate">Select to date</string>
     <string name="select_valid_todate">Select a valid to date</string>
+    <string name="shift_report_label">Shift report</string>
 
 </resources>

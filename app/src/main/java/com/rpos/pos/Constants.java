@@ -10,6 +10,7 @@ public class Constants {
     public static final String FRAGMENT_HOME_CARD = "fragment_home_card";
     public static final String FRAGMENT_ITEM_LIST = "fragment_item_list";
     public static final String FRAGMENT_SHIFT = "fragment_shift";
+    public static final String FRAGMENT_SHIFT_REPORT = "fragment_shift_report";
     public static final String FRAGMENT_SALES_REPORT = "fragment_sales_report";
     public static final String FRAGMENT_PURCHASE_REPORT = "fragment_purchase_report";
 

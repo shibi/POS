@@ -14,8 +14,8 @@ import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.presentation.ui.common.SharedFragment;
+import com.rpos.pos.presentation.ui.shift.ShiftActivity;
 import java.util.Date;
-import java.util.List;
 
 public class ShiftFragment extends SharedFragment {
 
@@ -24,6 +24,7 @@ public class ShiftFragment extends SharedFragment {
     private LinearLayout ll_openShiftView,ll_closeShiftView;
     private AppCompatTextView tv_startTime,tv_duration;
     private AppCompatEditText et_openingCash, et_closingCash;
+    private LinearLayout ll_shiftReport;
 
     private AppExecutors appExecutors;
     private AppDatabase localDb;
@@ -54,6 +55,8 @@ public class ShiftFragment extends SharedFragment {
         btn_closeShift = getView.findViewById(R.id.btn_closeshift);
         et_openingCash = getView.findViewById(R.id.et_opening_cash);
         et_closingCash = getView.findViewById(R.id.et_closing_cash);
+        ll_shiftReport = getView.findViewById(R.id.ll_rightMenu);
+
         //progress bar
         progressDialog = new AppDialogs(getContext());
 
@@ -106,6 +109,9 @@ public class ShiftFragment extends SharedFragment {
                 }
             }
         };
+
+        //on click , redirect to shift report fragment
+        ll_shiftReport.setOnClickListener(this::gotoShiftReport);
 
         //back press listener
         ll_back.setOnClickListener(view -> getActivity().onBackPressed());
@@ -422,6 +428,13 @@ public class ShiftFragment extends SharedFragment {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    /**
+     * To goto shift report fragment
+     * */
+    private void gotoShiftReport(View view){
+        ((ShiftActivity)getContext()).gotoShiftReportFragment();
     }
 
     @Override

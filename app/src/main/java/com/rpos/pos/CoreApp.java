@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.ImageView;
 
 import androidx.room.Room;
 import com.mazenrashed.printooth.Printooth;
@@ -41,11 +40,12 @@ public class CoreApp extends Application {
 
     private List<UomItem> uomList;
 
+    private AppDatabase appDatabase;
+
     private List<ItemEntity> allItemsList;
 
-    private String appIconPath;
-
     private ShiftRegEntity runningShift;
+
 
     @Override
     public void onCreate() {
@@ -60,8 +60,6 @@ public class CoreApp extends Application {
         Constants.API_SECRET = apiSecret;
         SharedPrefHelper.getInstance(this).saveApiToken(apiKey,apiSecret);
     }
-
-    private AppDatabase appDatabase;
 
     public AppDatabase getLocalDb(){
         if(appDatabase==null){
@@ -188,8 +186,7 @@ public class CoreApp extends Application {
         allItemsList = list;
     }
 
-    public Bitmap loadImageFromStorage(String path)
-    {
+    public Bitmap loadImageFromStorage(String path) {
         try {
             File filefolder;
             filefolder = new File(this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), Config.LOGO_DIRECTORY);
@@ -216,7 +213,6 @@ public class CoreApp extends Application {
         }
     }
 
-
     public void setCurrentShift(ShiftRegEntity shift){
         runningShift = shift;
     }
@@ -224,7 +220,6 @@ public class CoreApp extends Application {
     public ShiftRegEntity getRunningShift(){
         return runningShift;
     }
-
 
     /**
      * to clear all default values saved in shared preference

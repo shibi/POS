@@ -15,7 +15,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:title="@string/shift_label"
-            app:leftIcon="@drawable/ic_left_arrow"/>
+            app:leftIcon="@drawable/ic_left_arrow"
+            app:rightIcon="@drawable/report"/>
 
         <LinearLayout
             android:id="@+id/ll_openShift"

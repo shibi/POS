@@ -35,13 +35,10 @@ import retrofit2.Response;
 
 public class LoginActivity extends SharedActivity {
 
-    private RadioGroup rg_logintype;
     private AppCompatEditText et_serverurl;
-    private LinearLayout ll_showPass;
     private LinearLayout ll_lang_arab,ll_lang_eng;
     private AppCompatEditText et_username,et_password;
     private AppCompatButton btn_login;
-    private ImageView iv_pass_show;
 
     private AppDialogs progressDialog;
 
@@ -62,13 +59,10 @@ public class LoginActivity extends SharedActivity {
     @Override
     public void initViews() {
         //initializing views
-        rg_logintype = findViewById(R.id.rg_logintype);
         et_serverurl = findViewById(R.id.et_server_url);
         et_username = findViewById(R.id.et_username);
         et_password = findViewById(R.id.et_password);
         btn_login = findViewById(R.id.btn_continue);
-        ll_showPass = findViewById(R.id.ll_showPass);
-        iv_pass_show= findViewById(R.id.iv_show);
         ll_lang_arab = findViewById(R.id.ll_lang_arab);
         ll_lang_eng = findViewById(R.id.ll_lang_eng);
 
@@ -82,9 +76,6 @@ public class LoginActivity extends SharedActivity {
         et_serverurl.setVisibility(View.VISIBLE);
         et_username.setVisibility(View.GONE);
         et_password.setVisibility(View.GONE);
-
-        //password toggle
-        ll_showPass.setOnClickListener(this::togglePasswordVisibility);
 
         //login click
         //CURRENTLY DISABLED ERPNEXT AND LICENCE SERVER LOGIN, API IS NOT WORKING RIGHT NOW
@@ -317,70 +308,6 @@ public class LoginActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
-
-    /**
-     * toggle password visibility
-     * */
-    private void togglePasswordVisibility(View view){
-        try {
-            //show the password if field tag is "show" or no tag (null)
-            if(et_password.getTag()==null || et_password.getTag().equals("show")){
-                //set the tag to hide
-                et_password.setTag("hide");
-                et_password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                iv_pass_show.setImageResource(R.drawable.ic_eye_hide);
-            }else {
-                //hide password if tag value is hide
-
-                //set the tag to show
-                et_password.setTag("show");
-                et_password.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                iv_pass_show.setImageResource(R.drawable.ic_baseline_remove_red_eye_24);
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * login radio button
-     *  2 type login (ERPNext and Licence server)
-     * */
-    private RadioGroup.OnCheckedChangeListener radioButtonListener = new RadioGroup.OnCheckedChangeListener(){
-
-        @Override
-        public void onCheckedChanged(RadioGroup radioGroup, int radiobutton_id) {
-            try {
-                //selected radio button
-                switch (radiobutton_id)
-                {
-                    /*case R.id.rb_erpnext:
-
-                        loginType = LOGIN_ERPNEXT;
-                        et_serverurl.setVisibility(View.GONE);
-
-                        et_username.setVisibility(View.VISIBLE);
-                        et_password.setVisibility(View.VISIBLE);
-
-                        break;*/
-
-                    case R.id.rb_licenceserver:
-
-                        loginType = LOGIN_LICENCE_SERVER;
-                        et_serverurl.setVisibility(View.VISIBLE);
-
-                        et_username.setVisibility(View.GONE);
-                        et_password.setVisibility(View.GONE);
-
-                        break;
-                }
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-    };
 
     /**
      * to show toast message

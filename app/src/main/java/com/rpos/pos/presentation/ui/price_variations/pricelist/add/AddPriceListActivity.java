@@ -66,6 +66,14 @@ public class AddPriceListActivity extends SharedActivity {
         defaultCurrencySymbol = SharedPrefHelper.getInstance(this).getDefaultCurrencySymbol();
         et_currencyName.setText(defaultCurrencySymbol);
 
+        if(defaultCurrencySymbol.equals(Constants.NONE)){
+            AppDialogs appDialogs = new AppDialogs(AddPriceListActivity.this);
+            appDialogs.showCommonAlertDialog(getString(R.string.default_currency_not_selected), view -> {
+                finish();
+            });
+            return;
+        }
+
         //on radio button click , set the price list type accordingly
         rg_type.setOnCheckedChangeListener((radioGroup, checkedId) -> {
 
@@ -120,7 +128,7 @@ public class AddPriceListActivity extends SharedActivity {
 
             priceListEntity = new PriceListEntity();
             priceListEntity.setPriceListName(name.trim());
-            priceListEntity.setCurrencySymbol(et_currencyName.getText().toString());
+            priceListEntity.setCurrencySymbol(defaultCurrencySymbol);
             priceListEntity.setCountryCode(et_currencyName.getText().toString());
             priceListEntity.setPriceType(priceListType);
             priceListEntity.setEnabled(true);

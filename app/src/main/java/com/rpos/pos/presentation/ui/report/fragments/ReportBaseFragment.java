@@ -12,6 +12,7 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.SearchView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
@@ -60,6 +61,7 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
 
     protected CardView cv_fromDate,cv_toDate;
     protected LinearLayout ll_filter;
+    protected SearchView sv_search;
 
     protected AppCompatTextView tv_fromDate, tv_toDate;
 
@@ -81,11 +83,15 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
         ll_filter = getView.findViewById(R.id.ll_filter);
         tv_fromDate = getView.findViewById(R.id.tv_fromdate);
         tv_toDate = getView.findViewById(R.id.tv_todate);
+        sv_search = getView.findViewById(R.id.sv_search);
 
         isSaveButtonPressed = false;
 
         FILE_NAME = "";
         DIRECTORY = "";
+
+        sv_search.setFocusable(true);
+        sv_search.requestFocusFromTouch();
 
         intiViews(getView);
 
@@ -111,6 +117,36 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
 
         fetchAllInvoices();
 
+        sv_search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                try {
+                    if (newText.isEmpty()) {
+                        onSearchClear();
+                    } else {
+                        onSearchQueryChange(newText);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                return false;
+            }
+        });
+
+        sv_search.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                onSearchClear();
+                return false;
+            }
+        });
+
     }
 
     @Override
@@ -128,6 +164,9 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
     protected abstract void onClickDownloadReport(View view);
     protected abstract void prepareDataForExcel(Sheet sheet);
     protected abstract void onFilterReport(int type, String fromDate,String toDate);
+    protected abstract void onSearchQueryChange(String query);
+    protected abstract void onSearchClear();
+
 
     /**
      * to do primary setup for exporting report as excel

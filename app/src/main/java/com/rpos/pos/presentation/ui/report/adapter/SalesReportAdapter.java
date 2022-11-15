@@ -14,10 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
+import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.SalesReportViewHolder> implements Filterable {
 
@@ -110,6 +112,43 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
 
                     for (InvoiceEntity invoice: invoiceEntityList){
                         if(invoice.getTimestamp()>= fromTimestamp && invoice.getTimestamp() <= toTimestamp){
+                            filteredList.add(invoice);
+                        }
+                    }
+                }
+
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            filteredInvoiceList = (ArrayList) results.values;
+            notifyDataSetChanged();
+        }
+    };
+
+    public Filter secondFilter(){
+        return secondFilter;
+    }
+
+    private Filter secondFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+
+            ArrayList<InvoiceEntity> filteredList = new ArrayList<>();
+            if (constraint == null) {
+                filteredList.addAll(invoiceEntityList);
+            } else {
+                String filterString = constraint.toString().toLowerCase(Locale.ROOT);
+                if(filterString.isEmpty()){
+                    filteredList.addAll(invoiceEntityList);
+                }else {
+                    String customerName;
+                    for (InvoiceEntity invoice: invoiceEntityList){
+                        customerName = invoice.getCustomerName().toLowerCase();
+                        if(customerName.contains(filterString)){
                             filteredList.add(invoice);
                         }
                     }

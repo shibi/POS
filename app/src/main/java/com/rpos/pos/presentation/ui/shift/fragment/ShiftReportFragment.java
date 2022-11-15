@@ -76,13 +76,13 @@ public class ShiftReportFragment extends SharedFragment {
                 switch (position)
                 {
                     case 0:
-                        tab.setText("Sales");
+                        tab.setText(getString(R.string.sales_title));
                         break;
                     case 1:
-                        tab.setText("Purchase");
+                        tab.setText(getString(R.string.purchase_label));
                         break;
                     default:
-                        tab.setText("Purchase 11");
+                        tab.setText("default");
                         break;
                 }
             }
@@ -106,12 +106,10 @@ public class ShiftReportFragment extends SharedFragment {
                         return;
                     }
 
-                    //ShiftRegEntity shift = shiftRegList.get(position);
                     Fragment currentFragment = getChildFragmentManager().getFragments().get(viewPager.getCurrentItem());
                     if(currentFragment!=null){
                         ((ShiftWiseFilterable)currentFragment).onFilterWithShift(shiftRegList.get(position).getId());
                     }
-                    //Log.e("--------","dsdf"+currentFragment);
 
                 }catch (Exception e){
                     e.printStackTrace();

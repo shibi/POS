@@ -78,6 +78,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/shape_shift_tab_bg"
                     app:tabIndicator="@color/white"
+                    app:tabRippleColor="@null"
                     app:tabBackground="@drawable/shape_shift_tab"
                     app:tabSelectedTextColor="@color/color_accent"
                     app:tabTextColor="@color/color_accent_secondary"

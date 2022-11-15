@@ -196,5 +196,23 @@ public class SalesReportFragment extends ReportBaseFragment {
 
     }
 
+    @Override
+    protected void onSearchQueryChange(String query) {
+        salesReportAdapter.secondFilter().filter(query);
+    }
+
+    @Override
+    protected void onSearchClear() {
+
+        progressDialog.showProgressBar();
+
+        salesReportAdapter.secondFilter().filter("", new Filter.FilterListener() {
+            @Override
+            public void onFilterComplete(int i) {
+                progressDialog.hideProgressbar();
+            }
+        });
+    }
+
 
 }

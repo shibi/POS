@@ -2,6 +2,8 @@ package com.rpos.pos.presentation.ui.report.fragments;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.Filter;
+
 import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Config;
 import com.rpos.pos.R;
@@ -187,6 +189,28 @@ public class PurchaseReportFragment extends ReportBaseFragment {
             progressDialog.hideProgressbar();
         });
 
+    }
+
+    @Override
+    protected void onSearchQueryChange(String query) {
+
+        purchaseReportAdapter.secondFilter().filter(query);
+    }
+
+    @Override
+    protected void onSearchClear() {
+
+        //progress bar
+        progressDialog.hideProgressbar();
+
+        //filter
+        purchaseReportAdapter.getFilter().filter("", new Filter.FilterListener() {
+            @Override
+            public void onFilterComplete(int i) {
+                //hide progress bar
+                progressDialog.hideProgressbar();
+            }
+        });
     }
 
 }

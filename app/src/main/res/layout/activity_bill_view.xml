@@ -35,7 +35,7 @@
                         android:layout_marginStart="40dp"
                         android:layout_marginEnd="40dp"
                         android:gravity="center"
-                        android:text="Address"
+                        android:text="@string/address_label"
                         android:textSize="10dp"/>
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -114,7 +114,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Bill  type : "
+                            android:text="Bill type : "
                             android:textSize="@dimen/bill_to_text_size"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -192,7 +192,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Item"
+                            android:text="@string/item_label"
                             android:textSize="12dp"/>
 
                     </LinearLayout>
@@ -220,7 +220,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Qty"
+                            android:text="@string/qty_label"
                             android:textSize="12dp"/>
 
                     </LinearLayout>
@@ -234,7 +234,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total"
+                            android:text="@string/total_label"
                             android:textSize="12dp"/>
 
                     </LinearLayout>
@@ -270,7 +270,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total items"
+                            android:text="@string/total_items"
                             android:textSize="12dp"
                             android:textStyle="normal"/>
 
@@ -313,7 +313,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total"
+                            android:text="@string/total_label"
                             android:textStyle="bold"
                             android:textSize="12dp"/>
 
@@ -354,7 +354,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tax"
+                            android:text="@string/tax"
                             android:textStyle="bold"
                             android:textSize="12dp"/>
 
@@ -394,7 +394,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Discount"
+                            android:text="@string/discount"
                             android:textStyle="bold"
                             android:textSize="12dp"/>
 
@@ -436,7 +436,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Net Total"
+                            android:text="@string/net_total"
                             android:textStyle="bold"
                             android:textSize="12dp"/>
 
@@ -475,7 +475,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Payments"
+                            android:text="@string/payment"
                             android:textStyle="bold"
                             android:textSize="12dp"/>
 
@@ -602,7 +602,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Cash"
+                            android:text="@string/cash_label"
                             android:textStyle="bold"
                             android:textSize="12dp"/>
 
@@ -642,7 +642,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Due amount"
+                            android:text="@string/due_amount"
                             android:textStyle="bold"
                             android:textSize="12dp"/>
 
@@ -679,7 +679,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Thank you, Visit again"
+                            android:text="@string/visit_again"
                             android:textSize="12dp" />
 
                 </LinearLayout>
@@ -710,7 +710,7 @@
                         android:id="@+id/btn_back"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Back"
+                        android:text="@string/back_label"
                         android:layout_weight="1"
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="20dp"/>
@@ -719,7 +719,7 @@
                         android:id="@+id/btn_print"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="PRINT"
+                        android:text="@string/print_label"
                         android:layout_weight="1"
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="20dp"/>

@@ -375,16 +375,4 @@ public class CheckoutActivity extends SharedActivity {
         }
     }
 
-    private void showSuccess(){
-        try {
-
-            runOnUiThread(() -> {
-                showToast("Checkout successfull", CheckoutActivity.this);
-                finish();
-            });
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
 }

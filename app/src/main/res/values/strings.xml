@@ -268,7 +268,6 @@
     <string name="item_price">Item Price</string>
     <string name="item_code">Item Code</string>
     <string name="select_item">Select Item</string>
-    <string name="rate">Rate</string>
     <string name="select_price_list">Select price list</string>
     <string name="batch_no">Batch No</string>
     <string name="enter_valid_data">Enter valid data</string>
@@ -328,5 +327,16 @@
     <string name="select_todate">Select to date</string>
     <string name="select_valid_todate">Select a valid to date</string>
     <string name="shift_report_label">Shift report</string>
+    <string name="sales_invoice">Sales invoice</string>
+    <string name="add_tax_slab">Add slabs</string>
+    <string name="item_id">Item id</string>
+    <string name="add_payment">Add payment</string>
+    <string name="net_total">Net Total</string>
+    <string name="due_amount">Due amount</string>
+    <string name="visit_again">Thank you, Visit again</string>
+    <string name="back_label">Back</string>
+    <string name="print_label">PRINT</string>
+    <string name="default_label_small">default</string>
+
 
 </resources>

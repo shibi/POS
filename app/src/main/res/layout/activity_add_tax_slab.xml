@@ -45,7 +45,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add slabs"
+                    android:text="@string/add_tax_slab"
                     android:textSize="22dp"
                     android:typeface="normal"
                     android:textStyle="bold"

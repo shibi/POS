@@ -82,7 +82,7 @@ public class ShiftReportFragment extends SharedFragment {
                         tab.setText(getString(R.string.purchase_label));
                         break;
                     default:
-                        tab.setText("default");
+                        tab.setText(getString(R.string.default_label_small));
                         break;
                 }
             }

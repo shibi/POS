@@ -298,7 +298,7 @@ public class BillViewActivity extends SharedActivity {
                     tv_billNo.setText("INV#"+invoiceId);
                     String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
                     tv_billDate.setText(date);
-                    tv_billType.setText("Sales invoice");
+                    tv_billType.setText(R.string.sales_invoice);
                     tv_grossTotal.setText(""+currentInvoice.getGrossAmount());
                     tv_billCurrency.setText(currentInvoice.getCurrency());
                     tv_taxAmount.setText(""+currentInvoice.getTaxAmount());

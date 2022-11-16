@@ -29,7 +29,7 @@ public class ItemPriceListAdapter extends RecyclerView.Adapter<ItemPriceListAdap
         this.listener = listener;
         
         typeLabel = mContext.getString(R.string.type);
-        rateLabel = mContext.getString(R.string.rate);
+        rateLabel = mContext.getString(R.string.rate_label);
     }
 
     @NonNull

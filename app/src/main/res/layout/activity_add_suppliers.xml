@@ -164,7 +164,7 @@
                         android:paddingEnd="15dp"
                         android:paddingTop="10dp"
                         android:paddingBottom="10dp"
-                        android:hint="Rate"/>
+                        android:hint="@string/rate_label"/>
 
                 </LinearLayout>
 

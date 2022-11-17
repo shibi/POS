@@ -1,11 +1,8 @@
 package com.rpos.pos.presentation.ui.shift.fragment;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
@@ -23,7 +20,6 @@ import com.rpos.pos.presentation.ui.common.SharedFragment;
 import com.rpos.pos.presentation.ui.shift.ShiftWiseFilterable;
 import com.rpos.pos.presentation.ui.shift.adapter.ShiftSpinnerAdapter;
 import com.rpos.pos.presentation.ui.shift.adapter.ViewPagerAdapter;
-import com.rpos.pos.presentation.ui.shift.fragment.salesreport.ShiftwiseSalesReport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +27,6 @@ import java.util.List;
 public class ShiftReportFragment extends SharedFragment {
 
     private LinearLayout ll_back;
-    private RecyclerView rv_shiftList;
     private AppCompatSpinner spinnerShifts;
 
     private AppExecutors appExecutors;
@@ -53,11 +48,8 @@ public class ShiftReportFragment extends SharedFragment {
     protected void onCreateView(View getView) {
 
         ll_back = getView.findViewById(R.id.ll_back);
-        //rv_shiftList = getView.findViewById(R.id.rv_shifts);
         spinnerShifts = getView.findViewById(R.id.sp_shift);
 
-
-        //progress bar
         progressDialog = new AppDialogs(getContext());
 
         //thread
@@ -143,6 +135,8 @@ public class ShiftReportFragment extends SharedFragment {
     private void getAllShifts(){
         try {
 
+            progressDialog.showProgressBar();
+
             appExecutors.diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -157,6 +151,7 @@ public class ShiftReportFragment extends SharedFragment {
                                 @Override
                                 public void run() {
                                     shiftSpinnerAdapter.notifyDataSetChanged();
+                                    progressDialog.hideProgressbar();
                                 }
                             });
 
@@ -172,6 +167,7 @@ public class ShiftReportFragment extends SharedFragment {
 
         }catch (Exception e){
             e.printStackTrace();
+            progressDialog.hideProgressbar();
         }
     }
 }

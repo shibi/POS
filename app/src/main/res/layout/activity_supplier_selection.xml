@@ -84,6 +84,7 @@
                     app:iconifiedByDefault="false"
                     android:clickable="true"
                     android:focusable="true"
+                    android:textDirection="locale"
                     android:layout_margin="20dp"
                     android:focusableInTouchMode="true"
                     android:background="@drawable/shape_bordered_bg_white"

@@ -337,6 +337,14 @@
     <string name="back_label">Back</string>
     <string name="print_label">PRINT</string>
     <string name="default_label_small">default</string>
+    <string name="continue_label">continue</string>
+    <string name="license_key">license key</string>
+    <string name="contact_admin">Don\'t have an account? Contact</string>
+    <string name="search_hint">Search</string>
+    <string name="to_label">To</string>
+    <string name="invoice_no">Invoice No</string>
+    <string name="bill_type">Bill type</string>
+    <string name="bill_date">Bill date</string>
 
 
 </resources>

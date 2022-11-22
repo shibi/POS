@@ -207,11 +207,12 @@
             android:background="@drawable/shape_bordered_bg_white"
             app:iconifiedByDefault="false"
             android:focusable="false"
+            android:textDirection="locale"
             android:focusedByDefault="false"
             android:paddingStart="1dp"
             android:paddingEnd="1dp"
             android:focusableInTouchMode="true"
-            app:queryHint="Search"
+            app:queryHint="@string/search_hint"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"/>
 

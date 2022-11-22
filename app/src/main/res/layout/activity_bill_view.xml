@@ -71,7 +71,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="To : "
+                            android:text="@string/to_label"
                             android:textSize="@dimen/bill_to_text_size"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -92,7 +92,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Invoice No : "
+                            android:text="@string/invoice_no"
                             android:textSize="@dimen/bill_to_text_size"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -114,7 +114,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Bill type : "
+                            android:text="@string/bill_type"
                             android:textSize="@dimen/bill_to_text_size"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -136,7 +136,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Currency : "
+                            android:text="@string/currency"
                             android:textSize="@dimen/bill_to_text_size"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -157,7 +157,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Bill date : "
+                            android:text="@string/bill_date"
                             android:textSize="@dimen/bill_to_text_size"/>
 
                         <androidx.appcompat.widget.AppCompatTextView

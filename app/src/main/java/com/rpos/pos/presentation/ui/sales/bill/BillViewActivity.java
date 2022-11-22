@@ -294,13 +294,17 @@ public class BillViewActivity extends SharedActivity {
             runOnUiThread(() -> {
                 try {
 
-                    tv_billTo.setText(""+currentInvoice.getCustomerName());
-                    tv_billNo.setText("INV#"+invoiceId);
+                    String COLON_SEPARATOR = " : ";
+
+                    tv_billTo.setText(COLON_SEPARATOR + currentInvoice.getCustomerName());
+                    tv_billNo.setText(COLON_SEPARATOR +"INV#"+invoiceId);
                     String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
-                    tv_billDate.setText(date);
-                    tv_billType.setText(R.string.sales_invoice);
+                    tv_billDate.setText(COLON_SEPARATOR + date);
+                    String billType = COLON_SEPARATOR + getString(R.string.sales_invoice);
+                    tv_billType.setText(billType);
+                    tv_billCurrency.setText(COLON_SEPARATOR + currentInvoice.getCurrency());
+
                     tv_grossTotal.setText(""+currentInvoice.getGrossAmount());
-                    tv_billCurrency.setText(currentInvoice.getCurrency());
                     tv_taxAmount.setText(""+currentInvoice.getTaxAmount());
                     tv_discountAmount.setText(""+currentInvoice.getDiscountAmount());
                     tv_netTotal.setText(""+currentInvoice.getBillAmount());

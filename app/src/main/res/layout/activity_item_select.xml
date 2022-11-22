@@ -56,6 +56,7 @@
                     android:layout_height="35dp"
                     app:iconifiedByDefault="false"
                     android:focusable="false"
+                    android:textDirection="locale"
                     android:focusedByDefault="false"
                     android:paddingStart="1dp"
                     android:paddingEnd="1dp"

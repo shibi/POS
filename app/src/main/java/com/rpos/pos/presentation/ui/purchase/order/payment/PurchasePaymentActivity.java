@@ -28,6 +28,9 @@ import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.bill.PurchaseBillView;
 import com.rpos.pos.presentation.ui.sales.bill.BillViewActivity;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +56,8 @@ public class PurchasePaymentActivity extends SharedActivity {
     private AppDatabase localDb;
 
     private List<PaymentModeEntity> payModeList;
+
+    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     @Override
     public int setUpLayout() {
@@ -320,7 +325,10 @@ public class PurchasePaymentActivity extends SharedActivity {
             if(currentInvoice == null){
                 return 0.0f;
             }
-            return currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+            //balance value without round off
+            float balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+            //balance with round of to two digits after decimal point
+            return roundOffToTwoDigits(balance);
         }catch (Exception e){
             e.printStackTrace();
             return 0.0f;
@@ -345,22 +353,31 @@ public class PurchasePaymentActivity extends SharedActivity {
         @Override
         public void afterTextChanged(Editable editable) {
             try {
-                float balance;
+
                 String enteredAmount = editable.toString();
 
                 if(currentInvoice!=null){
                     billAmount = currentInvoice.getBillAmount();
-                    float totalBalance = billAmount - currentInvoice.getPaymentAmount();
+                    float totalBalance = calculateBalance();
 
-                    float preferedPayAmount;
+                    float preferredPayAmount;
                     if(enteredAmount.isEmpty()){
-                        preferedPayAmount = 0;
+                        preferredPayAmount = 0;
                     }else {
-                        preferedPayAmount = Float.parseFloat(enteredAmount);
+                        //TO AVOID ERROR WHILE PARSING NUMBER WITH DECIMAL POINT (".") . Example ".58"
+                        //CHECK WHETHER NUMBER IS START WITH DECIMAL POINT
+                        if(enteredAmount.startsWith(".")){
+                            //APPEND A ZERO IN FRONT OF THE NUMBER
+                            enteredAmount = "0"+enteredAmount;
+                        }
+                        float fl_enteredAmount = Float.parseFloat(enteredAmount);
+                        //rounded amount
+                        preferredPayAmount = roundOffToTwoDigits(fl_enteredAmount);
                     }
 
-                    balance = totalBalance - preferedPayAmount;
-                    et_balance.setText("" + balance);
+                    float balance = totalBalance - preferredPayAmount;
+                    String str_roundedBalance = "" + roundOffToTwoDigits(balance);
+                    et_balance.setText(str_roundedBalance);
                 }
 
             }catch (Exception e){
@@ -421,10 +438,23 @@ public class PurchasePaymentActivity extends SharedActivity {
 
             //for invoice pay
             String str_paymentAmount = et_payment.getText().toString();
-            float payment = Float.parseFloat(str_paymentAmount);
+            float float_paymentAmount = Float.parseFloat(str_paymentAmount);
+            //get the rounded off amount for further calculation
+            float user_payment = roundOffToTwoDigits(float_paymentAmount);
 
-            if(payment == 0){
+            if(user_payment == 0){
                 showToast(getString(R.string.enter_amount));
+                et_payment.requestFocus();
+                return;
+            }
+
+            //TO AVOID NEGATIVE VALUE APPEARING WHEN PAYING AMOUNT IS MORE THAN THE ACTUAL BALANCE
+            //get the balance
+            float previousBalance = calculateBalance();
+            //check whether user entered amount greater than actual balance (which cause negative value)
+            //if true, stops execution there. else continue
+            if(user_payment > previousBalance){
+                showToast(getString(R.string.enter_valid_data));
                 et_payment.requestFocus();
                 return;
             }
@@ -433,15 +463,26 @@ public class PurchasePaymentActivity extends SharedActivity {
             String referenceNo = et_referenceNo.getText().toString();
             long todayDateTimestamp = DateTimeUtils.convertDateToTimeStamp(et_date.getText().toString());
 
+            //To update the current payment to existing one
+            // get the last paid amount
             float lastPayment = currentInvoice.getPaymentAmount();
-            float newPayment = lastPayment + payment;
+            //add the current payment with last payment
+            float newPayment = lastPayment + user_payment;
+            //N.B always round off the final value to avoid infinite decimal points. (ex : 20.9856985669....)
+            //round off to two digits after decimal point
+            float fl_roundedNewPayment = roundOffToTwoDigits(newPayment);
 
-            currentInvoice.setPaymentAmount(newPayment);
+            currentInvoice.setPaymentAmount(fl_roundedNewPayment);
             currentInvoice.setReferenceNo(referenceNo);
             currentInvoice.setTimestamp(todayDateTimestamp);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
-            final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+            //To check whether the payment is complete,
+            // re- calculate balance and check whether balance is greater than zero.
+            final double balance = calculateBalance();
+            //set the status according to balance
+            // STATUS - PAID ( balance = 0 or balance < 0 )
+            // STATUS - UNPAID (balance > 0 )
             currentInvoice.setStatus((balance>0)?Constants.PAYMENT_UNPAID:Constants.PAYMENT_PAID);
 
 
@@ -506,7 +547,7 @@ public class PurchasePaymentActivity extends SharedActivity {
             currentInvoice.setTimestamp(dueDateTimestamp);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
-            final double balance = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+            final double balance = calculateBalance();
             currentInvoice.setStatus((balance>0)?Constants.PAYMENT_UNPAID:Constants.PAYMENT_PAID);
 
 
@@ -545,6 +586,27 @@ public class PurchasePaymentActivity extends SharedActivity {
         }catch (Exception e){
             e.printStackTrace();
             return -1;
+        }
+    }
+
+
+    /**
+     * to round off value to two digits after decimal point. Ex: 0.00
+     * @param float_value value to round off
+     * */
+    private float roundOffToTwoDigits(float float_value){
+        try {
+
+            //round off method settings
+            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+            //round of to two digits after decimal
+            String rounded_paymentAmount = decimalFormat.format(float_value);
+            //convert the formatted amount to float
+            return Float.parseFloat(rounded_paymentAmount);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return 0.0f;
         }
     }
 

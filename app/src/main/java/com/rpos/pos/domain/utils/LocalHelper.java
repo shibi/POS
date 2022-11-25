@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.Build;
 
 import com.rpos.pos.Constants;
+import com.rpos.pos.CoreApp;
 
 import java.util.Locale;
 
@@ -18,10 +19,11 @@ public class LocalHelper {
         if (language == null || language.isEmpty()) {
             //when first time enter into app (get the device language and set it
             language = Locale.getDefault().getLanguage();
-            if (language.equals("ar")) {
+            if (language.equals(Constants.LANG_AR)) {
                 SharedPrefHelper.getInstance(context).setSelectedLang(Constants.LANG_AR);
             }
         }
+        CoreApp.DEFAULT_LANG = language;
         Locale locale = new Locale(language);
         Locale.setDefault(locale);
 

@@ -276,15 +276,15 @@ public class LoginActivity extends SharedActivity {
                                         showToast(loginMessage.getMessage(),LoginActivity.this);
                                     }
                                 }else {
-                                    showToast("Login failed",LoginActivity.this);
+                                    showToast(getString(R.string.login_failed),LoginActivity.this);
                                 }
                             }else {
-                                showToast("Login failed",LoginActivity.this);
+                                showToast(getString(R.string.login_failed),LoginActivity.this);
                             }
 
                         }else {
 
-                            showToast("Login response failed",LoginActivity.this);
+                            showToast(getString(R.string.login_failed),LoginActivity.this);
                         }
 
                     }catch (Exception e){
@@ -296,7 +296,8 @@ public class LoginActivity extends SharedActivity {
                 public void onFailure(Call<LoginResponse> call, Throwable t) {
                     try{
                         progressDialog.hideProgressbar();
-                        showToast("Login failed. Please check your internet",LoginActivity.this);
+                        String er_message = getString(R.string.login_failed) +". "+ getString(R.string.please_check_internet);
+                        showToast(er_message,LoginActivity.this);
 
                     }catch (Exception e){
                         e.printStackTrace();

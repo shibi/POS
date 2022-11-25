@@ -345,5 +345,7 @@
     <string name="invoice_no">رقم الفاتورة</string>
     <string name="bill_type">نوع الفاتورة</string>
     <string name="bill_date">تاريخ الفاتورة</string>
+    <string name="login_failed">Login failed</string>
+    <string name="please_check_internet">Please check your internet</string>
 
 </resources>

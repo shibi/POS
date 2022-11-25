@@ -345,6 +345,8 @@
     <string name="invoice_no">Invoice No</string>
     <string name="bill_type">Bill type</string>
     <string name="bill_date">Bill date</string>
+    <string name="login_failed">Login failed</string>
+    <string name="please_check_internet">Please check your internet</string>
 
 
 </resources>

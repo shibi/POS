@@ -197,14 +197,28 @@ public class PurchaseBillView extends SharedActivity {
                 try {
 
                     String COLON_SEPARATOR = " : ";
-
-                    tv_billTo.setText(COLON_SEPARATOR + currentInvoice.getCustomerName());
-                    tv_billNo.setText(COLON_SEPARATOR + "INV#"+invoiceId);
+                    String _billToCustomer,_billNo,_billDate,_billType, _billCurrency;
                     String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
-                    tv_billDate.setText(COLON_SEPARATOR + date);
-                    String billType = COLON_SEPARATOR + getString(R.string.sales_invoice);
-                    tv_billType.setText(billType);
-                    tv_billCurrency.setText(COLON_SEPARATOR + currentInvoice.getCurrency());
+
+                    if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
+                        _billToCustomer = COLON_SEPARATOR + currentInvoice.getCustomerName();
+                        _billNo = COLON_SEPARATOR +"INV#"+invoiceId;
+                        _billDate = COLON_SEPARATOR + date;
+                        _billType = COLON_SEPARATOR + getString(R.string.purchase_label);
+                        _billCurrency = COLON_SEPARATOR + currentInvoice.getCurrency();
+                    }else {
+                        _billToCustomer = currentInvoice.getCustomerName() + COLON_SEPARATOR;
+                        _billNo =  invoiceId +"INV#"+ COLON_SEPARATOR;
+                        _billDate = COLON_SEPARATOR + date ;
+                        _billType = COLON_SEPARATOR + getString(R.string.purchase_label);
+                        _billCurrency = COLON_SEPARATOR + currentInvoice.getCurrency();
+                    }
+
+                    tv_billTo.setText(_billToCustomer);
+                    tv_billNo.setText(_billNo);
+                    tv_billDate.setText(_billDate);
+                    tv_billType.setText(_billType);
+                    tv_billCurrency.setText(_billCurrency);
 
                     tv_grossTotal.setText(""+currentInvoice.getGrossAmount());
                     tv_taxAmount.setText(""+currentInvoice.getTaxAmount());

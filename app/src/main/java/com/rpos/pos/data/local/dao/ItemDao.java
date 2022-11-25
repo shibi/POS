@@ -4,7 +4,6 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import com.rpos.pos.data.local.entity.ItemEntity;
-import com.rpos.pos.data.remote.dto.items.list.ItemData;
 import java.util.List;
 
 import static androidx.room.OnConflictStrategy.REPLACE;

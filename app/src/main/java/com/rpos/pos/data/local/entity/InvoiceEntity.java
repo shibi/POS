@@ -3,7 +3,10 @@ package com.rpos.pos.data.local.entity;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
+/**
+ * SALES INVOICE ENTITY (FOR SAVING INVOICE IN ROOM DB)
+ *
+ * */
 @Entity(tableName = "invoiceTable")
 public class InvoiceEntity {
 

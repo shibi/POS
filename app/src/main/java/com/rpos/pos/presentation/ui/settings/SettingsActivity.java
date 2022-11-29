@@ -29,8 +29,8 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
-import com.mazenrashed.printooth.Printooth;
-import com.mazenrashed.printooth.ui.ScanningActivity;
+/*import com.mazenrashed.printooth.Printooth;
+import com.mazenrashed.printooth.ui.ScanningActivity;*/
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Config;
 import com.rpos.pos.Constants;
@@ -328,11 +328,11 @@ public class SettingsActivity extends SharedActivity {
         btn_BT_pair.setOnClickListener(view -> {
             try {
 
-                if (!Printooth.INSTANCE.hasPairedPrinter()) {
+                /*if (!Printooth.INSTANCE.hasPairedPrinter()) {
                     scanForBluetoothPrinterDevice();
                 }else {
                     unPairBTDevice();
-                }
+                }*/
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -345,7 +345,7 @@ public class SettingsActivity extends SharedActivity {
         //app icon view
         btn_icon_open.setOnClickListener(this::showFileChoose);
 
-        initBluetoothView();
+        //initBluetoothView();
 
         //get currency list
         getCurrencyList();
@@ -358,7 +358,7 @@ public class SettingsActivity extends SharedActivity {
 
     }
 
-    private void initBluetoothView(){
+   /* private void initBluetoothView(){
         if (Printooth.INSTANCE.getPairedPrinter()!=null)
             btn_BT_pair.setText((Printooth.INSTANCE.hasPairedPrinter())?("Un-pair "+ Printooth.INSTANCE.getPairedPrinter().getName()):"Pair with printer");
     }
@@ -371,7 +371,7 @@ public class SettingsActivity extends SharedActivity {
         if (Printooth.INSTANCE.hasPairedPrinter()) {
             Printooth.INSTANCE.removeCurrentPrinter();
         }
-    }
+    }*/
 
 
     /**
@@ -532,11 +532,7 @@ public class SettingsActivity extends SharedActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("xxx", "onActivityResult "+requestCode);
 
-        if (requestCode == ScanningActivity.SCANNING_FOR_PRINTER && resultCode == Activity.RESULT_OK) {
-
-            initBluetoothView();
-
-        }else if(requestCode == PICK_IMAGE_REQUEST) {
+        if(requestCode == PICK_IMAGE_REQUEST) {
             if(resultCode == RESULT_OK){
                 if(data!=null && data.getData()!=null){
                     Uri filePath = data.getData();

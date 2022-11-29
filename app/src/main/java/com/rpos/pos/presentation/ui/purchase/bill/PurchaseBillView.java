@@ -9,14 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
-import com.mazenrashed.printooth.Printooth;
+/*import com.mazenrashed.printooth.Printooth;
 import com.mazenrashed.printooth.data.printable.Printable;
 import com.mazenrashed.printooth.data.printable.RawPrintable;
 import com.mazenrashed.printooth.data.printable.TextPrintable;
 import com.mazenrashed.printooth.data.printer.DefaultPrinter;
 import com.mazenrashed.printooth.ui.ScanningActivity;
 import com.mazenrashed.printooth.utilities.Printing;
-import com.mazenrashed.printooth.utilities.PrintingCallback;
+import com.mazenrashed.printooth.utilities.PrintingCallback;*/
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
@@ -53,8 +53,8 @@ public class PurchaseBillView extends SharedActivity {
 
     private AppCompatButton btn_back, btn_print;
 
-    private Printing printing = null;
-    PrintingCallback printingCallback=null;
+    /*private Printing printing = null;
+    PrintingCallback printingCallback=null;*/
 
     private CompanyAddressEntity companyAddressEntity;
     private AppDialogs printerProgress;
@@ -118,7 +118,7 @@ public class PurchaseBillView extends SharedActivity {
         //get the current invoice with id
         getCurrentInvoice();
 
-        if (Printooth.INSTANCE.hasPairedPrinter()) {
+        /*if (Printooth.INSTANCE.hasPairedPrinter()) {
             printing = Printooth.INSTANCE.printer();
         }
 
@@ -134,10 +134,10 @@ public class PurchaseBillView extends SharedActivity {
             }catch (Exception e){
                 e.printStackTrace();
             }
-        });
+        });*/
 
         //init bluetooth printer
-        initListeners();
+        //initListeners();
     }
 
     @Override
@@ -276,7 +276,7 @@ public class PurchaseBillView extends SharedActivity {
     }
 
 
-    private void initListeners() {
+    /*private void initListeners() {
         if (printing!=null && printingCallback==null) {
             Log.d("xxx", "initListeners ");
             printingCallback = new PrintingCallback() {
@@ -310,19 +310,19 @@ public class PurchaseBillView extends SharedActivity {
 
             Printooth.INSTANCE.printer().setPrintingCallback(printingCallback);
         }
-    }
+    }*/
 
 
-    private void printReceipt(){
+    /*private void printReceipt(){
 
         if (printing!=null) {
             //printing.print(getSomePrintables());
             Printooth.INSTANCE.printer().print(getSomePrintables());
         }
 
-    }
+    }*/
 
-    private ArrayList<Printable> getSomePrintables() {
+    /*private ArrayList<Printable> getSomePrintables() {
 
         ArrayList<Printable> al = new ArrayList<>();
         al.add(new RawPrintable.Builder(new byte[]{27, 100, 4}).build()); // feed lines example in raw mode
@@ -526,7 +526,7 @@ public class PurchaseBillView extends SharedActivity {
         //---------------------------------------------------------------------------1
 
         //ORIGINAL DATA FROM SAMPLE PROJECT. REFER THIS. DO NOT DELETE
-        /*al.add( (new TextPrintable.Builder())
+        *//*al.add( (new TextPrintable.Builder())
                 .setText("Hello World")
                 .setLineSpacing(DefaultPrinter.Companion.getLINE_SPACING_60())
                 .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
@@ -552,20 +552,20 @@ public class PurchaseBillView extends SharedActivity {
                 .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_ARABIC_FARISI())
                 .setNewLinesAfter(1)
                 .setCustomConverter(new ArabicConverter()) // change only the converter for this one
-                .build());*/
+                .build());*//*
 
         return al;
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("xxx", "onActivityResult "+requestCode);
 
-        if (requestCode == ScanningActivity.SCANNING_FOR_PRINTER && resultCode == Activity.RESULT_OK) {
+       /* if (requestCode == ScanningActivity.SCANNING_FOR_PRINTER && resultCode == Activity.RESULT_OK) {
             printing = Printooth.INSTANCE.printer();
             initListeners();
             printReceipt();
-        }
+        }*/
     }
 }

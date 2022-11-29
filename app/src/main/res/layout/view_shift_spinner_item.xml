@@ -150,6 +150,6 @@
         android:layout_width="match_parent"
         android:layout_height="0.1dp"
         android:layout_marginTop="6dp"
-        android:background="@color/colorPrimary"/>
+        android:background="@color/color_primary"/>
 
 </LinearLayout>

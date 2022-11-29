@@ -8,7 +8,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import androidx.room.Room;
-import com.mazenrashed.printooth.Printooth;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.CurrencyItem;
 import com.rpos.pos.data.local.entity.ItemEntity;
@@ -51,7 +50,7 @@ public class CoreApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Printooth.INSTANCE.init(this);
+        //Printooth.INSTANCE.init(this);
 
     }
 

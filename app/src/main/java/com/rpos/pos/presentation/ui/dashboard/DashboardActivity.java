@@ -252,7 +252,6 @@ public class DashboardActivity extends SharedActivity{
         startActivity(reportsHomeIntent);
     }
 
-
     public void loadFragment(Fragment fragment, String tag) {
         try {
 

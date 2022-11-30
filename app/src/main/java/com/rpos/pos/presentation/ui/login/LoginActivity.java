@@ -35,7 +35,6 @@ import retrofit2.Response;
 
 public class LoginActivity extends SharedActivity {
 
-    private AppCompatEditText et_serverurl;
     private LinearLayout ll_lang_arab,ll_lang_eng;
     private AppCompatEditText et_username,et_password;
     private AppCompatButton btn_login;
@@ -59,7 +58,6 @@ public class LoginActivity extends SharedActivity {
     @Override
     public void initViews() {
         //initializing views
-        et_serverurl = findViewById(R.id.et_server_url);
         et_username = findViewById(R.id.et_username);
         et_password = findViewById(R.id.et_password);
         btn_login = findViewById(R.id.btn_continue);
@@ -70,17 +68,10 @@ public class LoginActivity extends SharedActivity {
         progressDialog = new AppDialogs(this);
 
         //default selection
-        loginType = LOGIN_LICENCE_SERVER;
-
-        //add listener
-        et_serverurl.setVisibility(View.VISIBLE);
-        et_username.setVisibility(View.GONE);
-        et_password.setVisibility(View.GONE);
+        loginType = LOGIN_ERPNEXT;
 
         //login click
-        //CURRENTLY DISABLED ERPNEXT AND LICENCE SERVER LOGIN, API IS NOT WORKING RIGHT NOW
-        //FOCUSING ON OFFLINE WORKING
-        btn_login.setOnClickListener(view -> gotoDashboardActivity());
+        btn_login.setOnClickListener(view -> onClickLogin());
 
         //language toggle English and arabic on click
         ll_lang_arab.setOnClickListener(view -> { toggleLanguage(Constants.LANG_AR); });
@@ -156,7 +147,7 @@ public class LoginActivity extends SharedActivity {
             //show progress bar
             progressDialog.showProgressBar();
             //get the licence key entered
-            String licenceKey = et_serverurl.getText().toString();
+            String licenceKey = "dummy";//et_serverurl.getText().toString();
             //check key is valid
             if(licenceKey.isEmpty()){
                 //if key is not valid, then show message and stop processing

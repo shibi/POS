@@ -53,6 +53,7 @@ public class CoreApp extends Application {
 
         Printooth.INSTANCE.init(this);
 
+
     }
 
     public void setApiTokens(String apiKey, String apiSecret){

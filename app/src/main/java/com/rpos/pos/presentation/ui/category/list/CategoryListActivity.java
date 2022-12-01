@@ -111,7 +111,7 @@ public class CategoryListActivity extends SharedActivity {
         ll_add_category.setOnClickListener(this::gotoAddCategoryScreen);
 
         //getCategoryListApi();
-        getCategoryFromLocalDb();
+        //getCategoryFromLocalDb();
 
     }
 

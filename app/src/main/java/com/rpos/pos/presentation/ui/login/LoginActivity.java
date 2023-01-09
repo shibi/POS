@@ -7,11 +7,11 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
+
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 
-import com.rpos.pos.AppExecutors;
+import com.rpos.pos.Config;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
@@ -25,9 +25,9 @@ import com.rpos.pos.data.remote.dto.login.LoginResponse;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.dashboard.DashboardActivity;
-import com.rpos.pos.presentation.ui.testing.Testing;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,10 +35,18 @@ import retrofit2.Response;
 
 public class LoginActivity extends SharedActivity {
 
+    //linear views
+    private LinearLayout ll_showPass;
     private LinearLayout ll_lang_arab,ll_lang_eng;
+
+    //user interaction views
     private AppCompatEditText et_username,et_password;
     private AppCompatButton btn_login;
 
+    //password eye icon
+    private ImageView iv_eye_icon;
+
+    //show progress
     private AppDialogs progressDialog;
 
     private int loginType;
@@ -57,12 +65,18 @@ public class LoginActivity extends SharedActivity {
 
     @Override
     public void initViews() {
+
         //initializing views
         et_username = findViewById(R.id.et_username);
         et_password = findViewById(R.id.et_password);
         btn_login = findViewById(R.id.btn_continue);
+
         ll_lang_arab = findViewById(R.id.ll_lang_arab);
         ll_lang_eng = findViewById(R.id.ll_lang_eng);
+        ll_showPass = findViewById(R.id.ll_showPass);
+
+        //eye icon to toggle password visibility
+        iv_eye_icon = findViewById(R.id.iv_show);
 
         //progress dialog initialize
         progressDialog = new AppDialogs(this);
@@ -77,11 +91,14 @@ public class LoginActivity extends SharedActivity {
         ll_lang_arab.setOnClickListener(view -> { toggleLanguage(Constants.LANG_AR); });
         ll_lang_eng.setOnClickListener(view -> { toggleLanguage(Constants.LANG_EN); });
 
+        //N.B Need to set a tag first.
+        //else, tag will be null and throws error while password toggle
+        et_password.setTag("show");
+        //to show / hide password
+        ll_showPass.setOnClickListener(this::togglePasswordVisibility);
+
         //check custom logo available, show if any.
         getAvailableCustomLogo();
-
-        //Testing testing = new Testing(new AppExecutors(), getCoreApp().getLocalDb());
-        //testing.insetSampleData();
     }
 
     @Override
@@ -89,15 +106,6 @@ public class LoginActivity extends SharedActivity {
 
     }
 
-    /**
-     * redirect to  dashboard
-     * */
-    private void gotoDashboardActivity(){
-        Intent dashboardIntent = new Intent(this, DashboardActivity.class);
-        startActivity(dashboardIntent);
-    }
-
-    //N.B Not using right now , APi is not accessible
     /**
      * on click login
      * check login type selected
@@ -124,14 +132,16 @@ public class LoginActivity extends SharedActivity {
      * */
     private void loginERPNEXT(){
         try {
+
             //check entered values are valid
-            if(isValid()){
+            if(validateUserEntryFields()){
+
                 //if valid, get the username and password for login request
                 String username = et_username.getText().toString();
                 String password = et_password.getText().toString();
 
                 //request login through api
-                requestLogin(username,password.trim());
+                requestLogin(username.trim(),password.trim());
             }
 
         }catch (Exception e) {
@@ -189,8 +199,9 @@ public class LoginActivity extends SharedActivity {
     /**
      * validate entry fields
      * */
-    private boolean isValid(){
+    private boolean validateUserEntryFields(){
         try {
+
             //get user inputs
             String username = et_username.getText().toString();
             String password = et_password.getText().toString();
@@ -232,6 +243,7 @@ public class LoginActivity extends SharedActivity {
             LoginRequestJson params = new LoginRequestJson();
             params.setUsr(email);
             params.setPwd(password);
+            params.setSite(Config.BASE_URL_PREFIX);
 
             //call the login api with username and password params
             Call<LoginResponse> call = apiService.posLogin(params);
@@ -334,6 +346,37 @@ public class LoginActivity extends SharedActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    /**
+     * toggle password visibility
+     * */
+    private void togglePasswordVisibility(View view){
+        try{
+
+            if (et_password.getTag().equals("show")) {
+                et_password.setTag("hide");
+                et_password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                iv_eye_icon.setImageResource(R.drawable.ic_eye_hide);
+            } else {
+                et_password.setTag("show");
+                et_password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                iv_eye_icon.setImageResource(R.drawable.ic_baseline_remove_red_eye_24);
+            }
+
+            et_password.setSelection(et_password.getText().length());
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * redirect to  dashboard
+     * */
+    private void gotoDashboardActivity(){
+        Intent dashboardIntent = new Intent(this, DashboardActivity.class);
+        startActivity(dashboardIntent);
     }
 
     /**

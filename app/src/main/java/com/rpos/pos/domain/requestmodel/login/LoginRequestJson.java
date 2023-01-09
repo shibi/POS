@@ -12,6 +12,10 @@ public class LoginRequestJson {
     @Expose
     private String pwd;
 
+    @SerializedName("site")
+    @Expose
+    private String site;
+
     public String getUsr() {
         return usr;
     }
@@ -28,4 +32,11 @@ public class LoginRequestJson {
         this.pwd = pwd;
     }
 
+    public String getSite() {
+        return site;
+    }
+
+    public void setSite(String site) {
+        this.site = site;
+    }
 }

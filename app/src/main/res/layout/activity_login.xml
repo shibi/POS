@@ -125,7 +125,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:hint="username"
-                android:text="test@gmail.com"
+                android:text="pos@momscode.in"
                 android:visibility="visible"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
@@ -150,7 +150,7 @@
                     android:paddingStart="20dp"
                     android:paddingEnd="50dp"
                     android:hint="password"
-                    android:text="Qwerty12345!@#"
+                    android:text="posnext"
                     android:paddingTop="12dp"
                     android:paddingBottom="12dp"/>
 

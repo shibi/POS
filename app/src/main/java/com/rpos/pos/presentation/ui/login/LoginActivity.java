@@ -51,7 +51,6 @@ public class LoginActivity extends SharedActivity {
 
     private int loginType;
     private static final int LOGIN_ERPNEXT = 1;
-    private static final int LOGIN_LICENCE_SERVER = 2;
 
     @Override
     public int setUpLayout() {

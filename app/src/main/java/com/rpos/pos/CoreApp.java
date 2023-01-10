@@ -18,6 +18,8 @@ import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
 import com.rpos.pos.domain.models.country.CountryItem;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,8 +53,15 @@ public class CoreApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Printooth.INSTANCE.init(this);
+        //Printooth.INSTANCE.init(this);
+        init();
+    }
 
+    /**
+     * Connect print service through interface library
+     */
+    private void init(){
+        SunmiPrintHelper.getInstance().initSunmiPrinterService(this);
     }
 
     public void setApiTokens(String apiKey, String apiSecret){

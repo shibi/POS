@@ -38,10 +38,14 @@ import com.rpos.pos.data.remote.dto.ZatcaResponse;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.BluetoothUtil;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.ESCUtil;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 
 import org.apache.commons.codec.binary.Hex;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,6 +80,8 @@ public class BillViewActivity extends SharedActivity {
     private CompanyAddressEntity companyAddressEntity;
     private AppDialogs printerProgress;
 
+    private String[] mStrings = new String[]{"CP437", "CP850", "CP860", "CP863", "CP865", "CP857", "CP737", "CP928", "Windows-1252", "CP866", "CP852", "CP858", "CP874", "Windows-775", "CP855", "CP862", "CP864", "GB18030", "BIG5", "KSC5601", "utf-8"};
+    private int record;
 
     @Override
     public int setUpLayout() {
@@ -89,6 +95,8 @@ public class BillViewActivity extends SharedActivity {
 
     @Override
     public void initViews() {
+
+        record = 17;
 
         tv_billTo = findViewById(R.id.tv_invoiceTo);
         tv_billNo = findViewById(R.id.tv_invoiceNo);
@@ -143,11 +151,13 @@ public class BillViewActivity extends SharedActivity {
         btn_print.setOnClickListener(view -> {
             try{
 
-                if (!Printooth.INSTANCE.hasPairedPrinter())
+                /*if (!Printooth.INSTANCE.hasPairedPrinter())
                     startActivityForResult(new Intent(this, ScanningActivity.class ),ScanningActivity.SCANNING_FOR_PRINTER);
                 else {
                     printReceipt();
-                }
+                }*/
+
+                print();
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -155,13 +165,116 @@ public class BillViewActivity extends SharedActivity {
         });
 
         //init bluetooth printer
-        initListeners();
+        //initListeners();
     }
 
     @Override
     public void initObservers() {
 
     }
+
+    private void print(){
+        try {
+
+            String content = createBillableContent_En();
+            String textFont = "test.ttf";
+
+            float size = 24.0f;
+            if (!BluetoothUtil.isBlueToothPrinter) {
+                SunmiPrintHelper.getInstance().printText(content, size, false, false, textFont);
+                SunmiPrintHelper.getInstance().feedPaper();
+            } else {
+                printByBluTooth(content);
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    private void printByBluTooth(String content) {
+        try {
+            Boolean isBold = false;
+            if (isBold) {
+                BluetoothUtil.sendData(ESCUtil.boldOn());
+            } else {
+                BluetoothUtil.sendData(ESCUtil.boldOff());
+            }
+
+            Boolean isUnderLine = false;
+            if (isUnderLine) {
+                BluetoothUtil.sendData(ESCUtil.underlineWithOneDotWidthOn());
+            } else {
+                BluetoothUtil.sendData(ESCUtil.underlineOff());
+            }
+
+            if (record < 17) {
+                BluetoothUtil.sendData(ESCUtil.singleByte());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystemSingle(codeParse(record)));
+            } else {
+                BluetoothUtil.sendData(ESCUtil.singleByteOff());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystem(codeParse(record)));
+            }
+
+            BluetoothUtil.sendData(content.getBytes(mStrings[record]));
+            BluetoothUtil.sendData(ESCUtil.nextLine(3));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private byte codeParse(int value) {
+        byte res = 0x00;
+        switch (value) {
+            case 0:
+                res = 0x00;
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                res = (byte) (value + 1);
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                res = (byte) (value + 8);
+                break;
+            case 12:
+                res = 21;
+                break;
+            case 13:
+                res = 33;
+                break;
+            case 14:
+                res = 34;
+                break;
+            case 15:
+                res = 36;
+                break;
+            case 16:
+                res = 37;
+                break;
+            case 17:
+            case 18:
+            case 19:
+                res = (byte) (value - 17);
+                break;
+            case 20:
+                res = (byte) 0xff;
+                break;
+            default:
+                break;
+        }
+        return (byte) res;
+    }
+
 
 
     private void generateZatcaBase64(String sellerName, String taxNumber, float total,float taxAmount,String date){
@@ -283,6 +396,72 @@ public class BillViewActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
+
+
+
+
+    private String createBillableContent_En(){
+
+        String line = getString(R.string.print_line);
+
+        String companyName = "             POS              ";
+        String company_address = "        Company address       ";
+        String phoneNumber = "       Ph: +91 9876543210     ";
+        String emailId = "    Email:email@gmail.com    ";
+
+        if(companyAddressEntity != null){
+            String tempString = companyAddressEntity.getCompanyNameEng();
+            if(tempString!=null){
+
+                if(tempString.length() > 31){
+                    companyName = tempString.substring(0,30);
+                }else {
+                    int remainingSpace = 31 - tempString.length();
+                    String preSpace = "";
+                    String postSpace = "";
+                    if(remainingSpace%2 == 0){
+                        preSpace = getLineFilledSpaces((int) remainingSpace/2);
+                        postSpace = preSpace;
+                    }else {
+                        preSpace = getLineFilledSpaces((int) ((remainingSpace/2) -1));
+                        postSpace = preSpace+" ";
+                    }
+
+                    companyName = preSpace + tempString + postSpace;
+                }
+            }
+        }
+
+        String company_header =  companyName +"\n"+ company_address + "\n" + phoneNumber + "\n" + emailId + "\n" +line;
+
+        //----------------------------------------------------------------------------------------------------------------------------
+        String billTo = getString(R.string.to_label) + ": "+ currentInvoice.getCustomerName();
+        String invoiceNo = getString(R.string.invoice_no) + ": INV#"+ currentInvoice.getId();
+        String billType = getString(R.string.bill_type) + ": Sales invoice";
+        String currency = getString(R.string.currency) + ": "+ currentInvoice.getCurrency();
+        String billDate = getString(R.string.bill_date) + ": "+ DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+
+        String billInfo = billTo + "\n" + invoiceNo + "\n" + billType + "\n" + currency + "\n" + billDate + "\n" + line;
+
+
+
+        String tableHeader = "\nitem        rate   Qty   Total\n"+line+"\n";
+
+
+        String finalString = company_header +"\n "+ tableHeader + "\n "+ billInfo;
+
+        return finalString;
+    }
+
+    private String getLineFilledSpaces(int charCount){
+        String fillSpace = "";
+        for (int i=0;i<charCount;i++){
+            fillSpace+=" ";
+        }
+        return fillSpace;
+    }
+
+
 
 
     /**

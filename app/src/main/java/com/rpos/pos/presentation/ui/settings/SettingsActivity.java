@@ -345,7 +345,7 @@ public class SettingsActivity extends SharedActivity {
         //app icon view
         btn_icon_open.setOnClickListener(this::showFileChoose);
 
-        initBluetoothView();
+        //initBluetoothView();
 
         //get currency list
         getCurrencyList();

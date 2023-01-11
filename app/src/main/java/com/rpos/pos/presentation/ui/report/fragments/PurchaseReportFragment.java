@@ -9,12 +9,11 @@ import com.rpos.pos.Config;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.domain.utils.DateTimeUtils;
+import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.report.adapter.PurchaseReportAdapter;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,7 +110,6 @@ public class PurchaseReportFragment extends ReportBaseFragment {
             Row row;
             PurchaseInvoiceEntity invoice;
             float netAmount, outstanding;
-            final DecimalFormat decimalFormat = new DecimalFormat("0.00");
             String temp_value;
 
             CellStyle cellbodyStyle = workbook.createCellStyle();
@@ -138,8 +136,7 @@ public class PurchaseReportFragment extends ReportBaseFragment {
 
                 try{
                     netAmount = invoice.getGrossAmount() - invoice.getDiscountAmount();
-                    decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-                    temp_value = decimalFormat.format(netAmount);
+                    temp_value = Utility.roundOffDecimalValueTo2Digits(netAmount);
                 }catch (Exception e){
                     temp_value = "Nil 01";
                 }
@@ -152,8 +149,7 @@ public class PurchaseReportFragment extends ReportBaseFragment {
 
                 try{
                     outstanding = invoice.getBillAmount() - invoice.getPaymentAmount();
-                    decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-                    temp_value = decimalFormat.format(outstanding);
+                    temp_value = Utility.roundOffDecimalValueTo2Digits(outstanding);
                 }catch (Exception e){
                     temp_value = "Nil 02";
                 }

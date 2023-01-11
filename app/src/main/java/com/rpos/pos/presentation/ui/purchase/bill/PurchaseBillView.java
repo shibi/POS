@@ -1,22 +1,12 @@
 package com.rpos.pos.presentation.ui.purchase.bill;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.os.RemoteException;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
-import com.mazenrashed.printooth.Printooth;
-import com.mazenrashed.printooth.data.printable.Printable;
-import com.mazenrashed.printooth.data.printable.RawPrintable;
-import com.mazenrashed.printooth.data.printable.TextPrintable;
-import com.mazenrashed.printooth.data.printer.DefaultPrinter;
-import com.mazenrashed.printooth.ui.ScanningActivity;
-import com.mazenrashed.printooth.utilities.Printing;
-import com.mazenrashed.printooth.utilities.PrintingCallback;
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
@@ -24,21 +14,27 @@ import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.CompanyAddressEntity;
 import com.rpos.pos.data.local.entity.CompanyEntity;
+import com.rpos.pos.data.local.entity.InvoiceItemHistory;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.BluetoothUtil;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.ESCUtil;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
-import com.rpos.pos.presentation.ui.sales.bill.BillViewActivity;
+import com.sunmi.peripheral.printer.InnerResultCallback;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PurchaseBillView extends SharedActivity {
 
     private AppCompatTextView tv_billTo,tv_billNo,tv_billDate, tv_billType,tv_billCurrency;
-    private AppCompatTextView tv_grossTotal,tv_taxAmount, tv_netTotal,tv_discountAmount, tv_payment,tv_due_amount, tv_totalItems, tv_payCurrency;
+    private AppCompatTextView tv_grossTotal,tv_taxAmount, tv_netTotal,tv_discountAmount, tv_payment,
+            tv_due_amount, tv_totalItems, tv_payCurrency, tv_cash_paid, tv_billAmount;
     private AppCompatTextView tv_companyName, tv_companyPhone,tv_companyEmail,tv_companyAddress;
     private ImageView iv_qrcode;
     private AppExecutors appExecutors;
@@ -53,11 +49,15 @@ public class PurchaseBillView extends SharedActivity {
 
     private AppCompatButton btn_back, btn_print;
 
-    private Printing printing = null;
-    PrintingCallback printingCallback=null;
-
     private CompanyAddressEntity companyAddressEntity;
     private AppDialogs printerProgress;
+
+    private String[] mStrings = new String[]{"CP437", "CP850", "CP860", "CP863", "CP865", "CP857", "CP737", "CP928", "Windows-1252", "CP866", "CP852", "CP858", "CP874", "Windows-775", "CP855", "CP862", "CP864", "GB18030", "BIG5", "KSC5601", "utf-8"};
+    private int record;
+
+    //For to pass to printing
+    private List<PurchaseInvoiceItemHistory> printItemsList;
+    private String printerQrData;
 
     @Override
     public int setUpLayout() {
@@ -71,6 +71,8 @@ public class PurchaseBillView extends SharedActivity {
 
     @Override
     public void initViews() {
+
+        record = 17;
 
         tv_billTo = findViewById(R.id.tv_invoiceTo);
         tv_billNo = findViewById(R.id.tv_invoiceNo);
@@ -93,6 +95,8 @@ public class PurchaseBillView extends SharedActivity {
         tv_companyPhone = findViewById(R.id.tv_companyPhone);
         tv_companyEmail = findViewById(R.id.tv_companyEmail);
         tv_companyAddress = findViewById(R.id.tv_companyAddress);
+        tv_cash_paid = findViewById(R.id.tv_cash_paid);
+        tv_billAmount = findViewById(R.id.tv_billAmount);
 
         printerProgress = new AppDialogs(this);
 
@@ -110,6 +114,8 @@ public class PurchaseBillView extends SharedActivity {
 
         billingCountryId = prefHelper.getBillingCountry();
 
+        printerQrData = "Empty data";
+        printItemsList = new ArrayList<>();
         currentInvoice = null;
 
         //back press
@@ -118,33 +124,20 @@ public class PurchaseBillView extends SharedActivity {
         //get the current invoice with id
         getCurrentInvoice();
 
-        if (Printooth.INSTANCE.hasPairedPrinter()) {
-            printing = Printooth.INSTANCE.printer();
-        }
-
         btn_print.setOnClickListener(view -> {
             try{
-
-                if (!Printooth.INSTANCE.hasPairedPrinter())
-                    startActivityForResult(new Intent(this, ScanningActivity.class ),ScanningActivity.SCANNING_FOR_PRINTER);
-                else {
-                    printReceipt();
-                }
-
+                print();
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
 
-        //init bluetooth printer
-        initListeners();
     }
 
     @Override
     public void initObservers() {
 
     }
-
 
     /**
      * get invoice details
@@ -167,6 +160,7 @@ public class PurchaseBillView extends SharedActivity {
                         }else {
                             savedCompanyDetails = null;
                         }
+                        printItemsList = billedItemsList;
                         updateValuesToUi(billedItemsList);
 
                         List<CompanyAddressEntity> companyAddressList = localDb.companyAddressDao().getCompanyDetails();
@@ -186,6 +180,123 @@ public class PurchaseBillView extends SharedActivity {
         }
     }
 
+    private void print(){
+        try {
+
+            float size = 24.0f;
+            if (!BluetoothUtil.isBlueToothPrinter) {
+                SunmiPrintHelper.getInstance().printTransaction_purchase(PurchaseBillView.this,currentInvoice,companyAddressEntity, printItemsList, printerQrData, new InnerResultCallback() {
+                    @Override
+                    public void onRunResult(boolean isSuccess) throws RemoteException {
+                        Log.e("-------------","1> "+isSuccess);
+                    }
+
+                    @Override
+                    public void onReturnString(String result) throws RemoteException {
+                        Log.e("-------------","2> ");
+                    }
+
+                    @Override
+                    public void onRaiseException(int code, String msg) throws RemoteException {
+                        Log.e("-------------","3> ");
+                    }
+
+                    @Override
+                    public void onPrintResult(int code, String msg) throws RemoteException {
+                        Log.e("-------------","4> "+code+" > "+msg);
+                    }
+                });
+            } else {
+                //printByBluTooth(content);
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void printByBluTooth(String content) {
+        try {
+            Boolean isBold = false;
+            if (isBold) {
+                BluetoothUtil.sendData(ESCUtil.boldOn());
+            } else {
+                BluetoothUtil.sendData(ESCUtil.boldOff());
+            }
+
+            Boolean isUnderLine = false;
+            if (isUnderLine) {
+                BluetoothUtil.sendData(ESCUtil.underlineWithOneDotWidthOn());
+            } else {
+                BluetoothUtil.sendData(ESCUtil.underlineOff());
+            }
+
+            if (record < 17) {
+                BluetoothUtil.sendData(ESCUtil.singleByte());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystemSingle(codeParse(record)));
+            } else {
+                BluetoothUtil.sendData(ESCUtil.singleByteOff());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystem(codeParse(record)));
+            }
+
+            BluetoothUtil.sendData(content.getBytes(mStrings[record]));
+            BluetoothUtil.sendData(ESCUtil.nextLine(3));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private byte codeParse(int value) {
+        byte res = 0x00;
+        switch (value) {
+            case 0:
+                res = 0x00;
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                res = (byte) (value + 1);
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                res = (byte) (value + 8);
+                break;
+            case 12:
+                res = 21;
+                break;
+            case 13:
+                res = 33;
+                break;
+            case 14:
+                res = 34;
+                break;
+            case 15:
+                res = 36;
+                break;
+            case 16:
+                res = 37;
+                break;
+            case 17:
+            case 18:
+            case 19:
+                res = (byte) (value - 17);
+                break;
+            case 20:
+                res = (byte) 0xff;
+                break;
+            default:
+                break;
+        }
+        return (byte) res;
+    }
 
     /**
      * fill invoice detail in fields
@@ -228,6 +339,8 @@ public class PurchaseBillView extends SharedActivity {
                     float dueAmount = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
                     tv_due_amount.setText(""+dueAmount);
                     tv_payCurrency.setText(currentInvoice.getCurrency());
+                    tv_cash_paid.setText(""+currentInvoice.getPaymentAmount());
+                    tv_billAmount.setText(""+currentInvoice.getBillAmount());
 
                     int itemCount = 0;
                     for (PurchaseInvoiceItemHistory item:billedItemsList){
@@ -248,7 +361,6 @@ public class PurchaseBillView extends SharedActivity {
             e.printStackTrace();
         }
     }
-
 
     private void updateCompanyAddress(List<CompanyAddressEntity> cmpnyAddressList){
         runOnUiThread(() -> {
@@ -276,296 +388,5 @@ public class PurchaseBillView extends SharedActivity {
     }
 
 
-    private void initListeners() {
-        if (printing!=null && printingCallback==null) {
-            Log.d("xxx", "initListeners ");
-            printingCallback = new PrintingCallback() {
-
-                public void connectingWithPrinter() {
-                    Toast.makeText(getApplicationContext(), "Connecting with printer", Toast.LENGTH_SHORT).show();
-                    Log.d("xxx", "Connecting");
-                    printerProgress.showProgressBar("Connecting with printer");
-                }
-                public void printingOrderSentSuccessfully() {
-                    Toast.makeText(getApplicationContext(), "printingOrderSentSuccessfully", Toast.LENGTH_SHORT).show();
-                    Log.d("xxx", "printingOrderSentSuccessfully");
-                    printerProgress.hideProgressbar();
-                }
-                public void connectionFailed(@NonNull String error) {
-                    Toast.makeText(getApplicationContext(), "connectionFailed :"+error, Toast.LENGTH_SHORT).show();
-                    Log.d("xxx", "connectionFailed : "+error);
-                    printerProgress.hideProgressbar();
-                }
-                public void onError(@NonNull String error) {
-                    Toast.makeText(getApplicationContext(), "onError :"+error, Toast.LENGTH_SHORT).show();
-                    Log.d("xxx", "onError : "+error);
-                    printerProgress.hideProgressbar();
-                }
-                public void onMessage(@NonNull String message) {
-                    Toast.makeText(getApplicationContext(), "onMessage :" +message, Toast.LENGTH_SHORT).show();
-                    Log.d("xxx", "onMessage : "+message);
-                    printerProgress.hideProgressbar();
-                }
-            };
-
-            Printooth.INSTANCE.printer().setPrintingCallback(printingCallback);
-        }
-    }
-
-
-    private void printReceipt(){
-
-        if (printing!=null) {
-            //printing.print(getSomePrintables());
-            Printooth.INSTANCE.printer().print(getSomePrintables());
-        }
-
-    }
-
-    private ArrayList<Printable> getSomePrintables() {
-
-        ArrayList<Printable> al = new ArrayList<>();
-        al.add(new RawPrintable.Builder(new byte[]{27, 100, 4}).build()); // feed lines example in raw mode
-
-        //---------------------------------------------------------------------------0
-
-        String title = "POS";
-        String mobile = "+909876543210";
-        String email = "Email : email@gmail.com";
-        String billTo = "To : "+currentInvoice.getCustomerName();
-        String invoiceNo = "Invoice no : "+invoiceId;
-        String billType = "Bill type : Sales invoice";
-        String billDate = "Bill date : ";//+currentInvoice.getDate();
-        String currency = "Currency : "+currentInvoice.getCurrency();
-        String lineDraw = "-----------------------------";
-        String item_title = "item";
-        String quantity_title = "quantity";
-        String rate_title = "rate";
-        String total_items = "Total items  "+tv_totalItems.getText().toString();
-        String total = "Total "+currentInvoice.getGrossAmount();
-        String tax = "Tax "+currentInvoice.getTaxAmount();
-        String discount = "Discount "+currentInvoice.getDiscountAmount();
-        String netAmount = "Net amount  "+currentInvoice.getBillAmount();
-        String payment_title = "Payment";
-
-        //String tableTitle = String.format("%.15s %5d %10.2f\n", item_title, quantity_title, rate_title);
-
-
-
-        //Title
-        al.add( (new TextPrintable.Builder())
-                .setText(title)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Mobile
-        al.add( (new TextPrintable.Builder())
-                .setText(mobile)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-        //Email
-        al.add( (new TextPrintable.Builder())
-                .setText(email)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Line separator
-        al.add( (new TextPrintable.Builder())
-                .setText(lineDraw)  //--------------------------------------------------------
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-        //TO
-        al.add( new TextPrintable.Builder()
-                .setText(billTo)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Invoice no
-        al.add( new TextPrintable.Builder()
-                .setText(invoiceNo)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Bill type
-        al.add( new TextPrintable.Builder()
-                .setText(billType)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //currency
-        al.add( new TextPrintable.Builder()
-                .setText(currency)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Bill date
-        al.add( new TextPrintable.Builder()
-                .setText(billDate)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Line separator
-        al.add( (new TextPrintable.Builder())
-                .setText(lineDraw)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-
-        //dummy
-        al.add( new TextPrintable.Builder()
-                .setText("Items loading ")
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-
-        //Line separator
-        al.add( (new TextPrintable.Builder())
-                .setText(lineDraw)  //--------------------------------------------------------
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Total items
-        al.add( new TextPrintable.Builder()
-                .setText(total_items)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Line separator
-        al.add( (new TextPrintable.Builder())
-                .setText(lineDraw)  //--------------------------------------------------------
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Total
-        al.add( new TextPrintable.Builder()
-                .setText(total)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Tax
-        al.add( new TextPrintable.Builder()
-                .setText(tax)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-
-        //Discount
-        al.add( new TextPrintable.Builder()
-                .setText(discount)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Line separator
-        al.add( (new TextPrintable.Builder())
-                .setText(lineDraw)  //--------------------------------------------------------
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Net amount
-        al.add( new TextPrintable.Builder()
-                .setText(netAmount)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-        //Net amount
-        al.add( new TextPrintable.Builder()
-                .setText(payment_title)
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_LEFT())
-                .setNewLinesAfter(1)
-                .build());
-
-
-        //Line separator
-        al.add( (new TextPrintable.Builder())
-                .setText(lineDraw)  //--------------------------------------------------------
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_PC1252())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setNewLinesAfter(1)
-                .build());
-
-        //---------------------------------------------------------------------------1
-
-        //ORIGINAL DATA FROM SAMPLE PROJECT. REFER THIS. DO NOT DELETE
-        /*al.add( (new TextPrintable.Builder())
-                .setText("Hello World")
-                .setLineSpacing(DefaultPrinter.Companion.getLINE_SPACING_60())
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setEmphasizedMode(DefaultPrinter.Companion.getEMPHASIZED_MODE_BOLD())
-                .setUnderlined(DefaultPrinter.Companion.getUNDERLINED_MODE_ON())
-                .setNewLinesAfter(1)
-                .build());
-
-        al.add( (new TextPrintable.Builder())
-                .setText("Hello World")
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_RIGHT())
-                .setEmphasizedMode(DefaultPrinter.Companion.getEMPHASIZED_MODE_BOLD())
-                .setUnderlined(DefaultPrinter.Companion.getUNDERLINED_MODE_ON())
-                .setNewLinesAfter(1)
-                .build());
-
-        al.add( (new TextPrintable.Builder())
-                .setText("اختبار العربية")
-                .setAlignment(DefaultPrinter.Companion.getALIGNMENT_CENTER())
-                .setEmphasizedMode(DefaultPrinter.Companion.getEMPHASIZED_MODE_BOLD())
-                .setFontSize(DefaultPrinter.Companion.getFONT_SIZE_NORMAL())
-                .setUnderlined(DefaultPrinter.Companion.getUNDERLINED_MODE_ON())
-                .setCharacterCode(DefaultPrinter.Companion.getCHARCODE_ARABIC_FARISI())
-                .setNewLinesAfter(1)
-                .setCustomConverter(new ArabicConverter()) // change only the converter for this one
-                .build());*/
-
-        return al;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d("xxx", "onActivityResult "+requestCode);
-
-        if (requestCode == ScanningActivity.SCANNING_FOR_PRINTER && resultCode == Activity.RESULT_OK) {
-            printing = Printooth.INSTANCE.printer();
-            initListeners();
-            printReceipt();
-        }
-    }
+    //TODO : need to fix payment pending option not showing
 }

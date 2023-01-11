@@ -12,14 +12,12 @@ import com.rpos.pos.Config;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.domain.utils.DateTimeUtils;
+import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.report.adapter.SalesReportAdapter;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class SalesReportFragment extends ReportBaseFragment {
@@ -117,7 +115,6 @@ public class SalesReportFragment extends ReportBaseFragment {
             Row row;
             InvoiceEntity invoice;
             float netAmount, outstanding;
-            final DecimalFormat decimalFormat = new DecimalFormat("0.00");
             String temp_value;
 
             CellStyle cellbodyStyle = workbook.createCellStyle();
@@ -147,9 +144,8 @@ public class SalesReportFragment extends ReportBaseFragment {
                 try{
                     //calculate net amount
                     netAmount = invoice.getGrossAmount() - invoice.getDiscountAmount();
-                    decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
                     //round of to 2 digits and display
-                    temp_value = decimalFormat.format(netAmount);
+                    temp_value = Utility.roundOffDecimalValueTo2Digits(netAmount);
                 }catch (Exception e){
                     temp_value = "Nil 01";
                 }
@@ -161,8 +157,7 @@ public class SalesReportFragment extends ReportBaseFragment {
 
                 try{
                     outstanding = invoice.getBillAmount() - invoice.getPaymentAmount();
-                    decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-                    temp_value = decimalFormat.format(outstanding);
+                    temp_value = Utility.roundOffDecimalValueTo2Digits(outstanding);
                 }catch (Exception e){
                     temp_value = "Nil 02";
                 }//OUTSTANDING

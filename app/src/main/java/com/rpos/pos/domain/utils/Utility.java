@@ -53,6 +53,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
@@ -421,12 +424,34 @@ public class Utility {
         }
     }
 
+    /**
+     * to round of digits after decimal points to two digits
+     * @param number A number to round off
+     * */
+    public static String roundOffDecimalValueTo2Digits(double number){
+        try{
+
+            final DecimalFormatSymbols decimalSymbol = new DecimalFormatSymbols(Locale.US);
+            DecimalFormat df = new DecimalFormat("##.##");
+            df.setDecimalFormatSymbols(decimalSymbol);
+
+            df.setRoundingMode(RoundingMode.HALF_UP);
+            String roundedTaxAmount = df.format(number);
+            return roundedTaxAmount;
+        }catch (Exception e){
+            e.printStackTrace();
+            return "00.00";
+        }
+    }
+
+
     public static void logger(String msg){
         if(Config.LOG) {
             //Log.e("--------------", msg);
             Log.e("looger>", msg);
         }
     }
+
 
     public static String base64Encrypt(String keyString){
         return Base64.encodeToString(keyString.getBytes(), Base64.NO_WRAP);

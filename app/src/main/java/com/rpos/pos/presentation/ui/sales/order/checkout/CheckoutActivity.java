@@ -22,11 +22,10 @@ import com.rpos.pos.data.local.entity.OrderDetailsEntity;
 import com.rpos.pos.data.local.entity.OrderEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
+import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.sales.payment.PaymentActivity;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +43,6 @@ public class CheckoutActivity extends SharedActivity {
 
     private AppExecutors appExecutors;
     private AppDatabase localDb;
-
-    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     @Override
     public int setUpLayout() {
@@ -150,8 +147,7 @@ public class CheckoutActivity extends SharedActivity {
             tempTotal+=taxAmount;
             tempTotal-= roundOfDisc;
 
-            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-            String roundedTotal = decimalFormat.format(tempTotal);
+            String roundedTotal = Utility.roundOffDecimalValueTo2Digits(tempTotal);
             return Double.parseDouble(roundedTotal);
 
         }catch (Exception e){

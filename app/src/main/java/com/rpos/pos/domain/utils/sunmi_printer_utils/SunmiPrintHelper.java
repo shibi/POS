@@ -6,11 +6,15 @@ import android.graphics.BitmapFactory;
 import android.os.RemoteException;
 import android.widget.Toast;
 
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.rpos.pos.Constants;
+import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.CompanyAddressEntity;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.InvoiceItemHistory;
+import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
+import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
 import com.rpos.pos.data.remote.dto.Invoice;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.sunmi.peripheral.printer.ExceptionConst;
@@ -496,15 +500,479 @@ public class SunmiPrintHelper {
      *  enter->first print->commit(get result)->twice print->commit(get result)->exit(don't care
      *  result)
      */
-    public void printTransaction(Context context, InvoiceEntity invoice, CompanyAddressEntity companyDetails, List<InvoiceItemHistory> printItemsList,String printerQrData, InnerResultCallback callbcak){
+    public void printTransaction_sales(Context context, InvoiceEntity invoice, CompanyAddressEntity companyDetails, List<InvoiceItemHistory> printItemsList,String printerQrData, InnerResultCallback callbcak){
         if(sunmiPrinterService == null){
             //TODO Service disconnection processing
             return;
         }
 
         try {
+
             sunmiPrinterService.enterPrinterBuffer(true);
-            printReceipt(context, invoice, companyDetails, printItemsList, printerQrData);
+            printReceipt_sales(context, invoice, companyDetails, printItemsList, printerQrData);
+            sunmiPrinterService.exitPrinterBufferWithCallback(true, callbcak);
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int ALIGN_LEFT = 0;
+    private int ALIGN_CENTER = 1;
+    private int ALIGN_RIGHT = 2;
+    private int ALIGNMENT = ALIGN_LEFT;
+
+    /**
+     * to print receipt for sales
+     * */
+    private void printReceipt_sales(Context context, InvoiceEntity invoice , CompanyAddressEntity companyDetails, List<InvoiceItemHistory> printItemsList, String printerQrData){
+        if(sunmiPrinterService == null){
+            //TODO Service disconnection processing
+            return ;
+        }
+
+        try {
+
+            String companyName, address, phone, email;
+            if(companyDetails!=null){
+
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
+                    companyName = companyDetails.getCompanyNameEng();
+                }else {
+                    companyName = companyDetails.getCompanyNameAr();
+                }
+                address = companyDetails.getAddress();
+                phone = "Ph: "+ companyDetails.getMobile();
+                email = "email: "+ companyDetails.getEmail();
+            }else {
+                companyName = "POS";
+                address = "Address";
+                phone = "Ph: +91 9876543210";
+                email = "email: email@gmail.com";
+            }
+
+
+
+
+            //----------------------------------------------------------------------------------------------------------------------------
+
+            int paper = sunmiPrinterService.getPrinterPaper();
+
+            sunmiPrinterService.printerInit(null);
+
+
+            sunmiPrinterService.setAlignment(ALIGN_CENTER, null);
+            sunmiPrinterService.printText(companyName+"\n", null); //company name
+            sunmiPrinterService.printText(address+"\n", null); //company address
+            sunmiPrinterService.printText(phone+"\n", null); //company phone
+            sunmiPrinterService.printText(email+"\n", null); //company email
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+
+            //Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.app_icon);
+            //sunmiPrinterService.printBitmap(bitmap, null);
+            //sunmiPrinterService.lineWrap(1, null);
+
+
+            ALIGNMENT = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN))? ALIGN_LEFT: ALIGN_RIGHT;
+            sunmiPrinterService.setAlignment(ALIGNMENT, null);
+            printBillCustomerInfo(context, invoice.getCustomerName(), invoice.getId(), invoice.getCurrency(),1, invoice.getTimestamp());
+
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.SET_LINE_SPACING, 0);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(new byte[]{0x1B, 0x33, 0x00}, null);
+            }
+            //sunmiPrinterService.printTextWithFont("address\n", null, 12, null);
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.ENABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOn(), null);
+            }
+
+            String title_item = context.getString(R.string.item_label);
+            String title_rate = context.getString(R.string.rate_label);
+            String title_qty = context.getString(R.string.qty_label);
+            String title_total = context.getString(R.string.total_label);
+
+            String txts_four_clmn[];
+            int width_four_clmn[];
+            int align_four_clmn[];
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
+                txts_four_clmn = new String[]{title_item, title_rate, title_qty,title_total};
+                width_four_clmn = new int[]{1, 1, 1, 1};
+                align_four_clmn = new int[]{0, 2, 2 ,2};
+            }else {
+                txts_four_clmn = new String[]{title_total, title_qty, title_rate,title_item};
+                width_four_clmn = new int[]{1, 1, 1, 1};
+                align_four_clmn = new int[]{0, 0, 0 ,2};
+            }
+
+            sunmiPrinterService.printColumnsString(txts_four_clmn, width_four_clmn, align_four_clmn, null);
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.DISABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOff(), null);
+            }
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            String txts[] = new String[]{"empty", "empty"};
+            int width[] = new int[]{1, 1};
+            int align[] = new int[]{0, 2};
+
+
+            if(printItemsList!=null && printItemsList.size()>0){
+
+                int totalProductsQuantity = 0;
+                for (int i=0; i<printItemsList.size();i++){
+                    if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                        txts_four_clmn[0] = "" + printItemsList.get(i).getItemName();
+                        txts_four_clmn[1] = "" + printItemsList.get(i).getItemRate();
+                        txts_four_clmn[2] = "" + printItemsList.get(i).getQuantity();
+                        txts_four_clmn[3] = "" + printItemsList.get(i).getTotal();
+                    }else {
+                        txts_four_clmn[0] = "" + printItemsList.get(i).getTotal();
+                        txts_four_clmn[1] = "" + printItemsList.get(i).getQuantity();
+                        txts_four_clmn[2] = "" + printItemsList.get(i).getItemRate();
+                        txts_four_clmn[3] = "" + printItemsList.get(i).getItemName();
+                    }
+
+                    totalProductsQuantity += printItemsList.get(i).getQuantity();
+
+                    sunmiPrinterService.printColumnsString(txts_four_clmn, width_four_clmn, align_four_clmn, null);
+                }
+
+                if(paper == 1){
+                    sunmiPrinterService.printText("--------------------------------\n", null);
+                }else{
+                    sunmiPrinterService.printText("------------------------------------------------\n", null);
+                }
+
+                width = new int[]{1, 1};
+                align = new int[]{0, 2};
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+
+                    txts[0] = context.getString(R.string.total_items);
+                    txts[1] = "" + totalProductsQuantity;
+                }else {
+
+                    txts[0] = "" + totalProductsQuantity;
+                    txts[1] =  context.getString(R.string.total_items);
+                }
+                sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+                if(paper == 1){
+                    sunmiPrinterService.printText("--------------------------------\n", null);
+                }else{
+                    sunmiPrinterService.printText("------------------------------------------------\n", null);
+                }
+
+                //-----------------total
+                width = new int[]{1, 1};
+                align = new int[]{0, 2};
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                    txts[0] = context.getString(R.string.total_label);
+                    txts[1] = "" + invoice.getGrossAmount();
+                }else {
+                    txts[0] = "" + invoice.getGrossAmount();
+                    txts[1] = context.getString(R.string.total_label);
+                }
+                sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+                if(paper == 1){
+                    sunmiPrinterService.printText("--------------------------------\n", null);
+                }else{
+                    sunmiPrinterService.printText("------------------------------------------------\n", null);
+                }
+            }
+
+
+            //-----------------Tax
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.tax);
+                txts[1] = "" + invoice.getTaxAmount();
+            }else {
+                txts[0] = "" + invoice.getTaxAmount();
+                txts[1] = context.getString(R.string.tax);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            //-----------------Discount
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.discount);
+                txts[1] = "" + invoice.getDiscountAmount();
+            }else {
+                txts[0] = "" + invoice.getDiscountAmount();
+                txts[1] = context.getString(R.string.discount);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.ENABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOn(), null);
+            }
+            //-----------------Net total
+
+            float calculatedTotal = invoice.getBillAmount();
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.net_total);
+                txts[1] = "" + calculatedTotal;
+            }else {
+                txts[0] = "" + calculatedTotal;
+                txts[1] = context.getString(R.string.net_total);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.DISABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOff(), null);
+            }
+
+            if(invoice.getAdditionalDiscount() > 0) {
+                width = new int[]{1, 1};
+                align = new int[]{0, 2};
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                    txts[0] = "";
+                    txts[1] = "(ad.dsc -" + invoice.getAdditionalDiscount() + ")";
+                }else {
+                    txts[0] = "( -" + invoice.getAdditionalDiscount() + ")";
+                    txts[1] = "";
+                }
+                sunmiPrinterService.printColumnsString(txts, width, align, null);
+            }
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            String payTitle = context.getString(R.string.payment) + "\b\n";
+            sunmiPrinterService.printText(payTitle, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            String payment_str = context.getString(R.string.payment) + "(c)";
+            String txts_3_colmn[];
+            int width_3_colmn[];
+            int align_3_colmn[];
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts_3_colmn = new String[]{payment_str, context.getString(R.string.mode_label), invoice.getCurrency()};
+                width_3_colmn = new int[]{1, 1, 1};
+                align_3_colmn = new int[]{0, 1, 2};
+            }else {
+                txts_3_colmn = new String[]{ invoice.getCurrency(), context.getString(R.string.mode_label),payment_str};
+                width_3_colmn = new int[]{1, 1, 1};
+                align_3_colmn = new int[]{0, 1, 2};
+            }
+            sunmiPrinterService.printColumnsString(txts_3_colmn, width_3_colmn, align_3_colmn, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            String payMode = convertPaymentypeToMode(invoice.getPaymentType());
+
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts_3_colmn[0] = "" + invoice.getBillAmount() + "(" + invoice.getCurrency() + ")";
+                txts_3_colmn[1] = payMode;
+                txts_3_colmn[2] = "" + invoice.getBillAmount();
+            }else {
+                txts_3_colmn[0] =  "" + invoice.getBillAmount();
+                txts_3_colmn[1] = payMode;
+                txts_3_colmn[2] = "" + invoice.getBillAmount() + "(" + invoice.getCurrency() + ")";
+            }
+            sunmiPrinterService.printColumnsString(txts_3_colmn, width_3_colmn, align_3_colmn, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            //-----------------Cash
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.cash_label);
+                txts[1] = "" + invoice.getPaymentAmount();
+            }else {
+                txts[0] = "" + invoice.getPaymentAmount();
+                txts[1] = context.getString(R.string.cash_label);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            //-----------------Cash
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.due_amount);
+                txts[1] = "" + (invoice.getBillAmount() - invoice.getPaymentAmount());
+            }else {
+                txts[0] = "" + (invoice.getBillAmount() - invoice.getPaymentAmount());
+                txts[1] = context.getString(R.string.due_amount);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            sunmiPrinterService.setAlignment(1, null);
+            sunmiPrinterService.printText(context.getString(R.string.visit_again), null);
+
+            sunmiPrinterService.lineWrap(1, null);
+
+            if(printerQrData!=null && !printerQrData.isEmpty()) {
+                sunmiPrinterService.printQRCode(printerQrData, 10, 0, null);
+            }
+
+            sunmiPrinterService.autoOutPaper(null);
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to print the customer info section
+     * language support for english and arabic
+     * */
+    private void printBillCustomerInfo(Context context, String customerName, Integer inv_id, String currency_value, int type, long timestamp){
+        try{
+
+            //----------------------------------------------------------------------------------------------------------------------------
+            String billTo;
+            String invoiceNo;
+            String billType;
+            String currency;
+            String billDate;
+
+            String label_to = context.getString(R.string.to_label);
+            String label_inv = context.getString(R.string.invoice_no);
+            String label_type = context.getString(R.string.bill_type);
+            String label_currency = context.getString(R.string.currency);
+            String label_date = context.getString(R.string.bill_date);
+
+            String COLON_SEPARATOR = " : ";
+            String str_type;
+            if(type == 1){
+                str_type = context.getString(R.string.sales_invoice);
+            }else {
+                str_type = context.getString(R.string.purchase_label);
+            }
+
+
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
+                billTo = label_to + COLON_SEPARATOR + customerName;
+                invoiceNo = label_inv + COLON_SEPARATOR +"INV#"+inv_id;
+                billType = label_type + COLON_SEPARATOR + str_type;
+                currency = label_currency + COLON_SEPARATOR + currency_value;
+                billDate = label_date + COLON_SEPARATOR + DateTimeUtils.convertTimerStampToDateTime(timestamp);
+            }else {
+                billTo = customerName + COLON_SEPARATOR + label_to;
+                invoiceNo = "INV#"+inv_id + COLON_SEPARATOR + label_inv;
+                billType = str_type + COLON_SEPARATOR + label_type;
+                currency = currency_value + COLON_SEPARATOR + label_currency;
+                billDate = label_date + COLON_SEPARATOR + DateTimeUtils.convertTimerStampToDateTime(timestamp);
+
+            }
+
+
+            sunmiPrinterService.printText(billTo+"\n", null); //bill to
+            sunmiPrinterService.printText(invoiceNo+"\n", null); //bill inv
+            sunmiPrinterService.printText(billType+"\n", null); //bill type
+            sunmiPrinterService.printText(currency+"\n", null); //bill currency
+            sunmiPrinterService.printText(billDate+"\n", null); //bill date
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to convert integer payment type to string payment mode
+     * */
+    private String convertPaymentypeToMode(int paymentType){
+        switch (paymentType){
+            case Constants.PAY_TYPE_CASH:
+                return "cash";
+            case Constants.PAY_TYPE_ON_ACCOUNT:
+                return "bank";
+            case Constants.PAY_TYPE_CREDIT_SALE:
+                return "credit";
+            default:
+                return "other";
+        }
+    }
+
+
+    /**
+     *  Transaction printing:
+     *  enter->print->exit(get result) or
+     *  enter->first print->commit(get result)->twice print->commit(get result)->exit(don't care
+     *  result)
+     */
+    public void printTransaction_purchase(Context context, PurchaseInvoiceEntity invoice, CompanyAddressEntity companyDetails, List<PurchaseInvoiceItemHistory> printItemsList, String printerQrData, InnerResultCallback callbcak){
+        if(sunmiPrinterService == null){
+            //TODO Service disconnection processing
+            return;
+        }
+        try {
+            sunmiPrinterService.enterPrinterBuffer(true);
+            printReceipt_purchase(context, invoice, companyDetails, printItemsList, printerQrData);
             sunmiPrinterService.exitPrinterBufferWithCallback(true, callbcak);
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -514,15 +982,13 @@ public class SunmiPrintHelper {
     /**
      *
      * */
-    private void printReceipt(Context context, InvoiceEntity invoice , CompanyAddressEntity companyDetails, List<InvoiceItemHistory> printItemsList, String printerQrData){
+    private void printReceipt_purchase1(Context context, PurchaseInvoiceEntity invoice , CompanyAddressEntity companyDetails, List<InvoiceItemHistory> printItemsList, String printerQrData){
         if(sunmiPrinterService == null){
             //TODO Service disconnection processing
             return ;
         }
 
         try {
-
-            float grossTotal, taxAmount, discountAmount;
             String companyName, address, phone, email;
             if(companyDetails!=null){
                 companyName = companyDetails.getCompanyNameEng();
@@ -539,13 +1005,9 @@ public class SunmiPrintHelper {
             //----------------------------------------------------------------------------------------------------------------------------
             String billTo = context.getString(R.string.to_label) + ": "+ invoice.getCustomerName();
             String invoiceNo = context.getString(R.string.invoice_no) + ": INV#"+ invoice.getId();
-            String billType = context.getString(R.string.bill_type) + ": Sales invoice";
+            String billType = context.getString(R.string.bill_type) + ": Purchase invoice";
             String currency = context.getString(R.string.currency) + ": "+ invoice.getCurrency();
             String billDate = context.getString(R.string.bill_date) + ": "+ DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp());
-
-            //String billInfo = billTo + "\n" + invoiceNo + "\n" + billType + "\n" + currency + "\n" + billDate + "\n";
-
-
 
             int paper = sunmiPrinterService.getPrinterPaper();
 
@@ -567,6 +1029,9 @@ public class SunmiPrintHelper {
             //sunmiPrinterService.printBitmap(bitmap, null);
             //sunmiPrinterService.lineWrap(1, null);
 
+            //sunmiPrinterService.printTextWithFont("address\n", null, 12, null);
+
+
             sunmiPrinterService.setAlignment(0, null);
 
             sunmiPrinterService.printText(billTo+"\n", null); //bill to
@@ -575,19 +1040,13 @@ public class SunmiPrintHelper {
             sunmiPrinterService.printText(currency+"\n", null); //bill currency
             sunmiPrinterService.printText(billDate+"\n", null); //bill date
 
-            /*if(paper == 1){
-                sunmiPrinterService.printText("--------------------------------\n", null);
-            }else{
-                sunmiPrinterService.printText("------------------------------------------------\n", null);
-            }*/
-
 
             try {
                 sunmiPrinterService.setPrinterStyle(WoyouConsts.SET_LINE_SPACING, 0);
             } catch (RemoteException e) {
                 sunmiPrinterService.sendRAWData(new byte[]{0x1B, 0x33, 0x00}, null);
             }
-            //sunmiPrinterService.printTextWithFont("address\n", null, 12, null);
+
             if(paper == 1){
                 sunmiPrinterService.printText("--------------------------------\n", null);
             }else{
@@ -660,7 +1119,6 @@ public class SunmiPrintHelper {
                 }else{
                     sunmiPrinterService.printText("------------------------------------------------\n", null);
                 }
-            }else {
 
             }
 
@@ -682,13 +1140,12 @@ public class SunmiPrintHelper {
                         null);
             }
 
-
-
             try {
                 sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.ENABLE);
             } catch (RemoteException e) {
                 sunmiPrinterService.sendRAWData(ESCUtil.boldOn(), null);
             }
+
             //-----------------Net total
             float calculatedTotal = invoice.getBillAmount();
 
@@ -784,50 +1241,6 @@ public class SunmiPrintHelper {
                 sunmiPrinterService.printQRCode(printerQrData, 10, 0, null);
             }
 
-            /*txts[0] = "Kadala";
-            txts[1] = "18AED";
-            sunmiPrinterService.printColumnsString(txts, width, align, null);
-            txts[0] = "Payar";
-            txts[1] = "21AED";
-            sunmiPrinterService.printColumnsString(txts, width, align, null);
-            txts[0] = "Milk";
-            txts[1] = "28AED";
-            sunmiPrinterService.printColumnsString(txts, width, align, null);*/
-
-            /*if(paper == 1){
-                sunmiPrinterService.printText("--------------------------------\n", null);
-            }else{
-                sunmiPrinterService.printText("------------------------------------------------\n",
-                        null);
-            }*/
-            //sunmiPrinterService.printTextWithFont("Total:          500\b\n", null, 16, null);
-
-            /*if(paper == 1){
-                sunmiPrinterService.printText("--------------------------------\n", null);
-            }else{
-                sunmiPrinterService.printText("------------------------------------------------\n",
-                        null);
-            }*/
-
-            //sunmiPrinterService.printText("Payment \n", null);
-
-            /*if(paper == 1){
-                sunmiPrinterService.printText("--------------------------------\n", null);
-            }else{
-                sunmiPrinterService.printText("------------------------------------------------\n",
-                        null);
-            }*/
-
-            //-----------------
-            //txts[0] = "Payment(Currency)";
-            //txts[1] = ""+invoice.getGrossAmount();
-            //sunmiPrinterService.printColumnsString(txts, width, align, null);
-
-            /*sunmiPrinterService.setAlignment(1, null);
-            sunmiPrinterService.printQRCode("谢谢惠顾", 10, 0, null);
-            sunmiPrinterService.setFontSize(36, null);
-            sunmiPrinterService.printText("谢谢惠顾", null);*/
-
             sunmiPrinterService.autoOutPaper(null);
 
         } catch (RemoteException e) {
@@ -835,19 +1248,355 @@ public class SunmiPrintHelper {
         }
     }
 
+
     /**
-     * to convert integer payment type to string payment mode
+     * to print receipt for sales
      * */
-    private String convertPaymentypeToMode(int paymentType){
-        switch (paymentType){
-            case Constants.PAY_TYPE_CASH:
-                return "cash";
-            case Constants.PAY_TYPE_ON_ACCOUNT:
-                return "bank";
-            case Constants.PAY_TYPE_CREDIT_SALE:
-                return "credit";
-            default:
-                return "other";
+    private void printReceipt_purchase(Context context, PurchaseInvoiceEntity invoice , CompanyAddressEntity companyDetails, List<PurchaseInvoiceItemHistory> printItemsList, String printerQrData){
+        if(sunmiPrinterService == null){
+            //TODO Service disconnection processing
+            return ;
+        }
+
+        try {
+
+            String companyName, address, phone, email;
+            if(companyDetails!=null){
+
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
+                    companyName = companyDetails.getCompanyNameEng();
+                }else {
+                    companyName = companyDetails.getCompanyNameAr();
+                }
+                address = companyDetails.getAddress();
+                phone = "Ph: "+ companyDetails.getMobile();
+                email = "email: "+ companyDetails.getEmail();
+            }else {
+                companyName = "POS";
+                address = "Address";
+                phone = "Ph: +91 9876543210";
+                email = "email: email@gmail.com";
+            }
+
+            //----------------------------------------------------------------------------------------------------------------------------
+
+            int paper = sunmiPrinterService.getPrinterPaper();
+            sunmiPrinterService.printerInit(null);
+
+            sunmiPrinterService.setAlignment(ALIGN_CENTER, null);
+            sunmiPrinterService.printText(companyName+"\n", null); //company name
+            sunmiPrinterService.printText(address+"\n", null); //company address
+            sunmiPrinterService.printText(phone+"\n", null); //company phone
+            sunmiPrinterService.printText(email+"\n", null); //company email
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+
+            //Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.app_icon);
+            //sunmiPrinterService.printBitmap(bitmap, null);
+            //sunmiPrinterService.lineWrap(1, null);
+
+            ALIGNMENT = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN))? ALIGN_LEFT: ALIGN_RIGHT;
+            sunmiPrinterService.setAlignment(ALIGNMENT, null);
+            printBillCustomerInfo(context, invoice.getCustomerName(), invoice.getId(), invoice.getCurrency(),2, invoice.getTimestamp());
+
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.SET_LINE_SPACING, 0);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(new byte[]{0x1B, 0x33, 0x00}, null);
+            }
+            //sunmiPrinterService.printTextWithFont("address\n", null, 12, null);
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.ENABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOn(), null);
+            }
+
+            String title_item = context.getString(R.string.item_label);
+            String title_rate = context.getString(R.string.rate_label);
+            String title_qty = context.getString(R.string.qty_label);
+            String title_total = context.getString(R.string.total_label);
+
+            String txts_four_clmn[];
+            int width_four_clmn[];
+            int align_four_clmn[];
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
+                txts_four_clmn = new String[]{title_item, title_rate, title_qty,title_total};
+                width_four_clmn = new int[]{1, 1, 1, 1};
+                align_four_clmn = new int[]{0, 2, 2 ,2};
+            }else {
+                txts_four_clmn = new String[]{title_total, title_qty, title_rate,title_item};
+                width_four_clmn = new int[]{1, 1, 1, 1};
+                align_four_clmn = new int[]{0, 0, 0 ,2};
+            }
+
+            sunmiPrinterService.printColumnsString(txts_four_clmn, width_four_clmn, align_four_clmn, null);
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.DISABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOff(), null);
+            }
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+
+            String txts[] = new String[]{"empty", "empty"};
+            int width[] = new int[]{1, 1};
+            int align[] = new int[]{0, 2};
+
+
+            if(printItemsList!=null && printItemsList.size()>0){
+
+                int totalProductsQuantity = 0;
+                for (int i=0; i<printItemsList.size();i++){
+                    if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                        txts_four_clmn[0] = "" + printItemsList.get(i).getItemName();
+                        txts_four_clmn[1] = "" + printItemsList.get(i).getItemRate();
+                        txts_four_clmn[2] = "" + printItemsList.get(i).getQuantity();
+                        txts_four_clmn[3] = "" + printItemsList.get(i).getTotal();
+                    }else {
+                        txts_four_clmn[0] = "" + printItemsList.get(i).getTotal();
+                        txts_four_clmn[1] = "" + printItemsList.get(i).getQuantity();
+                        txts_four_clmn[2] = "" + printItemsList.get(i).getItemRate();
+                        txts_four_clmn[3] = "" + printItemsList.get(i).getItemName();
+                    }
+
+                    totalProductsQuantity += printItemsList.get(i).getQuantity();
+
+                    sunmiPrinterService.printColumnsString(txts_four_clmn, width_four_clmn, align_four_clmn, null);
+                }
+
+                if(paper == 1){
+                    sunmiPrinterService.printText("--------------------------------\n", null);
+                }else{
+                    sunmiPrinterService.printText("------------------------------------------------\n", null);
+                }
+
+                width = new int[]{1, 1};
+                align = new int[]{0, 2};
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+
+                    txts[0] = context.getString(R.string.total_items);
+                    txts[1] = "" + totalProductsQuantity;
+                }else {
+
+                    txts[0] = "" + totalProductsQuantity;
+                    txts[1] =  context.getString(R.string.total_items);
+                }
+                sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+                if(paper == 1){
+                    sunmiPrinterService.printText("--------------------------------\n", null);
+                }else{
+                    sunmiPrinterService.printText("------------------------------------------------\n", null);
+                }
+
+                //-----------------total
+                width = new int[]{1, 1};
+                align = new int[]{0, 2};
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                    txts[0] = context.getString(R.string.total_label);
+                    txts[1] = "" + invoice.getGrossAmount();
+                }else {
+                    txts[0] = "" + invoice.getGrossAmount();
+                    txts[1] = context.getString(R.string.total_label);
+                }
+                sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+                if(paper == 1){
+                    sunmiPrinterService.printText("--------------------------------\n", null);
+                }else{
+                    sunmiPrinterService.printText("------------------------------------------------\n", null);
+                }
+            }
+
+
+            //-----------------Tax
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.tax);
+                txts[1] = "" + invoice.getTaxAmount();
+            }else {
+                txts[0] = "" + invoice.getTaxAmount();
+                txts[1] = context.getString(R.string.tax);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            //-----------------Discount
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.discount);
+                txts[1] = "" + invoice.getDiscountAmount();
+            }else {
+                txts[0] = "" + invoice.getDiscountAmount();
+                txts[1] = context.getString(R.string.discount);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.ENABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOn(), null);
+            }
+            //-----------------Net total
+
+            float calculatedTotal = invoice.getBillAmount();
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.net_total);
+                txts[1] = "" + calculatedTotal;
+            }else {
+                txts[0] = "" + calculatedTotal;
+                txts[1] = context.getString(R.string.net_total);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            try {
+                sunmiPrinterService.setPrinterStyle(WoyouConsts.ENABLE_BOLD, WoyouConsts.DISABLE);
+            } catch (RemoteException e) {
+                sunmiPrinterService.sendRAWData(ESCUtil.boldOff(), null);
+            }
+
+            if(invoice.getAdditionalDiscount() > 0) {
+                width = new int[]{1, 1};
+                align = new int[]{0, 2};
+                if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                    txts[0] = "";
+                    txts[1] = "(ad.dsc -" + invoice.getAdditionalDiscount() + ")";
+                }else {
+                    txts[0] = "( -" + invoice.getAdditionalDiscount() + ")";
+                    txts[1] = "";
+                }
+                sunmiPrinterService.printColumnsString(txts, width, align, null);
+            }
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            String payTitle = context.getString(R.string.payment) + "\b\n";
+            sunmiPrinterService.printText(payTitle, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n",
+                        null);
+            }
+
+            String payment_str = context.getString(R.string.payment) + "(c)";
+            String txts_3_colmn[];
+            int width_3_colmn[];
+            int align_3_colmn[];
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts_3_colmn = new String[]{payment_str, context.getString(R.string.mode_label), invoice.getCurrency()};
+                width_3_colmn = new int[]{1, 1, 1};
+                align_3_colmn = new int[]{0, 1, 2};
+            }else {
+                txts_3_colmn = new String[]{ invoice.getCurrency(), context.getString(R.string.mode_label),payment_str};
+                width_3_colmn = new int[]{1, 1, 1};
+                align_3_colmn = new int[]{0, 1, 2};
+            }
+            sunmiPrinterService.printColumnsString(txts_3_colmn, width_3_colmn, align_3_colmn, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+
+            String payMode = convertPaymentypeToMode(invoice.getPaymentType());
+
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts_3_colmn[0] = "" + invoice.getBillAmount() + "(" + invoice.getCurrency() + ")";
+                txts_3_colmn[1] = payMode;
+                txts_3_colmn[2] = "" + invoice.getBillAmount();
+            }else {
+                txts_3_colmn[0] =  "" + invoice.getBillAmount();
+                txts_3_colmn[1] = payMode;
+                txts_3_colmn[2] = "" + invoice.getBillAmount() + "(" + invoice.getCurrency() + ")";
+            }
+            sunmiPrinterService.printColumnsString(txts_3_colmn, width_3_colmn, align_3_colmn, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+
+            //-----------------Cash
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.cash_label);
+                txts[1] = "" + invoice.getPaymentAmount();
+            }else {
+                txts[0] = "" + invoice.getPaymentAmount();
+                txts[1] = context.getString(R.string.cash_label);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+
+            //-----------------Cash
+            width = new int[]{1, 1};
+            align = new int[]{0, 2};
+            if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                txts[0] = context.getString(R.string.due_amount);
+                txts[1] = "" + (invoice.getBillAmount() - invoice.getPaymentAmount());
+            }else {
+                txts[0] = "" + (invoice.getBillAmount() - invoice.getPaymentAmount());
+                txts[1] = context.getString(R.string.due_amount);
+            }
+            sunmiPrinterService.printColumnsString(txts, width, align, null);
+
+            if(paper == 1){
+                sunmiPrinterService.printText("--------------------------------\n", null);
+            }else{
+                sunmiPrinterService.printText("------------------------------------------------\n", null);
+            }
+
+            sunmiPrinterService.setAlignment(1, null);
+            sunmiPrinterService.printText(context.getString(R.string.visit_again), null);
+
+            sunmiPrinterService.lineWrap(1, null);
+
+            if(printerQrData!=null && !printerQrData.isEmpty()) {
+                sunmiPrinterService.printQRCode(printerQrData, 10, 0, null);
+            }
+
+            sunmiPrinterService.autoOutPaper(null);
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 

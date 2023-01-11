@@ -31,13 +31,12 @@ import com.rpos.pos.domain.models.item.PickedItem;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.domain.utils.TextWatcherExtended;
+import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.sales.order.checkout.CheckoutActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.item.select.ItemSelectActivity;
 import com.rpos.pos.presentation.ui.sales.adapter.SelectedItemAdapter;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,8 +67,6 @@ public class OrderDetailsActivity extends SharedActivity {
     private boolean isDbOperationOn;
     private int defaultSelectedTaxId;
     private DISCOUNT discount_type;
-
-    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     //top options
     private double gross_amount,net_amount,discount_amount,tax_amount;
@@ -539,8 +536,7 @@ public class OrderDetailsActivity extends SharedActivity {
 
             }
 
-            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-            String roundedDiscountAmount = decimalFormat.format(temp_disc_amount);
+            String roundedDiscountAmount = Utility.roundOffDecimalValueTo2Digits(temp_disc_amount);
             discount_amount = Double.parseDouble(roundedDiscountAmount);
 
         }catch (Exception e){
@@ -637,9 +633,7 @@ public class OrderDetailsActivity extends SharedActivity {
             double tempNetAmount = tempGrossAmount - discount_amount;
             double tempTax =  (tempNetAmount * tax /100);
 
-
-            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-            String roundedTaxAmount = decimalFormat.format(tempTax);
+            String roundedTaxAmount = Utility.roundOffDecimalValueTo2Digits(tempTax);
             tax_amount = Double.parseDouble(roundedTaxAmount);
 
         }catch (Exception e){
@@ -656,8 +650,7 @@ public class OrderDetailsActivity extends SharedActivity {
             double tempGrossAmount = gross_amount;
             double db_net_amount = tempGrossAmount - discount_amount + tax_amount;
 
-            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-            String roundedNetAmount = decimalFormat.format(db_net_amount);
+            String roundedNetAmount = Utility.roundOffDecimalValueTo2Digits(db_net_amount);
             net_amount = Double.parseDouble(roundedNetAmount);
 
         }catch (Exception e){

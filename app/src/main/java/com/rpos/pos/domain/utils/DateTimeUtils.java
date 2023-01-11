@@ -1,5 +1,7 @@
 package com.rpos.pos.domain.utils;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -100,12 +102,15 @@ public class DateTimeUtils {
     }
 
     public static long getCurrentDateTimeStamp(){
-        return new Date().getTime();
+        long time = System.currentTimeMillis();
+        Log.e("------------","DT UTIL TS :"+time);
+        return time;
     }
 
     public static String convertTimerStampToDateTime(long timestamp){
         try {
             Date date = new Date(timestamp);
+            Log.e("---------","timeStamp>"+timestamp);
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd ", Locale.US);
             return formatter.format(date);
 

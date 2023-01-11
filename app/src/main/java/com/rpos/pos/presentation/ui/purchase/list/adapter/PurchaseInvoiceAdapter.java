@@ -2,6 +2,7 @@ package com.rpos.pos.presentation.ui.purchase.list.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,10 +66,12 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
             PurchaseInvoiceEntity invoice = purchaseInvoiceEntityList.get(position);
 
             holder.tv_invoiceId.setText("PNo : "+invoice.getId());
-            holder.tv_supplierName.setText(SUPPLIER_PREFIX +" : "+ invoice.getCustomerName());
-            holder.tv_amount.setText(AMOUNT_PREFIX +" : "+ invoice.getBillAmount());
+            holder.tv_supplierName.setText(SUPPLIER_PREFIX + invoice.getCustomerName());
+            holder.tv_amount.setText(AMOUNT_PREFIX +invoice.getBillAmount());
+            Log.e("------------","P_I_A_OB TS:"+invoice.getTimestamp());
             date = DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp());
-            holder.tv_date.setText(DATE_PREFIX+ " : "+date);
+            Log.e("------------","P_I_A_OB TS TO DT:"+date);
+            holder.tv_date.setText(DATE_PREFIX + date);
 
             if(invoice.getStatus().equals(Constants.PAYMENT_PAID)){
                 holder.tv_status.setTextColor(Color.GREEN);
@@ -81,7 +84,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                 isCreditSale = (invoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE);
                 if(isCreditSale){
 
-                    if(DateTimeUtils.checkDatePassed(invoice.getTimestamp())) {
+                    if(DateTimeUtils.checkDatePassed(invoice.getDueDate())) {
                         paymentStatus = Constants.PAYMENT_OVERDUE;
                     }else {
                         paymentStatus = Constants.PAYMENT_UNPAID;
@@ -200,7 +203,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                                         //check amount paid. find unpaid with balance payable
                                         if(invoice.getPaymentAmount() < invoice.getBillAmount()){
                                             //check the due date passed
-                                            if(DateTimeUtils.checkDatePassed(invoice.getTimestamp())){
+                                            if(DateTimeUtils.checkDatePassed(invoice.getDueDate())){
                                                 //if date exceeded, then show it on overdue
                                                 filteredList.add(invoice);
                                             }

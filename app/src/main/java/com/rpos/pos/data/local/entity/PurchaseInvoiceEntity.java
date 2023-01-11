@@ -45,6 +45,8 @@ public class PurchaseInvoiceEntity {
 
     private long timestamp;
 
+    private long dueDate;
+
     private String status;
 
     @NonNull
@@ -190,6 +192,15 @@ public class PurchaseInvoiceEntity {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+
+    public long getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(long dueDate) {
+        this.dueDate = dueDate;
     }
 
     public String getStatus() {

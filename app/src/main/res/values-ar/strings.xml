@@ -363,5 +363,6 @@
     <string name="toast_12">Please set the printer to label mode!</string>
 
     <string name="print_line">-----------------------------</string>
+    <string name="mode_label">الوضع</string>
 
 </resources>

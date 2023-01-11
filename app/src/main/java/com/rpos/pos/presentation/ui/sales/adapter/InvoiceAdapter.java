@@ -94,7 +94,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
                 //check whether invoice is credit sale
                 isCreditSale = (invoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE);
                 if(isCreditSale){
-                    if(DateTimeUtils.checkDatePassed(invoice.getTimestamp())) {
+                    if(DateTimeUtils.checkDatePassed(invoice.getDueDate())) {
                         paymentStatus = Constants.PAYMENT_OVERDUE;
                     }else {
                         paymentStatus = Constants.PAYMENT_UNPAID;
@@ -222,7 +222,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
                                         //check amount paid. find unpaid with balance payable
                                         if(invoice.getPaymentAmount() < invoice.getBillAmount()){
                                             //check the due date passed
-                                            if(DateTimeUtils.checkDatePassed(invoice.getTimestamp())){
+                                            if(DateTimeUtils.checkDatePassed(invoice.getDueDate())){
                                                 //if date exceeded, then show it on overdue
                                                 filteredList.add(invoice);
                                             }

@@ -27,12 +27,8 @@ import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.bill.PurchaseBillView;
-import com.rpos.pos.presentation.ui.sales.bill.BillViewActivity;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class PurchasePaymentActivity extends SharedActivity {
@@ -56,8 +52,6 @@ public class PurchasePaymentActivity extends SharedActivity {
     private AppDatabase localDb;
 
     private List<PaymentModeEntity> payModeList;
-
-    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     @Override
     public int setUpLayout() {
@@ -474,7 +468,6 @@ public class PurchasePaymentActivity extends SharedActivity {
 
             currentInvoice.setPaymentAmount(fl_roundedNewPayment);
             currentInvoice.setReferenceNo(referenceNo);
-            currentInvoice.setTimestamp(todayDateTimestamp);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
             //To check whether the payment is complete,
@@ -539,12 +532,12 @@ public class PurchasePaymentActivity extends SharedActivity {
                 return;
             }
 
-            long dueDateTimestamp = DateTimeUtils.convertDateToTimeStamp(et_date.getText().toString());
+            long dueDateTimestamp = DateTimeUtils.convertDateToTimeStamp(dueDate);
 
             String referenceNo = et_referenceNo.getText().toString();
             currentInvoice.setPaymentType(paymentType);
             currentInvoice.setReferenceNo(referenceNo);
-            currentInvoice.setTimestamp(dueDateTimestamp);
+            currentInvoice.setDueDate(dueDateTimestamp);
             currentInvoice.setCurrency(tv_currency.getText().toString());
 
             final double balance = calculateBalance();
@@ -598,9 +591,9 @@ public class PurchasePaymentActivity extends SharedActivity {
         try {
 
             //round off method settings
-            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+
             //round of to two digits after decimal
-            String rounded_paymentAmount = decimalFormat.format(float_value);
+            String rounded_paymentAmount = Utility.roundOffDecimalValueTo2Digits(float_value);
             //convert the formatted amount to float
             return Float.parseFloat(rounded_paymentAmount);
 

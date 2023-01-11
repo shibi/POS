@@ -48,6 +48,8 @@ public class InvoiceEntity {
 
     private long timestamp;
 
+    private long dueDate;
+
     private String status;
 
     @NonNull
@@ -203,5 +205,11 @@ public class InvoiceEntity {
         this.status = status;
     }
 
+    public long getDueDate() {
+        return dueDate;
+    }
 
+    public void setDueDate(long dueDate) {
+        this.dueDate = dueDate;
+    }
 }

@@ -513,7 +513,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Mode"
+                            android:text="@string/mode_label"
                             android:textSize="12dp"/>
 
                     </LinearLayout>
@@ -576,6 +576,7 @@
                         android:layout_weight="1">
 
                         <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tv_billAmount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="600"
@@ -615,6 +616,7 @@
                         android:gravity="end">
 
                         <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tv_cash_paid"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"

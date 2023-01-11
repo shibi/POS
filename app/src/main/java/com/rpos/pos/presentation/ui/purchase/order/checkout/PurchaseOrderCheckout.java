@@ -3,6 +3,7 @@ package com.rpos.pos.presentation.ui.purchase.order.checkout;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -22,11 +23,10 @@ import com.rpos.pos.data.local.entity.PurchaseOrderEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.TextWatcherExtended;
+import com.rpos.pos.domain.utils.Utility;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.order.payment.PurchasePaymentActivity;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +45,6 @@ public class PurchaseOrderCheckout extends SharedActivity {
     private double totalAmount, taxPercent, taxAmount, itemDiscount,discountPercent, netPayable,roundOfDisc;
     private String supplierName;
 
-    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     @Override
     public int setUpLayout() {
@@ -150,8 +149,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
             tempTotal+=taxAmount;
             tempTotal-= roundOfDisc;
 
-            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
-            String roundedTotal = decimalFormat.format(tempTotal);
+            String roundedTotal = Utility.roundOffDecimalValueTo2Digits(tempTotal);
             return Double.parseDouble(roundedTotal);
 
         }catch (Exception e){
@@ -253,6 +251,7 @@ public class PurchaseOrderCheckout extends SharedActivity {
                         localDb.purchaseOrderDao().insertOrder(order);
 
                         long todayTimestamp = DateTimeUtils.getCurrentDateTimeStamp();
+                        Log.e("------------","purchase checkout ts:"+todayTimestamp);
 
                         PurchaseInvoiceEntity invoice = new PurchaseInvoiceEntity();
                         invoice.setOrderId(_orderId);

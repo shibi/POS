@@ -285,4 +285,9 @@ public class DashboardActivity extends SharedActivity{
             });
         }
     }
+
+    static {
+        System.loadLibrary("chilkat");
+    }
+
 }

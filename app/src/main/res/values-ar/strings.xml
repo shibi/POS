@@ -364,5 +364,7 @@
 
     <string name="print_line">-----------------------------</string>
     <string name="mode_label">الوضع</string>
+    <string name="zatca_qr_failed">Zatca Qr generation failed</string>
+    <string name="printer_already_connected">Printer already connected</string>
 
 </resources>

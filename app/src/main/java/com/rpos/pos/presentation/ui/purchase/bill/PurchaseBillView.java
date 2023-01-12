@@ -1,12 +1,17 @@
 package com.rpos.pos.presentation.ui.purchase.bill;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.zxing.BarcodeFormat;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
@@ -20,10 +25,12 @@ import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.ZatcaDataGenerator;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.BluetoothUtil;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.ESCUtil;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
+import com.rpos.pos.presentation.ui.sales.bill.BillViewActivity;
 import com.sunmi.peripheral.printer.InnerResultCallback;
 
 import java.io.IOException;
@@ -114,7 +121,7 @@ public class PurchaseBillView extends SharedActivity {
 
         billingCountryId = prefHelper.getBillingCountry();
 
-        printerQrData = "Empty data";
+        printerQrData = Constants.EMPTY;
         printItemsList = new ArrayList<>();
         currentInvoice = null;
 
@@ -124,14 +131,26 @@ public class PurchaseBillView extends SharedActivity {
         //get the current invoice with id
         getCurrentInvoice();
 
+        //add print button listener
+        enablePrintButton();
+    }
+
+    /**
+     * enable print button
+     * enable only if invoice details are loaded
+     * */
+    private void enablePrintButton(){
+
         btn_print.setOnClickListener(view -> {
             try{
+
+                //to prepare and print receipt
                 print();
+
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
-
     }
 
     @Override
@@ -180,30 +199,184 @@ public class PurchaseBillView extends SharedActivity {
         }
     }
 
+    /**
+     * fill invoice detail in fields
+     * */
+    private void updateValuesToUi(List<PurchaseInvoiceItemHistory> billedItemsList){
+        try {
+
+            runOnUiThread(() -> {
+                try {
+
+                    String COLON_SEPARATOR = " : ";
+                    String _billToCustomer,_billNo,_billDate,_billType, _billCurrency;
+                    String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+
+                    if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
+                        _billToCustomer = COLON_SEPARATOR + currentInvoice.getCustomerName();
+                        _billNo = COLON_SEPARATOR +"INV#"+invoiceId;
+                        _billDate = COLON_SEPARATOR + date;
+                        _billType = COLON_SEPARATOR + getString(R.string.purchase_label);
+                        _billCurrency = COLON_SEPARATOR + currentInvoice.getCurrency();
+                    }else {
+                        _billToCustomer = currentInvoice.getCustomerName() + COLON_SEPARATOR;
+                        _billNo =  invoiceId +"INV#"+ COLON_SEPARATOR;
+                        _billDate = COLON_SEPARATOR + date ;
+                        _billType = COLON_SEPARATOR + getString(R.string.purchase_label);
+                        _billCurrency = COLON_SEPARATOR + currentInvoice.getCurrency();
+                    }
+
+                    tv_billTo.setText(_billToCustomer);
+                    tv_billNo.setText(_billNo);
+                    tv_billDate.setText(_billDate);
+                    tv_billType.setText(_billType);
+                    tv_billCurrency.setText(_billCurrency);
+
+                    tv_grossTotal.setText(""+currentInvoice.getGrossAmount());
+                    tv_taxAmount.setText(""+currentInvoice.getTaxAmount());
+                    tv_discountAmount.setText(""+currentInvoice.getDiscountAmount());
+                    tv_netTotal.setText(""+currentInvoice.getBillAmount());
+                    tv_payment.setText(""+currentInvoice.getBillAmount()+"("+currentInvoice.getCurrency()+")");
+                    float dueAmount = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
+                    tv_due_amount.setText(""+dueAmount);
+                    tv_payCurrency.setText(currentInvoice.getCurrency());
+                    tv_cash_paid.setText(""+currentInvoice.getPaymentAmount());
+                    tv_billAmount.setText(""+currentInvoice.getBillAmount());
+
+                    int itemCount = 0;
+                    for (PurchaseInvoiceItemHistory item:billedItemsList){
+                        itemCount += item.getQuantity();
+                    }
+                    tv_totalItems.setText(""+itemCount);
+
+
+                    PurchaseInvoiceItemsAdapter invoiceItemsAdapter = new PurchaseInvoiceItemsAdapter(billedItemsList);
+                    rv_billedItems.setAdapter(invoiceItemsAdapter);
+
+
+
+                    //flag to verify whether to show or hide QR Code
+                    boolean isShowQr = true;
+                    //show qr code only if country is saudi arabia
+                    //hide for all other countries
+                    if(billingCountryId!=Constants.COUNTRY_SAUDI_ARABIA){
+                        iv_qrcode.setVisibility(View.GONE);
+                        isShowQr = false;
+                    }
+
+                    //To generate qr code , requires seller details
+                    //check whether saved seller details available.
+                    //if flag is false ,then qr code is hidden.So no need to generate qr code
+                    if(savedCompanyDetails!=null && isShowQr) {
+
+                        String dateTime = DateTimeUtils.getCurrentDateTimeInvoice();
+                        String sellerName = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)?savedCompanyDetails.getCompanyNameInEng():savedCompanyDetails.getCompanyNameInArb());
+                        try {
+                            getZatcaQr(sellerName, savedCompanyDetails.getTaxNumber(), currentInvoice.getGrossAmount(), currentInvoice.getTaxAmount(), dateTime);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }else {
+
+                        if(isShowQr) {
+                            AppDialogs appDialogs = new AppDialogs(PurchaseBillView.this);
+                            appDialogs.showCommonAlertDialog(getString(R.string.update_seller_details), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //do nothing...
+                                }
+                            });
+                        }
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void updateCompanyAddress(List<CompanyAddressEntity> cmpnyAddressList){
+        runOnUiThread(() -> {
+            try {
+
+                if(cmpnyAddressList!=null && !cmpnyAddressList.isEmpty()){
+                    companyAddressEntity = cmpnyAddressList.get(0);
+                    //display values
+                    String companyName = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)?companyAddressEntity.getCompanyNameEng():companyAddressEntity.getCompanyNameAr());
+
+                    tv_companyName.setText(companyName);
+                    tv_companyPhone.setText("Ph : "+ companyAddressEntity.getMobile());
+                    String emailPrefix = getString(R.string.email) + " : ";
+                    tv_companyEmail.setText(emailPrefix + companyAddressEntity.getEmail());
+                    tv_companyAddress.setText(companyAddressEntity.getAddress().trim());
+
+                }else {
+                    showToast(getString(R.string.company_address_missing), PurchaseBillView.this);
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void getZatcaQr(String sellerName, String taxNumber, float total, float taxAmount, String date){
+        try {
+
+            String qrData = ZatcaDataGenerator.getZatca(sellerName, taxNumber, date, String.valueOf(total),String.valueOf(taxAmount));
+            printerQrData = qrData;
+            generateQr(qrData);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to generate qr code from zatca base64 string
+     * @param base64String
+     * */
+    private void generateQr(String base64String){
+        try {
+
+            Bitmap bitmap = new BarcodeEncoder().encodeBitmap(base64String, BarcodeFormat.QR_CODE, 400, 400);
+            iv_qrcode.setImageBitmap(bitmap);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to prepare printing receipt and
+     * initiating print
+     * */
     private void print(){
         try {
 
-            float size = 24.0f;
+            //check if bluetooth printer not connected
             if (!BluetoothUtil.isBlueToothPrinter) {
+
+                //using sunmi printer interface to print
                 SunmiPrintHelper.getInstance().printTransaction_purchase(PurchaseBillView.this,currentInvoice,companyAddressEntity, printItemsList, printerQrData, new InnerResultCallback() {
                     @Override
                     public void onRunResult(boolean isSuccess) throws RemoteException {
-                        Log.e("-------------","1> "+isSuccess);
                     }
 
                     @Override
                     public void onReturnString(String result) throws RemoteException {
-                        Log.e("-------------","2> ");
                     }
 
                     @Override
                     public void onRaiseException(int code, String msg) throws RemoteException {
-                        Log.e("-------------","3> ");
                     }
 
                     @Override
                     public void onPrintResult(int code, String msg) throws RemoteException {
-                        Log.e("-------------","4> "+code+" > "+msg);
                     }
                 });
             } else {
@@ -296,95 +469,6 @@ public class PurchaseBillView extends SharedActivity {
                 break;
         }
         return (byte) res;
-    }
-
-    /**
-     * fill invoice detail in fields
-     * */
-    private void updateValuesToUi(List<PurchaseInvoiceItemHistory> billedItemsList){
-        try {
-
-            runOnUiThread(() -> {
-                try {
-
-                    String COLON_SEPARATOR = " : ";
-                    String _billToCustomer,_billNo,_billDate,_billType, _billCurrency;
-                    String date = DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
-
-                    if(CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)){
-                        _billToCustomer = COLON_SEPARATOR + currentInvoice.getCustomerName();
-                        _billNo = COLON_SEPARATOR +"INV#"+invoiceId;
-                        _billDate = COLON_SEPARATOR + date;
-                        _billType = COLON_SEPARATOR + getString(R.string.purchase_label);
-                        _billCurrency = COLON_SEPARATOR + currentInvoice.getCurrency();
-                    }else {
-                        _billToCustomer = currentInvoice.getCustomerName() + COLON_SEPARATOR;
-                        _billNo =  invoiceId +"INV#"+ COLON_SEPARATOR;
-                        _billDate = COLON_SEPARATOR + date ;
-                        _billType = COLON_SEPARATOR + getString(R.string.purchase_label);
-                        _billCurrency = COLON_SEPARATOR + currentInvoice.getCurrency();
-                    }
-
-                    tv_billTo.setText(_billToCustomer);
-                    tv_billNo.setText(_billNo);
-                    tv_billDate.setText(_billDate);
-                    tv_billType.setText(_billType);
-                    tv_billCurrency.setText(_billCurrency);
-
-                    tv_grossTotal.setText(""+currentInvoice.getGrossAmount());
-                    tv_taxAmount.setText(""+currentInvoice.getTaxAmount());
-                    tv_discountAmount.setText(""+currentInvoice.getDiscountAmount());
-                    tv_netTotal.setText(""+currentInvoice.getBillAmount());
-                    tv_payment.setText(""+currentInvoice.getBillAmount()+"("+currentInvoice.getCurrency()+")");
-                    float dueAmount = currentInvoice.getBillAmount() - currentInvoice.getPaymentAmount();
-                    tv_due_amount.setText(""+dueAmount);
-                    tv_payCurrency.setText(currentInvoice.getCurrency());
-                    tv_cash_paid.setText(""+currentInvoice.getPaymentAmount());
-                    tv_billAmount.setText(""+currentInvoice.getBillAmount());
-
-                    int itemCount = 0;
-                    for (PurchaseInvoiceItemHistory item:billedItemsList){
-                        itemCount += item.getQuantity();
-                    }
-                    tv_totalItems.setText(""+itemCount);
-
-
-                    PurchaseInvoiceItemsAdapter invoiceItemsAdapter = new PurchaseInvoiceItemsAdapter(billedItemsList);
-                    rv_billedItems.setAdapter(invoiceItemsAdapter);
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void updateCompanyAddress(List<CompanyAddressEntity> cmpnyAddressList){
-        runOnUiThread(() -> {
-            try {
-
-                if(cmpnyAddressList!=null && !cmpnyAddressList.isEmpty()){
-                    companyAddressEntity = cmpnyAddressList.get(0);
-                    //display values
-                    String companyName = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)?companyAddressEntity.getCompanyNameEng():companyAddressEntity.getCompanyNameAr());
-
-                    tv_companyName.setText(companyName);
-                    tv_companyPhone.setText("Ph : "+ companyAddressEntity.getMobile());
-                    String emailPrefix = getString(R.string.email) + " : ";
-                    tv_companyEmail.setText(emailPrefix + companyAddressEntity.getEmail());
-                    tv_companyAddress.setText(companyAddressEntity.getAddress().trim());
-
-                }else {
-                    showToast(getString(R.string.company_address_missing), PurchaseBillView.this);
-                }
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        });
     }
 
 

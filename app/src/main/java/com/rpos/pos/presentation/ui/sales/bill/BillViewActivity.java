@@ -1,29 +1,19 @@
 package com.rpos.pos.presentation.ui.sales.bill;
 
-import android.app.Activity;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.RemoteException;
-import android.util.Log;
+
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.mazenrashed.printooth.Printooth;
-import com.mazenrashed.printooth.data.printable.Printable;
-import com.mazenrashed.printooth.data.printable.RawPrintable;
-import com.mazenrashed.printooth.data.printable.TextPrintable;
-import com.mazenrashed.printooth.data.printer.DefaultPrinter;
-import com.mazenrashed.printooth.ui.ScanningActivity;
-import com.mazenrashed.printooth.utilities.Printing;
-import com.mazenrashed.printooth.utilities.PrintingCallback;
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
@@ -33,30 +23,19 @@ import com.rpos.pos.data.local.entity.CompanyAddressEntity;
 import com.rpos.pos.data.local.entity.CompanyEntity;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.InvoiceItemHistory;
-import com.rpos.pos.data.remote.api.ApiGenerator;
-import com.rpos.pos.data.remote.api.ApiService;
-import com.rpos.pos.data.remote.dto.ZatcaResponse;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.ZatcaDataGenerator;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.BluetoothUtil;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.ESCUtil;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.sunmi.peripheral.printer.InnerResultCallback;
 
-import org.apache.commons.codec.binary.Hex;
-
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class BillViewActivity extends SharedActivity {
 
@@ -127,7 +106,6 @@ public class BillViewActivity extends SharedActivity {
 
         printerProgress = new AppDialogs(this);
 
-
         //shared preference instance
         prefHelper = SharedPrefHelper.getInstance(this);
 
@@ -141,7 +119,7 @@ public class BillViewActivity extends SharedActivity {
 
         billingCountryId = prefHelper.getBillingCountry();
 
-        printerQrData = "Empty data";
+        printerQrData = Constants.EMPTY;
         printItemsList = new ArrayList<>();
         currentInvoice = null;
 
@@ -151,9 +129,20 @@ public class BillViewActivity extends SharedActivity {
         //get the current invoice with id
         getCurrentInvoice();
 
+        //add click listener in print button
+        enablePrintButton();
+    }
+
+    /**
+     * to add click listener on print button
+     * */
+    private void enablePrintButton(){
         btn_print.setOnClickListener(view -> {
             try{
+
+                //prepare printing data and prints
                 print();
+
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -163,257 +152,6 @@ public class BillViewActivity extends SharedActivity {
     @Override
     public void initObservers() {
 
-    }
-
-    private void print(){
-        try {
-
-            String content = createBillableContent_En();
-            String textFont = "test.ttf";
-
-            float size = 24.0f;
-            if (!BluetoothUtil.isBlueToothPrinter) {
-                //SunmiPrintHelper.getInstance().printText(content, size, false, false, textFont);
-                //SunmiPrintHelper.getInstance().feedPaper();
-                SunmiPrintHelper.getInstance().printTransaction_sales(BillViewActivity.this,currentInvoice,companyAddressEntity,printItemsList,printerQrData, new InnerResultCallback() {
-                    @Override
-                    public void onRunResult(boolean isSuccess) throws RemoteException {
-                        Log.e("-------------","1> "+isSuccess);
-                    }
-
-                    @Override
-                    public void onReturnString(String result) throws RemoteException {
-                        Log.e("-------------","2> ");
-                    }
-
-                    @Override
-                    public void onRaiseException(int code, String msg) throws RemoteException {
-                        Log.e("-------------","3> ");
-                    }
-
-                    @Override
-                    public void onPrintResult(int code, String msg) throws RemoteException {
-                        Log.e("-------------","4> "+code+" > "+msg);
-                    }
-                });
-            } else {
-                printByBluTooth(content);
-            }
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void printByBluTooth(String content) {
-        try {
-            Boolean isBold = false;
-            if (isBold) {
-                BluetoothUtil.sendData(ESCUtil.boldOn());
-            } else {
-                BluetoothUtil.sendData(ESCUtil.boldOff());
-            }
-
-            Boolean isUnderLine = false;
-            if (isUnderLine) {
-                BluetoothUtil.sendData(ESCUtil.underlineWithOneDotWidthOn());
-            } else {
-                BluetoothUtil.sendData(ESCUtil.underlineOff());
-            }
-
-            if (record < 17) {
-                BluetoothUtil.sendData(ESCUtil.singleByte());
-                BluetoothUtil.sendData(ESCUtil.setCodeSystemSingle(codeParse(record)));
-            } else {
-                BluetoothUtil.sendData(ESCUtil.singleByteOff());
-                BluetoothUtil.sendData(ESCUtil.setCodeSystem(codeParse(record)));
-            }
-
-            BluetoothUtil.sendData(content.getBytes(mStrings[record]));
-            BluetoothUtil.sendData(ESCUtil.nextLine(3));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private byte codeParse(int value) {
-        byte res = 0x00;
-        switch (value) {
-            case 0:
-                res = 0x00;
-                break;
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                res = (byte) (value + 1);
-                break;
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-                res = (byte) (value + 8);
-                break;
-            case 12:
-                res = 21;
-                break;
-            case 13:
-                res = 33;
-                break;
-            case 14:
-                res = 34;
-                break;
-            case 15:
-                res = 36;
-                break;
-            case 16:
-                res = 37;
-                break;
-            case 17:
-            case 18:
-            case 19:
-                res = (byte) (value - 17);
-                break;
-            case 20:
-                res = (byte) 0xff;
-                break;
-            default:
-                break;
-        }
-        return (byte) res;
-    }
-
-
-    private String createBillableContent_En(){
-
-        String line = getString(R.string.print_line);
-
-        String companyName = "             POS              ";
-        String company_address = "        Company address       ";
-        String phoneNumber = "       Ph: +91 9876543210     ";
-        String emailId = "    Email:email@gmail.com    ";
-
-        if(companyAddressEntity != null){
-            String tempString = companyAddressEntity.getCompanyNameEng();
-            if(tempString!=null){
-
-                if(tempString.length() > 31){
-                    companyName = tempString.substring(0,30);
-                }else {
-                    int remainingSpace = 31 - tempString.length();
-                    String preSpace = "";
-                    String postSpace = "";
-                    if(remainingSpace%2 == 0){
-                        preSpace = getLineFilledSpaces((int) remainingSpace/2);
-                        postSpace = preSpace;
-                    }else {
-                        preSpace = getLineFilledSpaces((int) ((remainingSpace/2) -1));
-                        postSpace = preSpace+" ";
-                    }
-
-                    companyName = preSpace + tempString + postSpace;
-                }
-            }
-        }
-
-        String company_header =  companyName +"\n"+ company_address + "\n" + phoneNumber + "\n" + emailId + "\n" +line;
-
-        //----------------------------------------------------------------------------------------------------------------------------
-        String billTo = getString(R.string.to_label) + ": "+ currentInvoice.getCustomerName();
-        String invoiceNo = getString(R.string.invoice_no) + ": INV#"+ currentInvoice.getId();
-        String billType = getString(R.string.bill_type) + ": Sales invoice";
-        String currency = getString(R.string.currency) + ": "+ currentInvoice.getCurrency();
-        String billDate = getString(R.string.bill_date) + ": "+ DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
-
-        String billInfo = billTo + "\n" + invoiceNo + "\n" + billType + "\n" + currency + "\n" + billDate + "\n" + line;
-
-
-
-        String tableHeader = "\nitem        rate   Qty   Total\n"+line+"\n";
-
-
-        String finalString = company_header +"\n "+ tableHeader + "\n "+ billInfo;
-
-        return finalString;
-    }
-
-    private String getLineFilledSpaces(int charCount){
-        String fillSpace = "";
-        for (int i=0;i<charCount;i++){
-            fillSpace+=" ";
-        }
-        return fillSpace;
-    }
-
-    private void generateZatcaBase64(String sellerName, String taxNumber, float total,float taxAmount,String date){
-        try {
-
-            ApiService apiService = ApiGenerator.createZatcaApiService(ApiService.class);
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("seller_name", sellerName);
-            params.put("tax_number", taxNumber);
-            params.put("total", ""+total);
-            params.put("tax_amount", ""+taxAmount);
-            params.put("date", date);
-
-
-            Call<ZatcaResponse> call = apiService.generate(params);
-            call.enqueue(new Callback<ZatcaResponse>() {
-                @Override
-                public void onResponse(Call<ZatcaResponse> call, Response<ZatcaResponse> response) {
-                    Log.e("-----------", "sdfsdf>" + response.isSuccessful());
-                    if (response.isSuccessful()) {
-                        ZatcaResponse response1 = response.body();
-                        if (response1 != null) {
-
-                            printerQrData = response1.getZatcaBase64();
-                            Log.e("-----------", "res>" + response1.getZatcaBase64());
-                            generateQr(response1.getZatcaBase64());
-                        }
-                    } else {
-                        Log.e("-----------", "false>");
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ZatcaResponse> call, Throwable t) {
-                    Log.e("-----------", "er>" + t.getMessage());
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
-
-    static String getHexString(int tagNo, String tagValue) {
-        String tagNumLengthHexString = Integer.toHexString(tagNo);
-        int tagValueLength = tagValue.length();
-        String tagValueLengthHexString = Integer.toHexString(tagValueLength);
-        byte[] tagValueBytes = tagValue.getBytes(StandardCharsets.UTF_8);
-        String tagValueHexString = Hex.encodeHexString(tagValueBytes);
-        return (0 + tagNumLengthHexString) + (0 + tagValueLengthHexString) + tagValueHexString;
-    }
-
-    /**
-     * to generate qr code from zatca base64 string
-     * @param base64String
-     * */
-    private void generateQr(String base64String){
-        try {
-
-            Bitmap bitmap = new BarcodeEncoder().encodeBitmap(base64String, BarcodeFormat.QR_CODE, 400, 400);
-            iv_qrcode.setImageBitmap(bitmap);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -457,7 +195,6 @@ public class BillViewActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
-
 
     /**
      * fill invoice detail in fields
@@ -531,7 +268,7 @@ public class BillViewActivity extends SharedActivity {
                         String dateTime = DateTimeUtils.getCurrentDateTimeInvoice();
                         String sellerName = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)?savedCompanyDetails.getCompanyNameInEng():savedCompanyDetails.getCompanyNameInArb());
                         try {
-                            generateZatcaBase64(sellerName, savedCompanyDetails.getTaxNumber(), currentInvoice.getGrossAmount(), currentInvoice.getTaxAmount(), dateTime);
+                            getZatcaQr(sellerName, savedCompanyDetails.getTaxNumber(), currentInvoice.getGrossAmount(), currentInvoice.getTaxAmount(), dateTime);
                         }catch (Exception e){
                             e.printStackTrace();
                         }
@@ -569,6 +306,9 @@ public class BillViewActivity extends SharedActivity {
         }
     }
 
+    /**
+     * to show the saved company details on top
+     * */
     private void updateCompanyAddress(List<CompanyAddressEntity> cmpnyAddressList){
         runOnUiThread(() -> {
             try {
@@ -593,8 +333,163 @@ public class BillViewActivity extends SharedActivity {
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    /**
+     * generate zatca data
+     * */
+    private void getZatcaQr(String sellerName, String taxNumber, float total, float taxAmount, String date){
+        try {
+
+            String qrData = ZatcaDataGenerator.getZatca(sellerName, taxNumber, date, String.valueOf(total),String.valueOf(taxAmount));
+            printerQrData = qrData;
+            generateQr(qrData);
+
+            if(printerQrData!=null && printerQrData.equals(Constants.EMPTY)){
+                AppDialogs appDialogs = new AppDialogs(BillViewActivity.this);
+                appDialogs.showCommonAlertDialog(getString(R.string.zatca_qr_failed), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //do nothing...
+                    }
+                });
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
+
+    /**
+     * to generate qr code from zatca base64 string
+     * @param base64String
+     * */
+    private void generateQr(String base64String){
+        try {
+
+            //generate qr code from data and display in bill
+            Bitmap bitmap = new BarcodeEncoder().encodeBitmap(base64String, BarcodeFormat.QR_CODE, 400, 400);
+            iv_qrcode.setImageBitmap(bitmap);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * printer helper class to prepare data and to print
+     * */
+    private void print(){
+        try {
+            //check if not connected to bluetooth printer
+            if (!BluetoothUtil.isBlueToothPrinter) {
+
+                //using sunmi printing interface to print
+                //prepares printing data and prints
+                SunmiPrintHelper.getInstance().printTransaction_sales(BillViewActivity.this,currentInvoice,companyAddressEntity,printItemsList,printerQrData, new InnerResultCallback() {
+                    @Override
+                    public void onRunResult(boolean isSuccess) throws RemoteException {
+                    }
+
+                    @Override
+                    public void onReturnString(String result) throws RemoteException {
+                    }
+
+                    @Override
+                    public void onRaiseException(int code, String msg) throws RemoteException {
+                    }
+
+                    @Override
+                    public void onPrintResult(int code, String msg) throws RemoteException {
+                    }
+                });
+
+            } else {
+                //printByBluTooth(content);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void printByBluTooth(String content) {
+        try {
+            Boolean isBold = false;
+            if (isBold) {
+                BluetoothUtil.sendData(ESCUtil.boldOn());
+            } else {
+                BluetoothUtil.sendData(ESCUtil.boldOff());
+            }
+
+            Boolean isUnderLine = false;
+            if (isUnderLine) {
+                BluetoothUtil.sendData(ESCUtil.underlineWithOneDotWidthOn());
+            } else {
+                BluetoothUtil.sendData(ESCUtil.underlineOff());
+            }
+
+            if (record < 17) {
+                BluetoothUtil.sendData(ESCUtil.singleByte());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystemSingle(codeParse(record)));
+            } else {
+                BluetoothUtil.sendData(ESCUtil.singleByteOff());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystem(codeParse(record)));
+            }
+
+            BluetoothUtil.sendData(content.getBytes(mStrings[record]));
+            BluetoothUtil.sendData(ESCUtil.nextLine(3));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private byte codeParse(int value) {
+        byte res = 0x00;
+        switch (value) {
+            case 0:
+                res = 0x00;
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                res = (byte) (value + 1);
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                res = (byte) (value + 8);
+                break;
+            case 12:
+                res = 21;
+                break;
+            case 13:
+                res = 33;
+                break;
+            case 14:
+                res = 34;
+                break;
+            case 15:
+                res = 36;
+                break;
+            case 16:
+                res = 37;
+                break;
+            case 17:
+            case 18:
+            case 19:
+                res = (byte) (value - 17);
+                break;
+            case 20:
+                res = (byte) 0xff;
+                break;
+            default:
+                break;
+        }
+        return (byte) res;
+    }
+
 }

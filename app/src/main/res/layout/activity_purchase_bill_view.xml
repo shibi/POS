@@ -689,6 +689,19 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/iv_qrcode"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_margin="4dp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingStart="@dimen/bill_start_end_margin"
                     android:paddingEnd="@dimen/bill_start_end_margin">

@@ -12,6 +12,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 
 import com.rpos.pos.AppExecutors;
+import com.rpos.pos.Config;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
@@ -35,16 +36,22 @@ import retrofit2.Response;
 
 public class LoginActivity extends SharedActivity {
 
-    private AppCompatEditText et_serverurl;
+    //linear views
+    private LinearLayout ll_showPass;
     private LinearLayout ll_lang_arab,ll_lang_eng;
+
+    //user interaction views
     private AppCompatEditText et_username,et_password;
     private AppCompatButton btn_login;
 
+    //password eye icon
+    private ImageView iv_eye_icon;
+
+    //show progress
     private AppDialogs progressDialog;
 
     private int loginType;
     private static final int LOGIN_ERPNEXT = 1;
-    private static final int LOGIN_LICENCE_SERVER = 2;
 
     @Override
     public int setUpLayout() {
@@ -58,39 +65,40 @@ public class LoginActivity extends SharedActivity {
 
     @Override
     public void initViews() {
+
         //initializing views
-        et_serverurl = findViewById(R.id.et_server_url);
         et_username = findViewById(R.id.et_username);
         et_password = findViewById(R.id.et_password);
         btn_login = findViewById(R.id.btn_continue);
+
         ll_lang_arab = findViewById(R.id.ll_lang_arab);
         ll_lang_eng = findViewById(R.id.ll_lang_eng);
+        ll_showPass = findViewById(R.id.ll_showPass);
+
+        //eye icon to toggle password visibility
+        iv_eye_icon = findViewById(R.id.iv_show);
 
         //progress dialog initialize
         progressDialog = new AppDialogs(this);
 
         //default selection
-        loginType = LOGIN_LICENCE_SERVER;
-
-        //add listener
-        et_serverurl.setVisibility(View.VISIBLE);
-        et_username.setVisibility(View.GONE);
-        et_password.setVisibility(View.GONE);
+        loginType = LOGIN_ERPNEXT;
 
         //login click
-        //CURRENTLY DISABLED ERPNEXT AND LICENCE SERVER LOGIN, API IS NOT WORKING RIGHT NOW
-        //FOCUSING ON OFFLINE WORKING
-        btn_login.setOnClickListener(view -> gotoDashboardActivity());
+        btn_login.setOnClickListener(view -> onClickLogin());
 
         //language toggle English and arabic on click
         ll_lang_arab.setOnClickListener(view -> { toggleLanguage(Constants.LANG_AR); });
         ll_lang_eng.setOnClickListener(view -> { toggleLanguage(Constants.LANG_EN); });
 
+        //N.B Need to set a tag first.
+        //else, tag will be null and throws error while password toggle
+        et_password.setTag("show");
+        //to show / hide password
+        ll_showPass.setOnClickListener(this::togglePasswordVisibility);
+
         //check custom logo available, show if any.
         getAvailableCustomLogo();
-
-        //Testing testing = new Testing(new AppExecutors(), getCoreApp().getLocalDb());
-        //testing.insetSampleData();
     }
 
     @Override
@@ -98,15 +106,6 @@ public class LoginActivity extends SharedActivity {
 
     }
 
-    /**
-     * redirect to  dashboard
-     * */
-    private void gotoDashboardActivity(){
-        Intent dashboardIntent = new Intent(this, DashboardActivity.class);
-        startActivity(dashboardIntent);
-    }
-
-    //N.B Not using right now , APi is not accessible
     /**
      * on click login
      * check login type selected
@@ -133,14 +132,16 @@ public class LoginActivity extends SharedActivity {
      * */
     private void loginERPNEXT(){
         try {
+
             //check entered values are valid
-            if(isValid()){
+            if(validateUserEntryFields()){
+
                 //if valid, get the username and password for login request
                 String username = et_username.getText().toString();
                 String password = et_password.getText().toString();
 
                 //request login through api
-                requestLogin(username,password.trim());
+                requestLogin(username.trim(),password.trim());
             }
 
         }catch (Exception e) {
@@ -156,7 +157,7 @@ public class LoginActivity extends SharedActivity {
             //show progress bar
             progressDialog.showProgressBar();
             //get the licence key entered
-            String licenceKey = et_serverurl.getText().toString();
+            String licenceKey = "dummy";//et_serverurl.getText().toString();
             //check key is valid
             if(licenceKey.isEmpty()){
                 //if key is not valid, then show message and stop processing
@@ -198,8 +199,9 @@ public class LoginActivity extends SharedActivity {
     /**
      * validate entry fields
      * */
-    private boolean isValid(){
+    private boolean validateUserEntryFields(){
         try {
+
             //get user inputs
             String username = et_username.getText().toString();
             String password = et_password.getText().toString();
@@ -241,6 +243,7 @@ public class LoginActivity extends SharedActivity {
             LoginRequestJson params = new LoginRequestJson();
             params.setUsr(email);
             params.setPwd(password);
+            params.setSite(Config.BASE_URL_PREFIX);
 
             //call the login api with username and password params
             Call<LoginResponse> call = apiService.posLogin(params);
@@ -298,6 +301,7 @@ public class LoginActivity extends SharedActivity {
                         progressDialog.hideProgressbar();
                         String er_message = getString(R.string.login_failed) +". "+ getString(R.string.please_check_internet);
                         showToast(er_message,LoginActivity.this);
+                        t.printStackTrace();
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -346,6 +350,37 @@ public class LoginActivity extends SharedActivity {
     }
 
     /**
+     * toggle password visibility
+     * */
+    private void togglePasswordVisibility(View view){
+        try{
+
+            if (et_password.getTag().equals("show")) {
+                et_password.setTag("hide");
+                et_password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                iv_eye_icon.setImageResource(R.drawable.ic_eye_hide);
+            } else {
+                et_password.setTag("show");
+                et_password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                iv_eye_icon.setImageResource(R.drawable.ic_baseline_remove_red_eye_24);
+            }
+
+            et_password.setSelection(et_password.getText().length());
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * redirect to  dashboard
+     * */
+    private void gotoDashboardActivity(){
+        Intent dashboardIntent = new Intent(this, DashboardActivity.class);
+        startActivity(dashboardIntent);
+    }
+
+    /**
      * check custom logo available and show
      * */
     private void getAvailableCustomLogo(){
@@ -370,5 +405,6 @@ public class LoginActivity extends SharedActivity {
             throw e;
         }
     }
+
 
 }

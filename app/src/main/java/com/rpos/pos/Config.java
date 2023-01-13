@@ -16,9 +16,8 @@ public interface Config {
     /**
      * url prefix
      * */
-    //String BASE_URL_PREFIX = "http://anncrm.dxgsofts.in/";
     //String BASE_URL_PREFIX = "http://185.185.126.217:6500/api/method/custom_integration";
-    String BASE_URL_PREFIX = "http://185.185.126.217:6500/";
+    String BASE_URL_PREFIX = "https://posnext.erpnext.live/";
 
 
     /**

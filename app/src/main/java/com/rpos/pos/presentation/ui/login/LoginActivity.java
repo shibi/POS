@@ -300,6 +300,7 @@ public class LoginActivity extends SharedActivity {
                         progressDialog.hideProgressbar();
                         String er_message = getString(R.string.login_failed) +". "+ getString(R.string.please_check_internet);
                         showToast(er_message,LoginActivity.this);
+                        t.printStackTrace();
 
                     }catch (Exception e){
                         e.printStackTrace();

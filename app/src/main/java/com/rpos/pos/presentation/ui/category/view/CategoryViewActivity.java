@@ -3,6 +3,7 @@ package com.rpos.pos.presentation.ui.category.view;
 
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -34,7 +35,6 @@ public class CategoryViewActivity extends SharedActivity {
     private AppDatabase localDb;
     private CategoryEntity savedCategoryEntity;
 
-
     @Override
     public int setUpLayout() {
         return R.layout.activity_category_view;
@@ -48,39 +48,117 @@ public class CategoryViewActivity extends SharedActivity {
     @Override
     public void initViews() {
 
-        Intent intent = getIntent();
-        if(intent!=null){
-            categoryId = intent.getStringExtra(Constants.CATEGORY_ID);
-            if(categoryId == null || categoryId.isEmpty()){
-                showToast("Invalid category id. Please retry",this);
-                return;
-            }
-        }
-
-        appExecutors = new AppExecutors();
-        localDb = getCoreApp().getLocalDb();
-
         et_categoryName = findViewById(R.id.et_category_name);
         btn_update = findViewById(R.id.btn_update);
         ll_back = findViewById(R.id.ll_back);
 
+
+        Intent intent = getIntent();
+        if(intent!=null){
+            categoryId = intent.getStringExtra(Constants.CATEGORY_ID);
+            String categoryName = intent.getStringExtra(Constants.CATEGORY_NAME);
+
+            if(categoryId == null || categoryId.isEmpty()){
+                showToast("Invalid category id. Please retry",this);
+                return;
+            }
+
+            et_categoryName.setText(categoryName);
+        }
+
+        //CURRENTLY THERE IS NO CATEGORY UPDATE API, SO DISABLE EDIT MODE
+        et_categoryName.setClickable(false);
+        et_categoryName.setFocusable(false);
+
+
+        appExecutors = new AppExecutors();
+        localDb = getCoreApp().getLocalDb();
+
+
         //get category details
-        getCategoryFromLocalDb(categoryId);
+        //getCategoryFromLocalDb(categoryId);
         //getCategoryDetails(categoryId);
 
 
-        //update click
-        btn_update.setOnClickListener(view -> updateClick());
+        //HIDE UPDATE BTN, SINCE THERE IS NO UPDATE API
+        btn_update.setEnabled(false);
+        btn_update.setVisibility(View.GONE);
+        //btn_update.setOnClickListener(view -> updateClick());
 
 
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
-
     }
 
     @Override
     public void initObservers() {
 
+    }
+
+    private void sendResultBack(){
+        try {
+
+            String categoryName = et_categoryName.getText().toString().trim();
+
+            Intent intent = new Intent();
+            intent.putExtra(Constants.CATEGORY_ID, categoryId);
+            intent.putExtra(Constants.CATEGORY_NAME, categoryName);
+            setResult(RESULT_OK, intent);
+            finish();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void showToast(String msg){
+        showToast(msg,CategoryViewActivity.this);
+    }
+
+    /**
+     * api to get category details
+     * */
+    private void getCategoryDetails(String categoryId){
+        try {
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+
+            CategoryDetailsRequest request = new CategoryDetailsRequest();
+            request.setCategoryId(categoryId);
+            Call<CategoryDetailsResponse> call = api.getCategoryDetails(request);
+            call.enqueue(new Callback<CategoryDetailsResponse>() {
+                @Override
+                public void onResponse(Call<CategoryDetailsResponse> call, Response<CategoryDetailsResponse> response) {
+                    Log.e("----------","re"+response.isSuccessful());
+                    if(response.isSuccessful()){
+                        CategoryDetailsResponse categoryDetailsResponse = response.body();
+                        if(categoryDetailsResponse!=null){
+                            List<CategoryDetail> list = categoryDetailsResponse.getMessage();
+                            if(list!=null && list.size()>0){
+
+                                CategoryDetail categoryDetail = list.get(0);
+                                et_categoryName.setText(categoryDetail.getCategory());
+                                return;
+                            }
+                        }
+
+                        showToast(getString(R.string.empty_data));
+
+                    }else {
+                        showToast(getString(R.string.empty_data));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CategoryDetailsResponse> call, Throwable t) {
+                    Log.e("----------","failed");
+                    showToast(getString(R.string.please_check_internet));
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -121,7 +199,6 @@ public class CategoryViewActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
-
 
     /**
      * on update click, check name valid and then update
@@ -164,65 +241,5 @@ public class CategoryViewActivity extends SharedActivity {
         }
     }
 
-    private void sendResultBack(){
-        try {
 
-            String categoryName = et_categoryName.getText().toString().trim();
-
-            Intent intent = new Intent();
-            intent.putExtra(Constants.CATEGORY_ID, categoryId);
-            intent.putExtra(Constants.CATEGORY_NAME, categoryName);
-            setResult(RESULT_OK, intent);
-            finish();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void getCategoryDetails(String categoryId){
-        try {
-
-            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
-            CategoryDetailsRequest request = new CategoryDetailsRequest();
-            request.setCategoryId(categoryId);
-            Call<CategoryDetailsResponse> call = api.getCategoryDetails(request);
-            call.enqueue(new Callback<CategoryDetailsResponse>() {
-                @Override
-                public void onResponse(Call<CategoryDetailsResponse> call, Response<CategoryDetailsResponse> response) {
-                    Log.e("----------","re"+response.isSuccessful());
-                    if(response.isSuccessful()){
-                        CategoryDetailsResponse categoryDetailsResponse = response.body();
-                        if(categoryDetailsResponse!=null){
-                            List<CategoryDetail> list = categoryDetailsResponse.getMessage();
-                            if(list!=null && list.size()>0){
-
-                                CategoryDetail categoryDetail = list.get(0);
-                                et_categoryName.setText(categoryDetail.getCategory());
-
-                            }else {
-                                showToast(getString(R.string.empty_data));
-                            }
-                        }else {
-                            showToast(getString(R.string.empty_data));
-                        }
-                    }else {
-                        showToast(getString(R.string.empty_data));
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<CategoryDetailsResponse> call, Throwable t) {
-                    Log.e("----------","failed");
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void showToast(String msg){
-        showToast(msg,CategoryViewActivity.this);
-    }
 }

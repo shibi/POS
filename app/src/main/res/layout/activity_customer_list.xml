@@ -88,4 +88,9 @@
 
     </LinearLayout>
 
+
+    <include
+        android:id="@+id/view_empty"
+        layout="@layout/view_data_empty"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

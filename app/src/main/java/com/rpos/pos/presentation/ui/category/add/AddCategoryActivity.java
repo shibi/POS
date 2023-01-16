@@ -86,10 +86,10 @@ public class AddCategoryActivity extends SharedActivity {
             }
 
             //save to local db
-            saveCategoryToLocalDb(categoryName);
+            //saveCategoryToLocalDb(categoryName);
 
             //send to backend API
-           // saveNewCategory(categoryName);
+            saveNewCategory(categoryName);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -173,16 +173,12 @@ public class AddCategoryActivity extends SharedActivity {
                             if(addCategoryMessage!=null && addCategoryMessage.getSuccess()){
                                 //success
                                addCategorySuccess();
-
-                            }else {
-                                showToast(getString(R.string.add_category_failed));
+                               return;
                             }
-                        }else {
-                            showToast(getString(R.string.add_category_failed));
                         }
-                    }else {
-                        showToast(getString(R.string.add_category_failed));
                     }
+
+                    showToast(getString(R.string.add_category_failed));
 
                 }
 

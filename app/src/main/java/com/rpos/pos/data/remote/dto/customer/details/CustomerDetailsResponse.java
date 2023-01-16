@@ -3,6 +3,7 @@ package com.rpos.pos.data.remote.dto.customer.details;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
 
 
 public class CustomerDetailsResponse {

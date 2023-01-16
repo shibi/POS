@@ -70,9 +70,9 @@ public interface Config {
     /**
      * http client connection read , write  and time out in seconds
      * */
-    int HTTP_CONNECTION_TIMEOUT_IN_SEC = 60;
-    int HTTP_CONNECTION_READ_TIMEOUT_IN_SEC = 60;
-    int HTTP_CONNECTION_WRITE_TIMEOUT_IN_SEC = 60;
+    int HTTP_CONNECTION_TIMEOUT_IN_SEC = 30;
+    int HTTP_CONNECTION_READ_TIMEOUT_IN_SEC = 30;
+    int HTTP_CONNECTION_WRITE_TIMEOUT_IN_SEC = 30;
 
 
     //splash timeout

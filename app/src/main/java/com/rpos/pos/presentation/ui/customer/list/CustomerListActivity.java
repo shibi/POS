@@ -1,6 +1,8 @@
 package com.rpos.pos.presentation.ui.customer.list;
 
 import android.content.Intent;
+import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -19,6 +21,7 @@ import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerListResponse;
 import com.rpos.pos.domain.models.item.PickedItem;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.ConverterFactory;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.customer.addcustomer.AddCustomerActivity;
 import com.rpos.pos.presentation.ui.customer.details.CustomerDetailsActivity;
@@ -44,6 +47,8 @@ public class CustomerListActivity extends SharedActivity {
     private AppExecutors appExecutors;
     private AppDatabase localDb;
 
+    private View viewEmpty;
+
     @Override
     public int setUpLayout() {
         return R.layout.activity_customer_list;
@@ -62,6 +67,8 @@ public class CustomerListActivity extends SharedActivity {
         customerList = new ArrayList<>();
         progressDialog = new AppDialogs(this);
         ll_add_customer = findViewById(R.id.ll_add_customer);
+
+        viewEmpty = findViewById(R.id.view_empty);
 
         appDialogs = new AppDialogs(CustomerListActivity.this);
 
@@ -98,8 +105,8 @@ public class CustomerListActivity extends SharedActivity {
         });
 
         //get customer list
-        //getCustomerList();
-        getCustomerListFromDb();
+        getCustomerList();
+        //getCustomerListFromDb();
 
     }
 
@@ -109,6 +116,85 @@ public class CustomerListActivity extends SharedActivity {
     public void initObservers() {
 
     }
+
+    /**
+     * to get customer list
+     * */
+    private void getCustomerList(){
+        try {
+
+            //show progress
+            progressDialog.showProgressBar();
+
+            //
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            Call<CustomerListResponse> call = api.getCustomerList();
+            call.enqueue(new Callback<CustomerListResponse>() {
+                @Override
+                public void onResponse(Call<CustomerListResponse> call, Response<CustomerListResponse> response) {
+                    Log.e("------------","res"+response.isSuccessful());
+                    try{
+                        //hide progress bar
+                        progressDialog.hideProgressbar();
+
+                        //check success
+                        if(response.isSuccessful()){
+                            CustomerListResponse customerListResp = response.body();
+                            if(customerListResp!=null){
+                                List<CustomerData> customerDataList = customerListResp.getMessage();
+
+                                if(customerDataList!=null && customerDataList.size()>0){
+                                    customerList.clear();
+                                    for (CustomerData customer: customerDataList) {
+                                        customerList.add(ConverterFactory.convertToEntity(customer));
+                                    }
+                                    customerListAdapter.notifyDataSetChanged();
+                                    hideEmptyView();
+                                    return;
+                                }
+                            }
+                        }
+
+                        showEmptyList();
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CustomerListResponse> call, Throwable t) {
+                    progressDialog.hideProgressbar();
+                    showToast(getString(R.string.please_check_internet), CustomerListActivity.this);
+                    showEmptyList();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * refresh adapter position after item remove
+     * @param position position of the item removed
+     * */
+    private void refreshAfterRemove(final int position){
+        try {
+
+            runOnUiThread(() -> customerListAdapter.notifyItemRemoved(position));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private ActivityResultLauncher<Intent> launchAddCustomerScreen = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+
+        if(result.getResultCode() == RESULT_OK){
+            getCustomerListFromDb();
+        }
+    });
 
     private void gotoAddCustomerScreen(){
         Intent addCustomerIntent = new Intent(CustomerListActivity.this, AddCustomerActivity.class);
@@ -188,75 +274,18 @@ public class CustomerListActivity extends SharedActivity {
     }
 
     /**
-     * refresh adapter position after item remove
-     * @param position position of the item removed
+     * to show empty view
      * */
-    private void refreshAfterRemove(final int position){
-        try {
-
-            runOnUiThread(() -> customerListAdapter.notifyItemRemoved(position));
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    private void showEmptyList(){
+        viewEmpty.setVisibility(View.VISIBLE);
     }
 
-    private ActivityResultLauncher<Intent> launchAddCustomerScreen = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-
-        if(result.getResultCode() == RESULT_OK){
-            getCustomerListFromDb();
-        }
-    });
-
-    /*private void getCustomerList(){
-        try {
-
-            progressDialog.showProgressBar();
-
-            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
-            Call<CustomerListResponse> call = api.getCustomerList();
-            call.enqueue(new Callback<CustomerListResponse>() {
-                @Override
-                public void onResponse(Call<CustomerListResponse> call, Response<CustomerListResponse> response) {
-                    Log.e("------------","res"+response.isSuccessful());
-                    try{
-
-                        progressDialog.hideProgressbar();
-
-                        if(response.isSuccessful()){
-                            CustomerListResponse customerListResp = response.body();
-                            if(customerListResp!=null){
-                                List<CustomerData> customerDataList = customerListResp.getMessage();
-                                if(customerDataList!=null && customerDataList.size()>0){
-                                    customerList.clear();
-                                    customerList.addAll(customerDataList);
-                                    customerListAdapter.notifyDataSetChanged();
-                                }else {
-
-                                }
-                            }else {
-
-                            }
-                        }else {
-
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<CustomerListResponse> call, Throwable t) {
-                    Log.e("------------","failed");
-                    progressDialog.hideProgressbar();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }*/
-
+    /**
+     * to hide empty view
+     * */
+    private void hideEmptyView(){
+        viewEmpty.setVisibility(View.GONE);
+    }
 
     private void gotoCustomerDetailsActivity(String customer_ID){
         Intent intent = new Intent(CustomerListActivity.this, CustomerDetailsActivity.class);

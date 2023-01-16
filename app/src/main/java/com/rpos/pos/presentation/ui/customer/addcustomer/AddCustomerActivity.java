@@ -71,8 +71,8 @@ public class AddCustomerActivity extends SharedActivity {
         //on save
         ll_submit.setOnClickListener(view -> {
 
-            //onClickSave();  //Method api
-            onSaveClick();
+            onClickSave();  //Method api
+            //onSaveClick(); //room db
         });
 
 
@@ -174,6 +174,9 @@ public class AddCustomerActivity extends SharedActivity {
         }
     }
 
+    /**
+     * show success dialog
+     * */
     private void showSuccess(){
         try {
 
@@ -282,7 +285,36 @@ public class AddCustomerActivity extends SharedActivity {
         }
     }
 
+
     private void onClickSave(){
+        try {
+
+            if(validateUserInputs()){
+
+                String customerName = et_customerName.getText().toString();
+                String customerTaxid = et_taxid.getText().toString();
+                String str_creditLimit = et_creditLimit.getText().toString();
+                String str_creditDays = et_creditDays.getText().toString();
+                String loyality_pid = et_loyalpid.getText().toString();
+                String mobile = et_mobile.getText().toString();
+                String email = et_email.getText().toString();
+
+                int creditLimit = Integer.parseInt(str_creditLimit);
+                int creditDays = Integer.parseInt(str_creditDays);
+
+                saveCustomerApi(customerName, customerTaxid,creditLimit,creditDays,loyality_pid,mobile,email);
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to validate user input fields
+     * */
+    private boolean validateUserInputs(){
         try {
 
             String customerName = et_customerName.getText().toString();
@@ -295,61 +327,50 @@ public class AddCustomerActivity extends SharedActivity {
 
             if(customerName.isEmpty()){
                 showError(et_customerName, "Enter customer name");
-                return;
+                return false;
             }
 
             if(customerTaxid.isEmpty()){
                 showError(et_taxid, "Enter tax id");
-                return;
+                return false;
             }
 
             if(str_creditLimit.isEmpty()){
                 showError(et_creditLimit, "Enter credit limit");
-                return;
+                return false;
             }
 
             if(str_creditDays.isEmpty()){
                 showError(et_creditDays, "Enter credit days");
-                return;
+                return false;
             }
 
             if(loyality_pid.isEmpty()){
                 showError(et_loyalpid, "Enter Loyality program id");
-                return;
+                return false;
             }
 
             if(mobile.isEmpty()){
                 showError(et_mobile, "Enter mobile");
-                return;
+                return false;
             }
 
             if(email.isEmpty()){
                 showError(et_email, "Enter email");
-                return;
+                return false;
             }
 
-
-            int creditLimit = Integer.parseInt(str_creditLimit);
-            int creditDays = Integer.parseInt(str_creditDays);
-
-            addCustomer(customerName, customerTaxid,creditLimit,creditDays,loyality_pid,mobile,email);
-
+            return true;
         }catch (Exception e){
             e.printStackTrace();
+            return false;
         }
     }
 
-    private void showError(EditText inputField,String msg){
-        inputField.setError(msg);
-        inputField.requestFocus();
-        showToast(msg);
-    }
-
-    private void showToast(String msg){
-        showToast(msg, AddCustomerActivity.this);
-    }
-
-    private void addCustomer(String custName,String taxId,int creditLimit,int creditDays,String loyalityProgramId,String mobile,String email){
+    /**
+     * to save the new customer to database through api
+     * */
+    private void saveCustomerApi(String custName,String taxId,int creditLimit,int creditDays,String loyalityProgramId,String mobile,String email){
         try {
 
             progressDialog.showProgressBar();
@@ -386,17 +407,12 @@ public class AddCustomerActivity extends SharedActivity {
                                     }else {
                                         showToast(addCustomerMessage.getMessage());
                                     }
-
-                                }else {
-                                    showToast(getString(R.string.cust_reg_failed));
+                                    return;
                                 }
-                            }else {
-                                showToast(getString(R.string.cust_reg_failed));
                             }
-
-                        }else {
-                            showToast(getString(R.string.cust_reg_failed));
                         }
+
+                        showToast(getString(R.string.cust_reg_failed));
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -406,7 +422,6 @@ public class AddCustomerActivity extends SharedActivity {
 
                 @Override
                 public void onFailure(Call<AddCustomerResponse> call, Throwable t) {
-                    Log.e("-------------","fail");
                     progressDialog.hideProgressbar();
                 }
             });
@@ -415,5 +430,15 @@ public class AddCustomerActivity extends SharedActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private void showError(EditText inputField,String msg){
+        inputField.setError(msg);
+        inputField.requestFocus();
+        showToast(msg);
+    }
+
+    private void showToast(String msg){
+        showToast(msg, AddCustomerActivity.this);
     }
 }

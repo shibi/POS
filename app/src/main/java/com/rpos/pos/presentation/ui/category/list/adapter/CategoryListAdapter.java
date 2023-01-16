@@ -1,6 +1,5 @@
 package com.rpos.pos.presentation.ui.category.list.adapter;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Random;
 
 
 public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapter.CategoryListViewHolder>{
@@ -68,11 +66,12 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
             });
 
             //item remove
-            holder.iv_remove.setOnClickListener(view -> {
+            //hidden remove button, since theres is no delete api
+            /*holder.iv_remove.setOnClickListener(view -> {
                 if(listener!=null){
                     listener.onRemoveClick(_category);
                 }
-            });
+            });*/
 
         }catch (Exception e){
             e.printStackTrace();

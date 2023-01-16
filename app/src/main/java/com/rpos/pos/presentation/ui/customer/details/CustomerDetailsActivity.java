@@ -1,29 +1,24 @@
 package com.rpos.pos.presentation.ui.customer.details;
 
 import android.content.Intent;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
-import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.CustomerEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.customer.details.CreditLimit;
-import com.rpos.pos.data.remote.dto.customer.details.CustomerData;
 import com.rpos.pos.data.remote.dto.customer.details.CustomerDetailsResponse;
+import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
 import com.rpos.pos.domain.requestmodel.customer.details.CustomerDetailsRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
-import com.rpos.pos.presentation.ui.customer.addcustomer.AddCustomerActivity;
-import com.rpos.pos.presentation.ui.customer.list.CustomerListActivity;
 
 import java.util.List;
 import retrofit2.Call;
@@ -244,12 +239,12 @@ public class CustomerDetailsActivity extends SharedActivity {
                                 if (customerData != null) {
                                     et_customerName.setText(customerData.getCustomerName());
                                     et_taxid.setText(customerData.getTaxId());
-                                    List<CreditLimit> creditLimitList = customerData.getCreditLimit();
+                                    /*List<CreditLimit> creditLimitList = customerData.getCreditLimit();
                                     if (creditLimitList != null && creditLimitList.size() > 0) {
                                         CreditLimit creditDetails = creditLimitList.get(0);
                                         et_creditLimit.setText("" + creditDetails.getCreditLimit());
                                         et_creditDays.setText("" + creditDetails.getCreditDays());
-                                    }
+                                    }*/
                                 }else {
                                     showToast(getString(R.string.customer_details_failed));
                                 }

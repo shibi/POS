@@ -132,8 +132,7 @@
                             android:layout_width="26dp"
                             android:layout_height="26dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:src="@drawable/ic_baseline_delete_24"/>
+                            android:focusable="true"/>
 
                     </LinearLayout>
 

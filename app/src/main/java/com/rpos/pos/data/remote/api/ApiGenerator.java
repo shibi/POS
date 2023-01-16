@@ -180,46 +180,54 @@ public class ApiGenerator {
 
 
     public static <S> S createApiService(Class<S> serviceClass, String API_KEY, String API_SECRET) {
-        if(!httpClient.interceptors().isEmpty()) {
-            httpClient.interceptors().clear();
+        try {
+            if (!httpClient.interceptors().isEmpty()) {
+                httpClient.interceptors().clear();
+            }
+
+            if (API_KEY != null && API_SECRET != null) {
+
+                final String apiToken = "Token " + API_KEY + ":" + API_SECRET;
+
+                httpClient.addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request original = chain.request();
+
+                        Request.Builder requestBuilder = original.newBuilder()
+                                .header("Accept", "application/json")
+                                .header("Content-Type", "application/json")
+                                .header("Authorization", apiToken)
+                                .method(original.method(), original.body());
+
+                        Request request = requestBuilder.build();
+                        return chain.proceed(request);
+                    }
+                });
+            }
+
+            if (Config.LOG) {
+                HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+                logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+                httpClient.addInterceptor(logging);
+            }
+
+            OkHttpClient client = httpClient
+                    .connectTimeout(Config.HTTP_CONNECTION_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
+                    .readTimeout(Config.HTTP_CONNECTION_READ_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
+                    .writeTimeout(Config.HTTP_CONNECTION_WRITE_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
+                    .build();
+
+            Retrofit retrofit = builder.client(client).build();
+
+            return retrofit.create(serviceClass);
+
+        }catch (Exception e){
+
+            e.printStackTrace();
+            Retrofit retrofit = builder.build();
+            return retrofit.create(serviceClass);
         }
-
-        if (API_KEY!=null && API_SECRET!=null) {
-
-            final String apiToken = "Token "+ API_KEY+":"+API_SECRET;
-
-            httpClient.addInterceptor(new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    Request original = chain.request();
-
-                    Request.Builder requestBuilder = original.newBuilder()
-                            .header("Accept", "application/json")
-                            .header("Content-Type", "application/json")
-                            .header("Authorization", apiToken)
-                            .method(original.method(), original.body());
-
-                    Request request = requestBuilder.build();
-                    return chain.proceed(request);
-                }
-            });
-        }
-
-        if (Config.LOG) {
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-            httpClient.addInterceptor(logging);
-        }
-
-        OkHttpClient client = httpClient
-                .connectTimeout(Config.HTTP_CONNECTION_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
-                .readTimeout(Config.HTTP_CONNECTION_READ_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
-                .writeTimeout(Config.HTTP_CONNECTION_WRITE_TIMEOUT_IN_SEC, TimeUnit.SECONDS)
-                .build();
-
-        Retrofit retrofit = builder.client(client).build();
-
-        return retrofit.create(serviceClass);
     }
 
 

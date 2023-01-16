@@ -80,7 +80,7 @@ public class CategoryListActivity extends SharedActivity {
         categoryListAdapter = new CategoryListAdapter(categoryItemsArray, new CategoryListAdapter.CategoryClickListener() {
             @Override
             public void onClickCategoryItem(CategoryItem category) {
-                gotoCategoryViewScreen(category.getCategoryId());
+                gotoCategoryViewScreen(category.getCategoryId(), category.getCategory());
             }
 
             @Override
@@ -110,8 +110,9 @@ public class CategoryListActivity extends SharedActivity {
         //Add category
         ll_add_category.setOnClickListener(this::gotoAddCategoryScreen);
 
-        //getCategoryListApi();
-        getCategoryFromLocalDb();
+        //api to get all category list
+        getCategoryListApi();
+        //getCategoryFromLocalDb();
 
     }
 
@@ -120,16 +121,6 @@ public class CategoryListActivity extends SharedActivity {
 
     }
 
-    private void gotoCategoryViewScreen(String categoryId){
-        Intent categoryViewIntent = new Intent(this, CategoryViewActivity.class);
-        categoryViewIntent.putExtra(Constants.CATEGORY_ID,categoryId);
-        viewCategoryLauncher.launch(categoryViewIntent);
-    }
-
-    private void gotoAddCategoryScreen(View view){
-        Intent addCategoryIntent = new Intent(this, AddCategoryActivity.class);
-        addCategoryActivityResultLauncher.launch(addCategoryIntent);
-    }
 
     /**
      * Get saved category from local db
@@ -145,7 +136,6 @@ public class CategoryListActivity extends SharedActivity {
                         processCategoryList(savedCategory);
                     }else {
                         runOnUiThread(() -> showEmptyList());
-
                     }
 
                 }catch (Exception e){
@@ -209,23 +199,6 @@ public class CategoryListActivity extends SharedActivity {
         }
     }
 
-
-    private ActivityResultLauncher<Intent> viewCategoryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if(result.getResultCode() == RESULT_OK){
-                Intent data = result.getData();
-                if(data!=null){
-                    String cateId = data.getStringExtra(Constants.CATEGORY_ID);
-                    String catName = data.getStringExtra(Constants.CATEGORY_NAME);
-                    //To immediately reflect the updated name change in category list item
-                    // We need to find the item in list and update name. Then refresh adapter
-                    findCategoryAndRefresh(cateId, catName);
-                }
-            }
-        }
-    });
-
     /**
      * To find the category and update name change
      * then refresh adapter to reflect change
@@ -251,7 +224,6 @@ public class CategoryListActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
-
 
     private void processCategoryList(List<CategoryEntity> savedCategory){
         try {
@@ -284,7 +256,6 @@ public class CategoryListActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
-
 
     /**
      * To remove category from recycler view
@@ -346,22 +317,25 @@ public class CategoryListActivity extends SharedActivity {
                     hideProgress();
                     try {
 
+                        //check response success
                         if(response.isSuccessful()){
+                            //get response
                             GetCategoryResponse getCategoryResponse = response.body();
                             if(getCategoryResponse!=null){
-                                List<com.rpos.pos.data.remote.dto.category.list.CategoryItem> categ_list = getCategoryResponse.getMessage();
+                                //get the category list from response
+                                List<CategoryItem> categ_list = getCategoryResponse.getMessage();
+                                //check list is valid
                                 if(categ_list!=null && categ_list.size()>0){
+                                    //clear previous list items and add the new list
+                                    categoryItemsArray.clear();
                                     categoryItemsArray.addAll(categ_list);
                                     categoryListAdapter.notifyDataSetChanged();
-                                }else {
-                                    showEmptyList();
+                                    return;
                                 }
-                            }else {
-                                showEmptyList();
                             }
-                        }else {
-                            showEmptyList();
                         }
+
+                        showEmptyList();
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -380,13 +354,24 @@ public class CategoryListActivity extends SharedActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+    private ActivityResultLauncher<Intent> viewCategoryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if(result.getResultCode() == RESULT_OK){
+                Intent data = result.getData();
+                if(data!=null){
+                    String cateId = data.getStringExtra(Constants.CATEGORY_ID);
+                    String catName = data.getStringExtra(Constants.CATEGORY_NAME);
+                    //To immediately reflect the updated name change in category list item
+                    // We need to find the item in list and update name. Then refresh adapter
+                    findCategoryAndRefresh(cateId, catName);
+                }
+            }
+        }
+    });
 
     // You can do the assignment inside onAttach or onCreate, i.e, before the activity is displayed
-    ActivityResultLauncher<Intent> addCategoryActivityResultLauncher = registerForActivityResult(
+    private ActivityResultLauncher<Intent> addCategoryActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -395,12 +380,28 @@ public class CategoryListActivity extends SharedActivity {
                         // There are no request codes
                         //Intent data = result.getData();
 
-                        //getCategoryListApi();    // API
-
-                        getCategoryFromLocalDb();  // ROOM DB
+                        getCategoryListApi();    // API
+                        //getCategoryFromLocalDb();  // ROOM DB
                     }
                 }});
 
+    /**
+     * goto category details view
+     * */
+    private void gotoCategoryViewScreen(String categoryId, String categoryName){
+        Intent categoryViewIntent = new Intent(this, CategoryViewActivity.class);
+        categoryViewIntent.putExtra(Constants.CATEGORY_ID, categoryId);
+        categoryViewIntent.putExtra(Constants.CATEGORY_NAME, categoryName);
+        viewCategoryLauncher.launch(categoryViewIntent);
+    }
+
+    /**
+     * goto category add screen
+     * */
+    private void gotoAddCategoryScreen(View view){
+        Intent addCategoryIntent = new Intent(this, AddCategoryActivity.class);
+        addCategoryActivityResultLauncher.launch(addCategoryIntent);
+    }
 
     /**
      * to show toast in main thread
@@ -409,15 +410,23 @@ public class CategoryListActivity extends SharedActivity {
         runOnUiThread(() -> showToast(msg, CategoryListActivity.this));
     }
 
+    /**
+     * to show empty view
+     * */
     private void showEmptyList(){
         viewEmpty.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * to hide empty view
+     * */
     private void hideEmptyView(){
         viewEmpty.setVisibility(View.GONE);
     }
 
-
+    /**
+     * to show and hide progress
+     * */
     private void showProgress(){
         progressDialog.showProgressBar();
     }

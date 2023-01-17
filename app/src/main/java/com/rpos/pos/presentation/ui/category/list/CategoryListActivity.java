@@ -28,6 +28,7 @@ import com.rpos.pos.data.remote.dto.category.list.GetCategoryResponse;
 import com.rpos.pos.data.remote.dto.items.list.ItemData;
 import com.rpos.pos.domain.models.item.PickedItem;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.ConverterFactory;
 import com.rpos.pos.presentation.ui.category.add.AddCategoryActivity;
 import com.rpos.pos.presentation.ui.category.list.adapter.CategoryListAdapter;
 import com.rpos.pos.presentation.ui.category.view.CategoryViewActivity;
@@ -142,7 +143,6 @@ public class CategoryListActivity extends SharedActivity {
                     e.printStackTrace();
                 }
             });
-
 
         }catch (Exception e){
             e.printStackTrace();
@@ -330,6 +330,10 @@ public class CategoryListActivity extends SharedActivity {
                                     categoryItemsArray.clear();
                                     categoryItemsArray.addAll(categ_list);
                                     categoryListAdapter.notifyDataSetChanged();
+
+                                    //save the categories in room db for later use
+                                    saveCategoryLocally(categ_list);
+
                                     return;
                                 }
                             }
@@ -346,6 +350,43 @@ public class CategoryListActivity extends SharedActivity {
                 public void onFailure(Call<GetCategoryResponse> call, Throwable t) {
                     Log.e("-----------","failed");
                     hideProgress();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to save the categories in response to room db
+     * */
+    private void saveCategoryLocally(List<CategoryItem> catList){
+        try {
+
+            AppExecutors appExecutors = new AppExecutors();
+            appExecutors.diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+
+                        //clear the previous items
+                        localDb.categoryDao().deleteAll();
+
+                        List<CategoryEntity> entityList = new ArrayList<>();
+                        for (CategoryItem category: catList) {
+                            entityList.add(ConverterFactory.convertToCategoryEntity(category));
+                        }
+
+                        //add items, if there any
+                        if(entityList.size()>0) {
+                            //add the new items
+                            localDb.categoryDao().insertCategoryList(entityList);
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             });
 

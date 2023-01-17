@@ -177,6 +177,7 @@ public class AddItemActivity extends SharedActivity {
 
             if(validate()){
                 saveItemLocally(itemLocalInsertObj);
+                addNewItem(itemLocalInsertObj.getItemName(), itemLocalInsertObj.getDescription(), str_uom_id, str_category_id,0.0f,0, "",0.0f,true);
             }else {
                 hideProgress();
                 isSaveClicked = false;
@@ -551,6 +552,7 @@ public class AddItemActivity extends SharedActivity {
             request.setItemTax(itemTax);
             request.setMaintainStock(stockMaintain);
             request.setItemGroup("Products");
+
 
 
             Call<AddItemResponse> call = apiService.addItem(request);

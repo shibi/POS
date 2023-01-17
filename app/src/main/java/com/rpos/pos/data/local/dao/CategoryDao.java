@@ -13,6 +13,9 @@ public interface CategoryDao {
     @Insert(onConflict = REPLACE)
     void insertCategory(CategoryEntity category);
 
+    @Insert(onConflict = REPLACE)
+    void insertCategoryList(List<CategoryEntity> category);
+
     @Query("SELECT * FROM CategoryTable WHERE categoryId=:categoryId")
     CategoryEntity getCategoryWithId(String categoryId);
 
@@ -21,5 +24,8 @@ public interface CategoryDao {
 
     @Query("DELETE FROM CategoryTable WHERE categoryId=:categoryId")
     void deleteCategoryWithId(String categoryId);
+
+    @Query("DELETE FROM CategoryTable")
+    void deleteAll();
 
 }

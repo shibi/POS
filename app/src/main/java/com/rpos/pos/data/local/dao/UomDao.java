@@ -25,4 +25,7 @@ public interface UomDao {
 
     @Delete
     void delete(UomItem uomItem);
+
+    @Query("DELETE FROM uomtable")
+    void deleteAll();
 }

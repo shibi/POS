@@ -1,6 +1,7 @@
 package com.rpos.pos.presentation.ui.units.list;
 
 import android.content.Intent;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,6 +37,8 @@ public class UOMListActivity extends SharedActivity {
     private List<UomItem> uomItemList;
     private UomListAdapter uomListAdapter;
 
+    private View viewEmpty;
+
     @Override
     public int setUpLayout() {
         return R.layout.activity_uom_list;
@@ -53,6 +56,8 @@ public class UOMListActivity extends SharedActivity {
         ll_back = findViewById(R.id.ll_back);
         ll_add_uom = findViewById(R.id.ll_add_units);
 
+        viewEmpty = findViewById(R.id.view_empty);
+
 
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
@@ -65,6 +70,7 @@ public class UOMListActivity extends SharedActivity {
             promptDeleteConfirmation(item);
 
         });
+
         rv_uomlist.setAdapter(uomListAdapter);
 
         //add uom
@@ -85,7 +91,8 @@ public class UOMListActivity extends SharedActivity {
         super.onResume();
 
         //get saved uom list
-        getUomListFromDb();
+        //getUomListFromDb();
+        getAllUOMList();
 
     }
 
@@ -114,7 +121,7 @@ public class UOMListActivity extends SharedActivity {
                             runOnUiThread(() -> {
                                 try{
                                     //if there is no uom data fetch it from API
-                                    //getAllUOMList();
+                                    getAllUOMList();
 
                                 }catch (Exception e){
                                     e.printStackTrace();
@@ -150,15 +157,22 @@ public class UOMListActivity extends SharedActivity {
 
                             GetUomListResponse getUomListResponse = response.body();
                             if(getUomListResponse!=null){
+
                                 List<UomItem> dataList = getUomListResponse.getMessage();
                                 if(dataList!=null && dataList.size()>0){
+
                                     uomItemList.clear();
                                     uomItemList.addAll(dataList);
                                     uomListAdapter.notifyDataSetChanged();
 
-                                    AppExecutors uomInsertExecutors = new AppExecutors();
-                                    uomInsertExecutors.diskIO().execute(() -> {
+                                    hideEmptyView();
+
+                                    AppExecutors appExecutors1 = new AppExecutors();
+                                    appExecutors1.diskIO().execute(() -> {
                                         try {
+
+                                            localDb.uomDao().deleteAll();
+
                                             for (int i=0;i<dataList.size();i++){
                                                 dataList.get(i).setUomId(""+i);
                                             }
@@ -168,16 +182,13 @@ public class UOMListActivity extends SharedActivity {
                                         }
                                     });
 
-                                }else {
-
+                                    return;
                                 }
-                            }else {
-
                             }
-
-                        }else {
-
                         }
+
+                        showEmptyList();
+
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -188,15 +199,14 @@ public class UOMListActivity extends SharedActivity {
                 @Override
                 public void onFailure(Call<GetUomListResponse> call, Throwable t) {
                    t.printStackTrace();
+                   showEmptyList();
                 }
             });
-
 
         }catch (Exception e){
             e.printStackTrace();
         }
     }
-
 
     /**
      * prompt dialog to let user confirm deletion
@@ -261,6 +271,19 @@ public class UOMListActivity extends SharedActivity {
         }
     }
 
+    /**
+     * to show empty view
+     * */
+    private void showEmptyList(){
+        viewEmpty.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * to hide empty view
+     * */
+    private void hideEmptyView(){
+        viewEmpty.setVisibility(View.GONE);
+    }
 
     /**
      * To goto add uom screen

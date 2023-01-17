@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Config;
@@ -29,6 +30,7 @@ import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.dashboard.DashboardActivity;
 import com.rpos.pos.presentation.ui.testing.Testing;
+import com.rpos.pos.presentation.viewmodel.login.LoginViewModel;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -86,6 +88,7 @@ public class LoginActivity extends SharedActivity {
 
         //login click
         btn_login.setOnClickListener(view -> onClickLogin());
+
 
         //language toggle English and arabic on click
         ll_lang_arab.setOnClickListener(view -> { toggleLanguage(Constants.LANG_AR); });

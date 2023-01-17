@@ -1,6 +1,8 @@
 package com.rpos.pos.domain.utils;
 
+import com.rpos.pos.data.local.entity.CategoryEntity;
 import com.rpos.pos.data.local.entity.CustomerEntity;
+import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
 
 public class ConverterFactory {
@@ -17,4 +19,13 @@ public class ConverterFactory {
 
         return customerEntity;
     }
+
+    public static CategoryEntity convertToCategoryEntity(CategoryItem category){
+        CategoryEntity entity = new CategoryEntity();
+        entity.setCategoryId(category.getCategoryId());
+        entity.setCategoryName(category.getCategory());
+        return entity;
+    }
+
+
 }

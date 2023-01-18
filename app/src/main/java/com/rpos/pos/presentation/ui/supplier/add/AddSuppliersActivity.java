@@ -75,18 +75,11 @@ public class AddSuppliersActivity extends SharedActivity {
 
                     if(validateFields()){
 
-                        addSupplierToLocalDb();
+                        //addSupplierToLocalDb();
 
-                        /*String supplierName = et_supplierName.getText().toString();
-                        String taxId = et_taxId.getText().toString();
-                        String creditLimit = et_creditLimit.getText().toString();
-                        String rate = et_rate.getText().toString();
-                        String address = et_address.getText().toString();
-                        if(address.isEmpty()){
-                            address = "----------";
-                        }
-
-                        addSupplier(supplierName,taxId,creditLimit,rate, address);*/
+                        addSupplier(et_supplierName.getText().toString().trim(),
+                                et_taxId.getText().toString().trim(),et_creditLimit.getText().toString(),
+                                et_rate.getText().toString(), et_address.getText().toString());
                     }
 
                 }catch (Exception e){
@@ -105,15 +98,17 @@ public class AddSuppliersActivity extends SharedActivity {
 
     }
 
-    private void addSupplier(String customerName, String taxId, String creditLimit, String rate, String address){
+    private void addSupplier(String supplierName, String taxId, String creditLimit, String rate, String address){
         try {
 
             progressDialog.showProgressBar();
 
             ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
             AddSupplierRequest params = new AddSupplierRequest();
-            params.setSupplierName(customerName);
+            params.setSupplierName(supplierName);
             params.setTaxId(taxId);
+            //OPTIONAL FIELDS
+
             Call<AddSupplierResponse> call = apiService.addSupplier(params);
             call.enqueue(new Callback<AddSupplierResponse>() {
                 @Override

@@ -8,6 +8,11 @@ public class AddItemRequest {
     @SerializedName("item_name")
     @Expose
     private String itemName;
+
+    @SerializedName("user_id")
+    @Expose
+    private String userId;
+
     @SerializedName("description")
     @Expose
     private String description;
@@ -105,4 +110,11 @@ public class AddItemRequest {
         this.maintainStock = maintainStock;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

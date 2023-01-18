@@ -20,11 +20,13 @@ import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
 import com.rpos.pos.data.remote.dto.category.list.GetCategoryResponse;
+import com.rpos.pos.data.remote.dto.items.add.AddItemMessage;
 import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
 import com.rpos.pos.data.remote.dto.uom.list.GetUomListResponse;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
 import com.rpos.pos.domain.requestmodel.item.add.AddItemRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.item.list.ItemActivity;
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ public class AddItemActivity extends SharedActivity {
 
     private AppDialogs progressDialog;
 
-    private String str_uom_id,str_category_id,uomName;
+    private String str_uom_id,str_category_id, uomName, categoryName;
     private boolean isSaveClicked;
 
     private AppExecutors appExecutors;
@@ -86,6 +88,7 @@ public class AddItemActivity extends SharedActivity {
         str_uom_id = "";
         str_category_id = "";
         uomName = "";
+        categoryName ="";
         isSaveClicked = false;
 
 
@@ -115,12 +118,9 @@ public class AddItemActivity extends SharedActivity {
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
 
-
         //get the category list
         //getCategoryListApi();
         getCategoryFromLocalDb();
-
-
 
         //on click
         ll_submit.setOnClickListener(view -> {
@@ -132,7 +132,6 @@ public class AddItemActivity extends SharedActivity {
                 e.printStackTrace();
             }
         });
-
 
         sp_uom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -151,6 +150,7 @@ public class AddItemActivity extends SharedActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 str_category_id = categoryItemsList.get(i).getCategoryId();
+                categoryName = categoryItemsList.get(i).getCategory();
             }
 
             @Override
@@ -169,14 +169,20 @@ public class AddItemActivity extends SharedActivity {
 
     }
 
+    /**
+     * to validate and save new item
+     * */
     private void onClickSave(){
         try {
 
+            //flag to check status
             isSaveClicked = true;
+            //progress showing
             showProgress();
-
+            //method to validate user inputs
             if(validate()){
-                saveItemLocally(itemLocalInsertObj);
+                //to save item locally
+                //saveItemLocally(itemLocalInsertObj);
                 addNewItem(itemLocalInsertObj.getItemName(), itemLocalInsertObj.getDescription(), str_uom_id, str_category_id,0.0f,0, "",0.0f,true);
             }else {
                 hideProgress();
@@ -538,14 +544,22 @@ public class AddItemActivity extends SharedActivity {
     /**
      * add new item
      * */
-    private void addNewItem(String itemName,String item_description,String uom, String categoryId,float item_rate,int item_availableStock,String item_barcode,float itemTax,boolean stockMaintain){
+    private void addNewItem(String itemName,String item_description,String uomId, String categoryId,float item_rate,int item_availableStock,String item_barcode,float itemTax,boolean stockMaintain){
         try {
+
+            String userId = SharedPrefHelper.getInstance(this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid));
+                return;
+            }
+
 
             ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
             AddItemRequest request = new AddItemRequest();
             request.setItemName(itemName);
             request.setDescription(item_description);
-            request.setUom(uom);
+            request.setUserId(userId);
+            request.setUom(uomId);
             request.setCategoryId(categoryId);
             request.setRate(item_rate);
             request.setBarcode(item_barcode);
@@ -553,34 +567,44 @@ public class AddItemActivity extends SharedActivity {
             request.setMaintainStock(stockMaintain);
             request.setItemGroup("Products");
 
-
-
             Call<AddItemResponse> call = apiService.addItem(request);
             call.enqueue(new Callback<AddItemResponse>() {
                 @Override
                 public void onResponse(Call<AddItemResponse> call, Response<AddItemResponse> response) {
                     Log.e("-----------","res"+response.isSuccessful());
-
+                    hideProgress();
                     if(response.isSuccessful()){
 
-                        AppDialogs appDialogs = new AppDialogs(AddItemActivity.this);
-                        appDialogs.showCommonSuccessDialog(getString(R.string.add_item_success), new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                finish();
+                        AddItemResponse addItemResp = response.body();
+                        if(addItemResp!=null){
+                            AddItemMessage add_message = addItemResp.getMessage();
+                            if(add_message!=null){
+                                if(add_message.getSuccess()){
+
+                                    //show success message
+                                    AppDialogs appDialogs = new AppDialogs(AddItemActivity.this);
+                                    appDialogs.showCommonSuccessDialog(getString(R.string.add_item_success), new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            finish();
+                                        }
+                                    });
+
+                                } else {
+                                    showToast(add_message.getMessage());
+                                }
+                                return;
                             }
-                        });
-
-
-                    }else {
-
-                        showToast(getString(R.string.item_add_failed));
+                        }
                     }
+
+                    showToast(getString(R.string.item_add_failed));
                 }
 
                 @Override
                 public void onFailure(Call<AddItemResponse> call, Throwable t) {
-                    Log.e("-----------","faile");
+                    showToast(getString(R.string.please_check_internet));
+                    hideProgress();
                 }
             });
 
@@ -700,3 +724,5 @@ public class AddItemActivity extends SharedActivity {
     }
 
 }
+
+//TODO : need to change uom id and category id

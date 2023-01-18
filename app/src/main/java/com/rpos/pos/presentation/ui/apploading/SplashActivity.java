@@ -46,3 +46,15 @@ public class SplashActivity extends SharedActivity {
         finish();
     }
 }
+
+/**
+ * TODO EXTRA WORKS DONE
+ *  1. price list
+ *  2. item price
+ *  3. changed price fetching from item price
+ *  4. shiftwise report for sales and purchase
+ *  5. Report sales and purchase
+ *  6. report filtering
+ *  7. report exporting to excel sheet
+ *
+ * */

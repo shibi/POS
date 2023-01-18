@@ -145,20 +145,17 @@ public class SuppliersListActivity extends SharedActivity {
                                 List<SuppliersData> suppDataList = suppliersListResponse.getMessage();
 
                                 if(suppDataList!=null && suppDataList.size()>0) {
+
                                     suppliersDataList.clear();
                                     suppliersDataList.addAll(suppDataList);
                                     supplierListAdapter.notifyDataSetChanged();
-
-                                }else {
-                                    showToast(getString(R.string.empty_data));
+                                    return;
                                 }
-                            }else {
-
                             }
-
-                        }else {
-                            showToast("");
                         }
+
+
+                        showToast(getString(R.string.empty_data));
 
 
                     }catch (Exception e){

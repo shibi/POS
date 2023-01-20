@@ -152,7 +152,8 @@ public class ItemListFragment extends SharedFragment {
         try {
 
             if(itemListAdapter!=null) {
-                getItemsFromLocalDB();
+                //getItemsFromLocalDB();
+                getItemsListApiCall();
             }
 
         }catch (Exception e){
@@ -270,7 +271,7 @@ public class ItemListFragment extends SharedFragment {
     /**
      * To get items list  API
      * */
-    private void getItemsList(){
+    private void getItemsListApiCall(){
         try {
 
             showProgress();

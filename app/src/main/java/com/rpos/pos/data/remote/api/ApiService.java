@@ -11,10 +11,11 @@ import com.rpos.pos.data.remote.dto.customer.list.CustomerListResponse;
 import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
-import com.rpos.pos.data.remote.dto.suppliers.add.AddSupplierMessage;
+import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
 import com.rpos.pos.data.remote.dto.suppliers.add.AddSupplierResponse;
 import com.rpos.pos.data.remote.dto.suppliers.list.GetSuppliersListResponse;
 import com.rpos.pos.data.remote.dto.uom.list.GetUomListResponse;
+
 import com.rpos.pos.domain.requestmodel.category.add.AddCategoryRequest;
 import com.rpos.pos.domain.requestmodel.category.details.CategoryDetailsRequest;
 import com.rpos.pos.domain.requestmodel.customer.add.AddCustomerRequest;
@@ -22,20 +23,19 @@ import com.rpos.pos.domain.requestmodel.customer.details.CustomerDetailsRequest;
 import com.rpos.pos.domain.requestmodel.item.add.AddItemRequest;
 import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
+import com.rpos.pos.domain.requestmodel.shift.ShiftOpenRequestJson;
 import com.rpos.pos.domain.requestmodel.supplier.add.AddSupplierRequest;
+import com.rpos.pos.domain.responsemodels.shift.ShiftOpenResponse;
 
 import java.util.Map;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.http.Body;
-import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.QueryMap;
 
 public interface ApiService {
-
 
     @POST("custom_integration.api.login")
     Call<LoginResponse> posLogin(@Body LoginRequestJson requestBody);
@@ -76,6 +76,12 @@ public interface ApiService {
 
     @GET("custom_integration.api.uom.uom_list")
     Call<GetUomListResponse> getUOMList();
+
+    @POST("custom_integration.api.pos_opening_entry.shift_open")
+    Call<ShiftOpenResponse> openShift(@Body ShiftOpenRequestJson shiftOpenRequest);
+
+    @POST("custom_integration.api.payment_mode.payment_mode_list")
+    Call<PaymentModesListResponse> getAllPaymentModeList();
 
 
     @GET("https://api-fatoora.herokuapp.com/to_base64?")

@@ -244,7 +244,7 @@ public class AddCustomerActivity extends SharedActivity {
 
 
 
-            loyality_pid = "Test loyalty Program";
+            loyality_pid = "RLP 1";
             /*if(loyality_pid.isEmpty()){
                 showError(et_loyalpid, "Enter Loyality program id");
                 return false;
@@ -295,7 +295,7 @@ public class AddCustomerActivity extends SharedActivity {
                 String customerTaxid = et_taxid.getText().toString();
                 String str_creditLimit = et_creditLimit.getText().toString();
                 String str_creditDays = et_creditDays.getText().toString();
-                String loyality_pid = et_loyalpid.getText().toString();
+                String loyality_pid = "RLP 1"; //et_loyalpid.getText().toString();
                 String mobile = et_mobile.getText().toString();
                 String email = et_email.getText().toString();
 

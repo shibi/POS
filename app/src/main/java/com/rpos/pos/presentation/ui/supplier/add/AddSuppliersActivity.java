@@ -61,22 +61,22 @@ public class AddSuppliersActivity extends SharedActivity {
         ll_save = findViewById(R.id.ll_save);
         ll_back = findViewById(R.id.ll_back);
 
-
         localDb = getCoreApp().getLocalDb();
         appExecutors = new AppExecutors();
 
-
         supplierEntity = new SupplierEntity();
 
+        //on save click
+        //validate user entered values ,then update to server
         ll_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
 
+                    //validate user inputs
                     if(validateFields()){
-
-                        //addSupplierToLocalDb();
-
+                        //if valid ,
+                        // call the api to add new supplier
                         addSupplier(et_supplierName.getText().toString().trim(),
                                 et_taxId.getText().toString().trim(),et_creditLimit.getText().toString(),
                                 et_rate.getText().toString(), et_address.getText().toString());
@@ -98,6 +98,10 @@ public class AddSuppliersActivity extends SharedActivity {
 
     }
 
+    /**
+     * api call to save new supplier to backend.
+     * Not all fields are mandatory. Suppler name is required.
+     * */
     private void addSupplier(String supplierName, String taxId, String creditLimit, String rate, String address){
         try {
 
@@ -126,6 +130,7 @@ public class AddSuppliersActivity extends SharedActivity {
                                     if (addSupplierMessage.getSuccess()) {
                                         showToast(getString(R.string.supplier_added_successfully));
                                         finish();
+                                        AppDialogs appDialogs = new AppDialogs(AddSuppliersActivity.this);
                                         return;
                                     }
                                 }
@@ -170,8 +175,7 @@ public class AddSuppliersActivity extends SharedActivity {
                             public void run() {
                                 progressDialog.hideProgressbar();
 
-                                AppDialogs appDialogs = new AppDialogs(AddSuppliersActivity.this);
-                                appDialogs.showCommonSuccessDialog(getString(R.string.supplier_add_success), view -> sendResult(supplierId,supplierEntity.getSupplierName()));
+
                             }
                         });
 
@@ -185,6 +189,18 @@ public class AddSuppliersActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
+
+    /**
+     * to show success dialog
+     * on dismiss the dialog , will
+     * */
+    private void showSuccessDialog(long _supplierId){
+
+        AppDialogs appDialogs = new AppDialogs(AddSuppliersActivity.this);
+        appDialogs.showCommonSuccessDialog(getString(R.string.supplier_add_success), view -> sendResult(_supplierId, supplierEntity.getSupplierName()));
+
+    }
+
 
     private void sendResult(long sid,String supplierName){
         try {
@@ -201,6 +217,12 @@ public class AddSuppliersActivity extends SharedActivity {
         }
     }
 
+
+    /**
+     * to verify user entered values
+     * if all user inputs are valid , returns true
+     * if any issues found, then returns false at the point of issue
+     * */
     private boolean validateFields(){
         try {
 

@@ -41,7 +41,11 @@ public class SharedPrefHelper {
     private static final String SP_DEFAULT_BUYING_PRICE_LIST_ID = "DefaultBuyingPriceListId";
     private static final String SP_DEFAULT_SELLING_PRICE_LIST_ID = "DefaultSellingPriceListId";
 
+    private static final String SP_OPEN_SHIFT = "openShift";
+
     private static final String SP_APP_LOGO_PATH = "AppLogoPath";
+
+
 
     private static Context mContext;
 
@@ -253,6 +257,30 @@ public class SharedPrefHelper {
         }
     }
 
+
+    //open shift
+    public void setOpenShift(String shiftData) {
+        try {
+
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(Config.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(SP_OPEN_SHIFT, shiftData);
+            editor.apply();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    //returns id or String "empty" for no data
+    public String getOpenShift() {
+        try {
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(Config.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            return sharedPreferences.getString(SP_OPEN_SHIFT, Constants.EMPTY);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Constants.EMPTY;
+        }
+    }
 
 
     //default Country

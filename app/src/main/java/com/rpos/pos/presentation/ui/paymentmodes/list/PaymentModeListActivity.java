@@ -7,12 +7,18 @@ import android.widget.LinearLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rpos.pos.AppExecutors;
+import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.PaymentModeEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.payment_modes.PaymentModeListMessage;
+import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.ConverterFactory;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.paymentmodes.add.AddPayModeActivity;
 import com.rpos.pos.presentation.ui.paymentmodes.list.adapter.PayModeListAdapter;
@@ -20,6 +26,10 @@ import com.rpos.pos.presentation.ui.units.list.UOMListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PaymentModeListActivity extends SharedActivity {
 
@@ -75,7 +85,6 @@ public class PaymentModeListActivity extends SharedActivity {
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
 
-
     }
 
     @Override
@@ -89,7 +98,56 @@ public class PaymentModeListActivity extends SharedActivity {
 
         //load all pay methods at first
         //this list is used to check name duplication N.B
-        loadAllPayModes();
+        //loadAllPayModes();
+        loadAllPaymentModes();
+    }
+
+    /**
+     * API
+     * to get all payment modes list
+     * */
+    private void loadAllPaymentModes(){
+        try {
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
+            api.getAllPaymentModeList().enqueue(new Callback<PaymentModesListResponse>() {
+                @Override
+                public void onResponse(Call<PaymentModesListResponse> call, Response<PaymentModesListResponse> response) {
+                    try {
+
+                        payModeList.clear();
+
+                        if(response.isSuccessful()){
+                            PaymentModesListResponse paymentResponse = response.body();
+                            if(paymentResponse !=null){
+                                List<PaymentModeListMessage> paymentModeList = paymentResponse.getMessage();
+                                if(paymentModeList!=null && paymentModeList.size() > 0){
+                                    for (PaymentModeListMessage payMode: paymentModeList) {
+                                        payModeList.add(ConverterFactory.convertToPayModeEntity(payMode));
+                                    }
+
+                                    payModeListAdapter.notifyDataSetChanged();
+                                    return;
+                                }
+                            }
+                        }
+
+                        showToast(getString(R.string.please_check_internet), PaymentModeListActivity.this);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<PaymentModesListResponse> call, Throwable t) {
+                    showToast(getString(R.string.please_check_internet), PaymentModeListActivity.this);
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -185,7 +243,6 @@ public class PaymentModeListActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
-
 
     /**
      * goto add payment mode activity

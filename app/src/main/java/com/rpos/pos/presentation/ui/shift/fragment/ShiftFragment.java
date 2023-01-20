@@ -11,11 +11,22 @@ import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.ShiftRegEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.domain.requestmodel.shift.ShiftOpenRequestJson;
+import com.rpos.pos.domain.responsemodels.shift.ShiftOpenData;
+import com.rpos.pos.domain.responsemodels.shift.ShiftOpenMessage;
+import com.rpos.pos.domain.responsemodels.shift.ShiftOpenResponse;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
+import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedFragment;
 import com.rpos.pos.presentation.ui.shift.ShiftActivity;
 import java.util.Date;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ShiftFragment extends SharedFragment {
 
@@ -34,6 +45,7 @@ public class ShiftFragment extends SharedFragment {
     private AppDialogs progressDialog;
     private Runnable timerRunnable;
     private boolean allowTimerRun;
+    private String currentShiftId;
 
     private AppDialogs appDialogs;
 
@@ -69,10 +81,10 @@ public class ShiftFragment extends SharedFragment {
 
         //default initialize
         runningShift = null;
+        currentShiftId = Constants.EMPTY;
 
         //get the last shift from table
-        getLastShift();
-
+        getCurrentShiftDetails();
 
         //add click listener for open/ close buttons
         //only one button shows at a time
@@ -129,56 +141,64 @@ public class ShiftFragment extends SharedFragment {
     }
 
     /**
-     * to fetch the last opened shift
-     * get the last entry in table, and check whether the status of the shift is open!
-     * if open , then start timer and display time elapsed since beginning.
-     * if closed, show the shift open view
+     * Api call to request open shift
+     * @param openingCash cash at the beginning of the shift
      * */
-    private void getLastShift(){
+    private void openShiftApiCall(int openingCash){
         try {
-            //show progress
-            progressDialog.showProgressBar();
-            //new thread to db operation
-            appExecutors.diskIO().execute(new Runnable() {
+
+            showProgress();
+
+            String userId = SharedPrefHelper.getInstance(getContext()).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid));
+                return;
+            }
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
+            ShiftOpenRequestJson requestParams = new ShiftOpenRequestJson();
+            requestParams.setUserId(userId);
+            requestParams.setOpeningCash(openingCash);
+
+            api.openShift(requestParams).enqueue(new Callback<ShiftOpenResponse>() {
                 @Override
-                public void run() {
+                public void onResponse(Call<ShiftOpenResponse> call, Response<ShiftOpenResponse> response) {
                     try {
-                        //get the last entry in shift table
-                        ShiftRegEntity lastShift = localDb.shiftDao().getLastEntryInShift();
-                        //check whether last item is not empty ( it can be null )
-                        if(lastShift!=null){
-                            //check the status is open
-                            if(lastShift.getStatus().equals(Constants.SHIFT_OPEN)){
-                                //shift is opened , so start the timer to show elapsed time since starting
-                                runningShift = lastShift;
-                                //display start time
-                                tv_startTime.setText(runningShift.getStartDate() +" \n "+ runningShift.getStartTime());
 
-                                //change shift view
-                                shiftStatusOpen(true);
+                        hideProgress();
 
-                                //start timer to show the elapsed time since starting
-                                startTimer();
+                        if(response.isSuccessful()){
+                            ShiftOpenResponse shiftOpenResponse = response.body();
+                            if(shiftOpenResponse!=null){
+                                ShiftOpenMessage messageData = shiftOpenResponse.getMessage();
+                                if(messageData.getSuccess()){
+                                    //get the shift data
+                                    ShiftOpenData shiftOpenData = messageData.getData();
+                                    //save current shift id
+                                    getCoreApp().setShiftOpened(shiftOpenData.getOpeningEntryId());
+                                    //show the shift open screen
+                                    shiftStatusOpen(true);
+                                    //start timer to show the elapsed time
+                                    startTimer();
+                                    return;
+                                }
+                            }
+                        }
 
-                             }else {
-                                // last shift status is closed,
-                                // so just show the shift open view
-                                shiftStatusOpen(false);
-                             }
-                         }else {
-                            //last shift entry is null, so show the shift open view
-                            //usually runningShift is null when user opens shift screen for the first time, where there is no entry in table.
-                            shiftStatusOpen(false);
-                         }
-
-                         //hide progress
-                         getActivity().runOnUiThread(() -> progressDialog.hideProgressbar());
+                        showToast(getString(R.string.please_check_internet));
 
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                 }
+
+                @Override
+                public void onFailure(Call<ShiftOpenResponse> call, Throwable t) {
+                    showToast(getString(R.string.please_check_internet));
+                    hideProgress();
+                }
             });
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -226,13 +246,28 @@ public class ShiftFragment extends SharedFragment {
     }
 
     /**
-     * To open shift
-     * step 1 : validate cash entry
-     * step 2 : prepare shift object to save
-     * step 3 : insert the shift object to local db with status OPEN
-     * step 4 : change view to shift running view .
-     * step 5 : start timer to show the time elapsed
+     * to get the current shift details
      * */
+    private void getCurrentShiftDetails(){
+        try {
+
+            String shift = SharedPrefHelper.getInstance(getContext()).getOpenShift();
+            if(shift.equals(Constants.EMPTY)){
+                //change shift view
+                shiftStatusOpen(false);
+                currentShiftId = Constants.EMPTY;
+
+            }else {
+                //change shift view
+                shiftStatusOpen(true);
+                currentShiftId = shift;
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private void openShift(View view){
         try {
 
@@ -243,62 +278,13 @@ public class ShiftFragment extends SharedFragment {
                 return;
             }
 
-            //progress show
-            progressDialog.showProgressBar();
 
-            //prepare shift object to insert to database
-            //set opening cash,start time, startDate, shift status OPEN , timestamp before saving
-            float flCash = Float.parseFloat(cash);
-            final ShiftRegEntity shift = new ShiftRegEntity();
-            shift.setBeginningCash(flCash);
-            shift.setShiftType(1);
-            shift.setStartDate(DateTimeUtils.getCurrentDate());
-            shift.setStartTime(DateTimeUtils.getCurrentTime());
-            shift.setStatus(Constants.SHIFT_OPEN);
-            shift.setTimestamp(new Date().getTime());
+            Float cash_float = Float.parseFloat(cash);
+            int cash_in_integer = Math.round(cash_float);
 
-            //use new thread for db operation
-            //insert object to db
-            appExecutors.diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
+            //call api to
+            openShiftApiCall(cash_in_integer);
 
-                        //insert
-                        localDb.shiftDao().insertShift(shift);
-
-                        final ShiftRegEntity lastEntry = localDb.shiftDao().getLastEntryInShift();
-                        if(lastEntry!=null){
-                            //set the running shift
-                            getCoreApp().setCurrentShift(lastEntry);
-
-                            //ui thread to update the ui
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        //hide progress
-                                        progressDialog.hideProgressbar();
-                                        //show the shift running view
-                                        shiftStatusOpen(true);
-                                        //set the running shift object
-                                        runningShift = lastEntry;
-
-                                        //start timer to show the elapsed time
-                                        startTimer();
-
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
 
         }catch (Exception e){
             e.printStackTrace();
@@ -460,6 +446,13 @@ public class ShiftFragment extends SharedFragment {
 
     private void setCloseShiftViewVisibility(boolean isShow){
         ll_closeShiftView.setVisibility((isShow)?View.VISIBLE:View.GONE);
+    }
+
+    private void showProgress(){
+        progressDialog.showProgressBar();
+    }
+    private void hideProgress(){
+        progressDialog.hideProgressbar();
     }
 
 }

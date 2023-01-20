@@ -229,6 +229,14 @@ public class CoreApp extends Application {
         return runningShift;
     }
 
+    public void setShiftOpened(String data){
+        SharedPrefHelper.getInstance(this).setOpenShift(data);
+    }
+
+    public String getOpenedShift(){
+        return SharedPrefHelper.getInstance(this).getOpenShift();
+    }
+
     /**
      * to clear all default values saved in shared preference
      */

@@ -63,6 +63,7 @@ public class SuppliersListActivity extends SharedActivity {
 
         appDialogs = new AppDialogs(this);
         progressDialog = new AppDialogs(this);
+
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
 
@@ -111,8 +112,7 @@ public class SuppliersListActivity extends SharedActivity {
         ll_back.setOnClickListener(view -> onBackPressed());
 
         //get suppliers
-        //getSuppliersListApi();
-
+        getSuppliersListApi();
 
     }
 
@@ -124,8 +124,6 @@ public class SuppliersListActivity extends SharedActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        getSupplierListLocalDb();
     }
 
     private void getSuppliersListApi(){
@@ -154,9 +152,7 @@ public class SuppliersListActivity extends SharedActivity {
                             }
                         }
 
-
                         showToast(getString(R.string.empty_data));
-
 
                     }catch (Exception e){
                         e.printStackTrace();

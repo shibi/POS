@@ -1,4 +1,4 @@
-package com.rpos.pos.domain.responsemodels.shift;
+package com.rpos.pos.data.remote.dto.shift;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

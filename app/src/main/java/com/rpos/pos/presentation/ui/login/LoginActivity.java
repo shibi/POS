@@ -52,8 +52,7 @@ public class LoginActivity extends SharedActivity {
     //show progress
     private AppDialogs progressDialog;
 
-    private int loginType;
-    private static final int LOGIN_ERPNEXT = 1;
+    //ERP NEXT APP
 
     @Override
     public int setUpLayout() {
@@ -62,7 +61,6 @@ public class LoginActivity extends SharedActivity {
 
     @Override
     public void initViewModels() {
-
     }
 
     @Override
@@ -83,12 +81,8 @@ public class LoginActivity extends SharedActivity {
         //progress dialog initialize
         progressDialog = new AppDialogs(this);
 
-        //default selection
-        loginType = LOGIN_ERPNEXT;
-
         //login click
         btn_login.setOnClickListener(view -> onClickLogin());
-
 
         //language toggle English and arabic on click
         ll_lang_arab.setOnClickListener(view -> { toggleLanguage(Constants.LANG_AR); });
@@ -115,15 +109,9 @@ public class LoginActivity extends SharedActivity {
      * */
     private void onClickLogin(){
         try {
-            //check login type selected
-            if(loginType == LOGIN_ERPNEXT){
-                //if login type equals erp next
-                //login with erp next
-                loginERPNEXT();
-            }else {
-                //login using licence server
-                loginLicenceServer();
-            }
+
+            //login with erp next
+            loginERPNEXT();
 
         }catch (Exception e) {
             e.printStackTrace();
@@ -148,53 +136,6 @@ public class LoginActivity extends SharedActivity {
             }
 
         }catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * licence key validation API
-     * */
-    private void loginLicenceServer(){
-        try {
-            //show progress bar
-            progressDialog.showProgressBar();
-            //get the licence key entered
-            String licenceKey = "dummy";//et_serverurl.getText().toString();
-            //check key is valid
-            if(licenceKey.isEmpty()){
-                //if key is not valid, then show message and stop processing
-                showToast(getString(R.string.enter_licencekey),LoginActivity.this);
-                return;
-            }
-            //initialize api
-            LicenceKeyApiService api = ApiGenerator.createLicenceKeyApiService(LicenceKeyApiService.class);
-            Call<LicenceServerLoginResponse> call = api.licenceKeyValidate(licenceKey);
-            call.enqueue(new Callback<LicenceServerLoginResponse>() { //
-                @Override
-                public void onResponse(Call<LicenceServerLoginResponse> call, Response<LicenceServerLoginResponse> response) {
-                    //hide progress
-                    progressDialog.hideProgressbar();
-                    //check response success
-                    if(response.isSuccessful()){
-                        //if true, redirect to dashboard
-                        gotoDashboardActivity();
-                    }else {
-
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<LicenceServerLoginResponse> call, Throwable t) {
-                    //on failure
-                    //hide progress bar
-                    progressDialog.hideProgressbar();
-                    //show credential invalid message
-                    showToast("Invalid credentials");
-                }
-            });
-
-        }catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -279,19 +220,14 @@ public class LoginActivity extends SharedActivity {
                                         gotoDashboardActivity();
 
                                     }else {
-                                        showToast(loginMessage.getMessage(),LoginActivity.this);
+                                        showToast(loginMessage.getMessage());
                                     }
-                                }else {
-                                    showToast(getString(R.string.login_failed),LoginActivity.this);
+                                    return;
                                 }
-                            }else {
-                                showToast(getString(R.string.login_failed),LoginActivity.this);
                             }
-
-                        }else {
-
-                            showToast(getString(R.string.login_failed),LoginActivity.this);
                         }
+
+                        showToast(getString(R.string.login_failed));
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -301,9 +237,10 @@ public class LoginActivity extends SharedActivity {
                 @Override
                 public void onFailure(Call<LoginResponse> call, Throwable t) {
                     try{
+
                         progressDialog.hideProgressbar();
                         String er_message = getString(R.string.login_failed) +". "+ getString(R.string.please_check_internet);
-                        showToast(er_message,LoginActivity.this);
+                        showToast(er_message);
                         t.printStackTrace();
 
                     }catch (Exception e){
@@ -315,13 +252,6 @@ public class LoginActivity extends SharedActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
-
-    /**
-     * to show toast message
-     * */
-    private void showToast(String msg){
-        showToast(msg, LoginActivity.this);
     }
 
     /**
@@ -409,5 +339,11 @@ public class LoginActivity extends SharedActivity {
         }
     }
 
+    /**
+     * to show toast message
+     * */
+    private void showToast(String msg){
+        showToast(msg, LoginActivity.this);
+    }
 
 }

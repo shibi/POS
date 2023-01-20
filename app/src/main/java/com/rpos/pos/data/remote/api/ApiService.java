@@ -12,6 +12,8 @@ import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
 import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
+import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgram;
+import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgramListResponse;
 import com.rpos.pos.data.remote.dto.suppliers.add.AddSupplierResponse;
 import com.rpos.pos.data.remote.dto.suppliers.list.GetSuppliersListResponse;
 import com.rpos.pos.data.remote.dto.uom.list.GetUomListResponse;
@@ -25,7 +27,7 @@ import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
 import com.rpos.pos.domain.requestmodel.shift.ShiftOpenRequestJson;
 import com.rpos.pos.domain.requestmodel.supplier.add.AddSupplierRequest;
-import com.rpos.pos.domain.responsemodels.shift.ShiftOpenResponse;
+import com.rpos.pos.data.remote.dto.shift.ShiftOpenResponse;
 
 import java.util.Map;
 
@@ -82,6 +84,9 @@ public interface ApiService {
 
     @POST("custom_integration.api.payment_mode.payment_mode_list")
     Call<PaymentModesListResponse> getAllPaymentModeList();
+
+    @GET("custom_integration.api.loyalty_program.loyalty_program_list")
+    Call<RoyaltyProgramListResponse> getRoyaltyProgramsList();
 
 
     @GET("https://api-fatoora.herokuapp.com/to_base64?")

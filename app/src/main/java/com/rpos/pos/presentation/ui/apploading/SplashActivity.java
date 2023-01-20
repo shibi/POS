@@ -38,7 +38,9 @@ public class SplashActivity extends SharedActivity {
 
     }
 
-
+    /**
+     * redirect to login activity
+     * */
     private void gotoLoginActivity(){
         Intent loginIntent = new Intent(this, LoginActivity.class);
         loginIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -47,7 +49,7 @@ public class SplashActivity extends SharedActivity {
     }
 }
 
-/**
+/*
  * TODO EXTRA WORKS DONE
  *  1. price list
  *  2. item price
@@ -56,5 +58,34 @@ public class SplashActivity extends SharedActivity {
  *  5. Report sales and purchase
  *  6. report filtering
  *  7. report exporting to excel sheet
+ *
+ * */
+
+
+/*
+ * TODO - completed apis
+ * 1. Login
+ * 2. get category list
+ * 3. add category
+ * 4. get customer list
+ * 5. add customer
+ * 6. get uom list
+ * 7. get item list
+ * 8. get supplier list
+ * 9. add supplier
+ * 10. get payment mode list
+ * 11. List royalty program
+ * 12. open shift
+ *
+ *
+ * view category
+ * view customer
+ * */
+
+
+/*
+ * To get
+ * customer edit api
+ * add uom api
  *
  * */

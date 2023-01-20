@@ -1,6 +1,7 @@
 package com.rpos.pos.presentation.ui.customer.details;
 
 import android.content.Intent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -30,6 +31,7 @@ public class CustomerDetailsActivity extends SharedActivity {
     private AppDialogs progressDialog;
     private AppCompatEditText et_customerName,et_taxid,et_creditLimit,et_creditDays,et_loyalpid,et_mobile,et_email,et_address;
     private String customerId;
+
     private LinearLayout ll_back;
     private LinearLayout ll_update;
 
@@ -51,6 +53,7 @@ public class CustomerDetailsActivity extends SharedActivity {
     public void initViews() {
 
         progressDialog = new AppDialogs(this);
+
         et_customerName = findViewById(R.id.et_customerName);
         et_taxid = findViewById(R.id.et_taxid);
         et_creditLimit = findViewById(R.id.et_creditlimit);
@@ -59,6 +62,7 @@ public class CustomerDetailsActivity extends SharedActivity {
         et_mobile = findViewById(R.id.et_mobile);
         et_email = findViewById(R.id.et_email);
         et_address = findViewById(R.id.et_address);
+
         ll_back = findViewById(R.id.ll_back);
         ll_update = findViewById(R.id.ll_update);
 
@@ -85,8 +89,8 @@ public class CustomerDetailsActivity extends SharedActivity {
             onSaveClick();
         });
 
-        //getCustomerDetails(customerId);
-        getCustomerDetailsFromLocalDb(customerId);
+        getCustomerDetails(customerId);
+        //getCustomerDetailsFromLocalDb(customerId);
 
     }
 
@@ -239,21 +243,25 @@ public class CustomerDetailsActivity extends SharedActivity {
                                 if (customerData != null) {
                                     et_customerName.setText(customerData.getCustomerName());
                                     et_taxid.setText(customerData.getTaxId());
+
+                                    et_mobile.setVisibility(View.GONE);
+                                    et_creditLimit.setVisibility(View.GONE);
+                                    et_creditDays.setVisibility(View.GONE);
+                                    et_email.setVisibility(View.GONE);
+                                    et_address.setVisibility(View.GONE);
+
                                     /*List<CreditLimit> creditLimitList = customerData.getCreditLimit();
                                     if (creditLimitList != null && creditLimitList.size() > 0) {
                                         CreditLimit creditDetails = creditLimitList.get(0);
                                         et_creditLimit.setText("" + creditDetails.getCreditLimit());
                                         et_creditDays.setText("" + creditDetails.getCreditDays());
                                     }*/
-                                }else {
-                                    showToast(getString(R.string.customer_details_failed));
+                                    return;
                                 }
-                            }else {
-                                showToast(getString(R.string.customer_details_failed));
                             }
-                        }else {
-                            showToast(getString(R.string.customer_details_failed));
                         }
+
+                        showToast(getString(R.string.customer_details_failed));
 
                     }catch (Exception e){
                         e.printStackTrace();

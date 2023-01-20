@@ -105,8 +105,10 @@ public class AddSuppliersActivity extends SharedActivity {
     private void addSupplier(String supplierName, String taxId, String creditLimit, String rate, String address){
         try {
 
+            //show progress
             progressDialog.showProgressBar();
 
+            //api generate
             ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
             AddSupplierRequest params = new AddSupplierRequest();
             params.setSupplierName(supplierName);
@@ -130,7 +132,6 @@ public class AddSuppliersActivity extends SharedActivity {
                                     if (addSupplierMessage.getSuccess()) {
                                         showToast(getString(R.string.supplier_added_successfully));
                                         finish();
-                                        AppDialogs appDialogs = new AppDialogs(AddSuppliersActivity.this);
                                         return;
                                     }
                                 }
@@ -157,66 +158,6 @@ public class AddSuppliersActivity extends SharedActivity {
         }
 
     }
-
-
-    private void addSupplierToLocalDb(){
-        try {
-
-            progressDialog.showProgressBar();
-            appExecutors.diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-
-                       final long supplierId = localDb.supplierDao().insertSupplier(supplierEntity);
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressDialog.hideProgressbar();
-
-
-                            }
-                        });
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * to show success dialog
-     * on dismiss the dialog , will
-     * */
-    private void showSuccessDialog(long _supplierId){
-
-        AppDialogs appDialogs = new AppDialogs(AddSuppliersActivity.this);
-        appDialogs.showCommonSuccessDialog(getString(R.string.supplier_add_success), view -> sendResult(_supplierId, supplierEntity.getSupplierName()));
-
-    }
-
-
-    private void sendResult(long sid,String supplierName){
-        try {
-
-            Intent intent = new Intent();
-            intent.putExtra(Constants.SUPPLIER_ID, ((int)sid));
-            intent.putExtra(Constants.SUPPLIER_NAME, supplierName);
-            setResult(RESULT_OK, intent);
-
-            finish();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
 
     /**
      * to verify user entered values
@@ -280,6 +221,64 @@ public class AddSuppliersActivity extends SharedActivity {
     private void showError(AppCompatEditText inputField, String err_msg){
         inputField.setError(err_msg);
         inputField.requestFocus();
+    }
+
+
+    private void addSupplierToLocalDb(){
+        try {
+
+            progressDialog.showProgressBar();
+            appExecutors.diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+
+                        final long supplierId = localDb.supplierDao().insertSupplier(supplierEntity);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.hideProgressbar();
+
+
+                            }
+                        });
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to show success dialog
+     * on dismiss the dialog , will
+     * */
+    private void showSuccessDialog(long _supplierId){
+
+        AppDialogs appDialogs = new AppDialogs(AddSuppliersActivity.this);
+        appDialogs.showCommonSuccessDialog(getString(R.string.supplier_add_success), view -> sendResult(_supplierId, supplierEntity.getSupplierName()));
+
+    }
+
+    private void sendResult(long sid,String supplierName){
+        try {
+
+            Intent intent = new Intent();
+            intent.putExtra(Constants.SUPPLIER_ID, ((int)sid));
+            intent.putExtra(Constants.SUPPLIER_NAME, supplierName);
+            setResult(RESULT_OK, intent);
+
+            finish();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void showToast(String msg){

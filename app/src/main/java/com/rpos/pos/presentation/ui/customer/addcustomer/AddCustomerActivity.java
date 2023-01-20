@@ -1,9 +1,13 @@
 package com.rpos.pos.presentation.ui.customer.addcustomer;
 
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatSpinner;
+
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
@@ -14,6 +18,8 @@ import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.customer.add.AddCustomerMessage;
 import com.rpos.pos.data.remote.dto.customer.add.AddCustomerResponse;
+import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgram;
+import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgramListResponse;
 import com.rpos.pos.domain.requestmodel.customer.add.AddCustomerRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
@@ -27,7 +33,8 @@ import retrofit2.Response;
 public class AddCustomerActivity extends SharedActivity {
 
     private AppDialogs progressDialog;
-    private AppCompatEditText et_customerName,et_taxid,et_creditLimit,et_creditDays,et_loyalpid,et_mobile,et_email,et_address;
+    private AppCompatEditText et_customerName,et_taxid,et_creditLimit,et_creditDays,et_mobile,et_email,et_address;
+
     private LinearLayout ll_back;
     private LinearLayout ll_submit;
 
@@ -36,6 +43,11 @@ public class AddCustomerActivity extends SharedActivity {
 
     private List<CustomerEntity> customerList;
     private CustomerEntity customerEntity;
+
+    private AppCompatSpinner sp_royalty_spinner;
+    private RoyaltySpinnerAdapter royaltySpinnerAdapter;
+
+    private String selectedRoyaltyProgramId;
 
     @Override
     public int setUpLayout() {
@@ -51,14 +63,17 @@ public class AddCustomerActivity extends SharedActivity {
     public void initViews() {
 
         progressDialog = new AppDialogs(this);
+
         et_customerName = findViewById(R.id.et_customerName);
         et_taxid = findViewById(R.id.et_taxid);
         et_creditLimit = findViewById(R.id.et_creditlimit);
         et_creditDays = findViewById(R.id.et_creditDays);
-        et_loyalpid = findViewById(R.id.et_loyalityPid);
         et_mobile = findViewById(R.id.et_mobile);
         et_email = findViewById(R.id.et_email);
         et_address = findViewById(R.id.et_address);
+
+        sp_royalty_spinner = findViewById(R.id.sp_royalty_program);
+
         ll_back = findViewById(R.id.ll_back);
         ll_submit = findViewById(R.id.ll_add_customer);
 
@@ -66,61 +81,27 @@ public class AddCustomerActivity extends SharedActivity {
 
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
+        selectedRoyaltyProgramId = Constants.EMPTY;
 
 
         //on save
         ll_submit.setOnClickListener(view -> {
-
             onClickSave();  //Method api
-            //onSaveClick(); //room db
         });
 
 
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
 
-        //get customer list
-        getCustomerListFromDb();
+        //to get all royalty programs
+        //for populating spinner
+        getAllRoyaltyPrograms();
+
     }
 
     @Override
     public void initObservers() {
 
-    }
-
-    /**
-     * on save click
-     * */
-    private void onSaveClick(){
-        try {
-
-            //check fields are valid
-            if(validate()){
-                saveCustomerToLocalDb(customerEntity);
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * get customer list from db
-     * */
-    private void getCustomerListFromDb(){
-        try {
-
-            appExecutors.diskIO().execute(() -> {
-                try {
-                    customerList = localDb.customerDao().getAllCustomer();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -198,6 +179,83 @@ public class AddCustomerActivity extends SharedActivity {
     }
 
     /**
+     * load all royalty programs
+     * */
+    private void getAllRoyaltyPrograms(){
+        try {
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
+            api.getRoyaltyProgramsList().enqueue(new Callback<RoyaltyProgramListResponse>() {
+                @Override
+                public void onResponse(Call<RoyaltyProgramListResponse> call, Response<RoyaltyProgramListResponse> response) {
+                    try {
+
+                        if(response.isSuccessful()){
+                            RoyaltyProgramListResponse apiResponse = response.body();
+                            if(apiResponse!=null){
+                                List<RoyaltyProgram> royaltyProgramList = apiResponse.getMessage();
+                                if(royaltyProgramList!=null && royaltyProgramList.size()> 0){
+
+                                   setUpRoyaltyProgramsSpinnerAdapter(royaltyProgramList);
+
+                                    return;
+                                }
+                            }
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<RoyaltyProgramListResponse> call, Throwable t) {
+
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to set spinner adapter and click listener
+     * */
+    private void setUpRoyaltyProgramsSpinnerAdapter(List<RoyaltyProgram> dataList){
+        try {
+
+            royaltySpinnerAdapter = new RoyaltySpinnerAdapter(AddCustomerActivity.this, dataList);
+            sp_royalty_spinner.setAdapter(royaltySpinnerAdapter);
+
+            sp_royalty_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    try {
+
+                        if (royaltySpinnerAdapter != null) {
+                            RoyaltyProgram royaltyProgram = ((RoyaltyProgram) royaltySpinnerAdapter.getItem(position));
+                            selectedRoyaltyProgramId = royaltyProgram.getLoyaltyProgramId();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * To validate fields before save
      * */
     private boolean validate(){
@@ -207,7 +265,7 @@ public class AddCustomerActivity extends SharedActivity {
             String customerTaxid = et_taxid.getText().toString();
             String str_creditLimit = et_creditLimit.getText().toString();
             String str_creditDays = et_creditDays.getText().toString();
-            String loyality_pid = et_loyalpid.getText().toString();
+            String loyality_pid = "";//et_loyalpid.getText().toString();
             String mobile = et_mobile.getText().toString().trim();
             String email = et_email.getText().toString().trim();
             String address = et_address.getText().toString();
@@ -241,7 +299,6 @@ public class AddCustomerActivity extends SharedActivity {
             if(!str_creditDays.isEmpty()){
                 creditDays = Integer.parseInt(str_creditDays);
             }
-
 
 
             loyality_pid = "RLP 1";
@@ -279,23 +336,27 @@ public class AddCustomerActivity extends SharedActivity {
             customerEntity.setAddress(address);
 
             return true;
+
         }catch (Exception e){
             e.printStackTrace();
             return false;
         }
     }
 
-
+    /**
+     * on click save button
+     * */
     private void onClickSave(){
         try {
 
+            //validate user inputs
             if(validateUserInputs()){
 
                 String customerName = et_customerName.getText().toString();
                 String customerTaxid = et_taxid.getText().toString();
                 String str_creditLimit = et_creditLimit.getText().toString();
                 String str_creditDays = et_creditDays.getText().toString();
-                String loyality_pid = "RLP 1"; //et_loyalpid.getText().toString();
+                String loyality_pid = selectedRoyaltyProgramId;
                 String mobile = et_mobile.getText().toString();
                 String email = et_email.getText().toString();
 
@@ -321,7 +382,7 @@ public class AddCustomerActivity extends SharedActivity {
             String customerTaxid = et_taxid.getText().toString();
             String str_creditLimit = et_creditLimit.getText().toString();
             String str_creditDays = et_creditDays.getText().toString();
-            String loyality_pid = et_loyalpid.getText().toString();
+            String loyality_pid = selectedRoyaltyProgramId;
             String mobile = et_mobile.getText().toString();
             String email = et_email.getText().toString();
 
@@ -346,7 +407,7 @@ public class AddCustomerActivity extends SharedActivity {
             }
 
             if(loyality_pid.isEmpty()){
-                showError(et_loyalpid, "Enter Loyality program id");
+                showToast("Enter Loyality program id");
                 return false;
             }
 
@@ -440,5 +501,40 @@ public class AddCustomerActivity extends SharedActivity {
 
     private void showToast(String msg){
         showToast(msg, AddCustomerActivity.this);
+    }
+
+    /**
+     * on save click
+     * */
+    private void onSaveClick(){
+        try {
+
+            //check fields are valid
+            if(validate()){
+                saveCustomerToLocalDb(customerEntity);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * get customer list from db
+     * */
+    private void getCustomerListFromDb(){
+        try {
+
+            appExecutors.diskIO().execute(() -> {
+                try {
+                    customerList = localDb.customerDao().getAllCustomer();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

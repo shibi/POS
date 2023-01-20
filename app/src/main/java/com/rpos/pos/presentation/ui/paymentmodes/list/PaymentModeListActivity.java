@@ -85,6 +85,8 @@ public class PaymentModeListActivity extends SharedActivity {
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
 
+        //load all pay methods at first
+        loadAllPaymentModes();
     }
 
     @Override
@@ -95,11 +97,6 @@ public class PaymentModeListActivity extends SharedActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        //load all pay methods at first
-        //this list is used to check name duplication N.B
-        //loadAllPayModes();
-        loadAllPaymentModes();
     }
 
     /**
@@ -109,19 +106,26 @@ public class PaymentModeListActivity extends SharedActivity {
     private void loadAllPaymentModes(){
         try {
 
+            showProgress();
+
             ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
             api.getAllPaymentModeList().enqueue(new Callback<PaymentModesListResponse>() {
+
                 @Override
                 public void onResponse(Call<PaymentModesListResponse> call, Response<PaymentModesListResponse> response) {
                     try {
 
+                        hideProgress();
+
                         payModeList.clear();
 
                         if(response.isSuccessful()){
+
                             PaymentModesListResponse paymentResponse = response.body();
                             if(paymentResponse !=null){
                                 List<PaymentModeListMessage> paymentModeList = paymentResponse.getMessage();
                                 if(paymentModeList!=null && paymentModeList.size() > 0){
+
                                     for (PaymentModeListMessage payMode: paymentModeList) {
                                         payModeList.add(ConverterFactory.convertToPayModeEntity(payMode));
                                     }
@@ -136,12 +140,14 @@ public class PaymentModeListActivity extends SharedActivity {
 
                     }catch (Exception e){
                         e.printStackTrace();
+                        hideProgress();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<PaymentModesListResponse> call, Throwable t) {
                     showToast(getString(R.string.please_check_internet), PaymentModeListActivity.this);
+                    hideProgress();
                 }
             });
 
@@ -151,25 +157,8 @@ public class PaymentModeListActivity extends SharedActivity {
     }
 
     /**
-     * load all available methods
+     * payment mode click
      * */
-    private void loadAllPayModes(){
-        try {
-
-            appExecutors.diskIO().execute(() -> {
-                List<PaymentModeEntity> paylist = localDb.paymentModeDao().getAllPaymentModeList();
-                if(paylist!=null && !paylist.isEmpty()){
-                    payModeList.clear();
-                    payModeList.addAll(paylist);
-                    runOnUiThread(() -> payModeListAdapter.notifyDataSetChanged());
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
     private PayModeListAdapter.OnPaymentModeClickListener onPaymentModeClickListener = paymentMode -> {
         try {
 
@@ -242,6 +231,13 @@ public class PaymentModeListActivity extends SharedActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private void showProgress(){
+        progressDialog.showProgressBar();
+    }
+    private void hideProgress(){
+        progressDialog.hideProgressbar();
     }
 
     /**

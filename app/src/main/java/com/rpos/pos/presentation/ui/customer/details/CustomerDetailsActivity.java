@@ -375,4 +375,5 @@ public class CustomerDetailsActivity extends SharedActivity {
     private void showToast(String msg){
         showToast(msg, this);
     }
+
 }

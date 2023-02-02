@@ -183,7 +183,11 @@ public class AddItemActivity extends SharedActivity {
             if(validate()){
                 //to save item locally
                 //saveItemLocally(itemLocalInsertObj);
-                addNewItem(itemLocalInsertObj.getItemName(), itemLocalInsertObj.getDescription(), str_uom_id, str_category_id,0.0f,0, "",0.0f,true);
+                String barcode = "";
+                if(itemLocalInsertObj.getBarcodes()!=null && itemLocalInsertObj.getBarcodes().size()>0){
+                    barcode = itemLocalInsertObj.getBarcodes().get(0);
+                }
+                addNewItem(itemLocalInsertObj.getItemName(), itemLocalInsertObj.getDescription(), str_uom_id, str_category_id,0.0f,10, barcode,itemLocalInsertObj.getItemTax(),(itemLocalInsertObj.getMaintainStock()==1));
             }else {
                 hideProgress();
                 isSaveClicked = false;

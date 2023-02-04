@@ -38,6 +38,7 @@ import retrofit2.Response;
 public class AddItemActivity extends SharedActivity {
 
     private AppCompatEditText et_itemName,et_item_desc,et_barcode,et_itemTax;
+    private AppCompatEditText et_itemRate, et_stock;
     private CheckBox checkBox_maintainStock;
     private LinearLayout ll_back;
     private LinearLayout ll_submit;
@@ -81,6 +82,8 @@ public class AddItemActivity extends SharedActivity {
         et_item_desc = findViewById(R.id.et_item_desc);
         et_barcode = findViewById(R.id.et_barcode);
         et_itemTax = findViewById(R.id.et_itemtax);
+        et_itemRate = findViewById(R.id.et_rate);
+        et_stock = findViewById(R.id.et_stock);
         checkBox_maintainStock = findViewById(R.id.cb_maintainStock);
         ll_back = findViewById(R.id.ll_back);
         ll_submit = findViewById(R.id.ll_add_item);
@@ -187,13 +190,22 @@ public class AddItemActivity extends SharedActivity {
                 if(itemLocalInsertObj.getBarcodes()!=null && itemLocalInsertObj.getBarcodes().size()>0){
                     barcode = itemLocalInsertObj.getBarcodes().get(0);
                 }
-                addNewItem(itemLocalInsertObj.getItemName(), itemLocalInsertObj.getDescription(), str_uom_id, str_category_id,0.0f,10, barcode,itemLocalInsertObj.getItemTax(),(itemLocalInsertObj.getMaintainStock()==1));
+
+                //item save api call
+                addNewItem(itemLocalInsertObj.getItemName(),
+                        itemLocalInsertObj.getDescription(),
+                        str_uom_id,
+                        str_category_id,
+                        itemLocalInsertObj.getRate(),
+                        itemLocalInsertObj.getAvailableQty(),
+                        barcode,itemLocalInsertObj.getItemTax(),
+                        (itemLocalInsertObj.getMaintainStock()==1) );
+
             }else {
                 hideProgress();
                 isSaveClicked = false;
             }
 
-            //addNewItem(itemName,item_description,str_uom_id,str_category_id,fl_rate,stock,item_barcode,fl_tax,isMaintainStock);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -210,17 +222,13 @@ public class AddItemActivity extends SharedActivity {
             String item_description = et_item_desc.getText().toString();
             String item_barcode = et_barcode.getText().toString();
             String itemTax = et_itemTax.getText().toString();
+            String itemRate = et_itemRate.getText().toString();
+            String itemStock = et_stock.getText().toString();
+
             boolean isMaintainStock = checkBox_maintainStock.isChecked();
-            //N.B  NO NEED TO PROVIDE RATE AND STOCK HERE.
-            //RATES ARE UPDATED FROM PRICE LIST SCREENS
 
             if(itemName.isEmpty()){
                 showFieldError(et_itemName, getString(R.string.item_name_required));
-                return false;
-            }
-
-            if(checkNameAlreadyExists(itemName)){
-                showFieldError(et_itemName, getString(R.string.item_name_exists));
                 return false;
             }
 
@@ -228,17 +236,17 @@ public class AddItemActivity extends SharedActivity {
             /*if(item_description.isEmpty()){
                 showFieldError(et_item_desc, getString(R.string.description_required));
                 return;
-            }
-
-            if(item_rate.isEmpty()){
-                showFieldError(et_rate, getString(R.string.rate_required));
-                return false;
-            }
-
-            if(item_availableStock.isEmpty()){
-                showFieldError(et_availableStock, getString(R.string.enter_stock));
-                return false;
             }*/
+
+            if(itemRate.isEmpty() || itemRate.equals("0") || itemRate.equals("0.0")){
+                showFieldError(et_itemRate, getString(R.string.rate_required));
+                return false;
+            }
+
+            if(itemStock.isEmpty()){
+                showFieldError(et_stock, getString(R.string.enter_stock));
+                return false;
+            }
 
             if(str_uom_id.isEmpty()){
                 showToast(getString(R.string.select_uom));
@@ -251,25 +259,19 @@ public class AddItemActivity extends SharedActivity {
             }
 
             if(item_barcode.isEmpty()){
-                item_barcode = ""+Constants.EMPTY_INT;
-            }else {
-                if(!checkBarcodeAvailable(item_barcode)){
-                    showFieldError(et_barcode, getString(R.string.barcode_used));
-                    return false;
-                }
+                showToast(getString(R.string.barcode_empty));
+                return false;
             }
 
-
-
-            float fl_rate = 0.0f;  //N.B :- ZERO AT THE BEGINNING. RATE FOR EACH ITEMS ARE UPDATED FROM ITEM PRICE SCREEN
+            float fl_rate = Float.parseFloat(itemRate);
             float fl_tax;
             if(itemTax.isEmpty()){
                 fl_tax = 0.0f;
             }else {
                 fl_tax = Float.parseFloat(itemTax);
             }
+            int stock = Integer.parseInt(itemStock);
 
-            Integer stock = 0; // N.B :- NO NEED TO PROVIDE STOCK HERE. STOCK WILL BE AUTOMATICALLY UPDATED FROM PURCHASE CHECKOUT
             List<String> barcodesList = new ArrayList<>();
             barcodesList.add(item_barcode);
 
@@ -342,38 +344,9 @@ public class AddItemActivity extends SharedActivity {
         }
     }
 
-    private void processCategoryList(List<CategoryEntity> savedCategory){
-        try {
-
-            //clear previous items
-            categoryItemsList.clear();
-
-            CategoryItem categoryItem;
-            CategoryEntity categorySaved;
-            for (int i =0;i< savedCategory.size();i++){
-                categoryItem = new CategoryItem();
-                categorySaved = savedCategory.get(i);
-
-                categoryItem.setCategoryId(categorySaved.getCategoryId());
-                categoryItem.setCategory(categorySaved.getCategoryName());
-                categoryItemsList.add(categoryItem);
-            }
-
-            runOnUiThread(() -> {
-                try {
-
-                    categorySpinnerAdapter.notifyDataSetChanged();
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * get uom list from local db
+     * */
     private void getUomListFromDb(){
         try {
 
@@ -428,115 +401,30 @@ public class AddItemActivity extends SharedActivity {
         }
     }
 
-    /**
-     * To get all uom values
-     * */
-    private void getAllUOMList(){
+    private void processCategoryList(List<CategoryEntity> savedCategory){
         try {
 
-            ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
-            Call<GetUomListResponse> call = apiService.getUOMList();
-            call.enqueue(new Callback<GetUomListResponse>() {
-                @Override
-                public void onResponse(Call<GetUomListResponse> call, Response<GetUomListResponse> response) {
-                    try {
+            //clear previous items
+            categoryItemsList.clear();
 
-                        if(response.isSuccessful()){
+            CategoryItem categoryItem;
+            CategoryEntity categorySaved;
+            for (int i =0;i< savedCategory.size();i++){
+                categoryItem = new CategoryItem();
+                categorySaved = savedCategory.get(i);
 
-                            GetUomListResponse getUomListResponse = response.body();
-                            if(getUomListResponse!=null){
-                                List<UomItem> dataList = getUomListResponse.getMessage();
-                                if(dataList!=null && dataList.size()>0){
-                                    uomList.clear();
-                                    uomList.addAll(dataList);
-                                    uomSpinnerAdapter.notifyDataSetChanged();
+                categoryItem.setCategoryId(categorySaved.getCategoryId());
+                categoryItem.setCategory(categorySaved.getCategoryName());
+                categoryItemsList.add(categoryItem);
+            }
 
-                                    AppExecutors uomInsertExecutors = new AppExecutors();
-                                    uomInsertExecutors.diskIO().execute(() -> {
-                                        try {
-                                            for (int i=0;i<dataList.size();i++){
-                                               dataList.get(i).setUomId(""+i);
-                                            }
-                                            localDb.uomDao().insertUom(dataList);
-                                        }catch (Exception e){
-                                            e.printStackTrace();
-                                        }
-                                    });
+            runOnUiThread(() -> {
+                try {
 
-                                }else {
-                                    showToast(getString(R.string.list_empty));
-                                }
-                            }else {
-                                showToast(getString(R.string.no_response));
-                            }
+                    categorySpinnerAdapter.notifyDataSetChanged();
 
-                        }else {
-                            showToast(getString(R.string.no_response));
-                        }
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<GetUomListResponse> call, Throwable t) {
-                    showToast(getString(R.string.error_occurred));
-                }
-            });
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * to get category list
-     * */
-    private void getCategoryListApi(){
-        try {
-
-            showProgress();
-
-            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
-            Call<GetCategoryResponse> call = api.getCategoryList();
-            call.enqueue(new Callback<GetCategoryResponse>() {
-                @Override
-                public void onResponse(Call<GetCategoryResponse> call, Response<GetCategoryResponse> response) {
-                    Log.e("-----------","APO"+response.isSuccessful());
-                    hideProgress();
-                    try {
-
-                        if(response.isSuccessful()){
-                            GetCategoryResponse getCategoryResponse = response.body();
-                            if(getCategoryResponse!=null){
-                                List<CategoryItem> categ_list = getCategoryResponse.getMessage();
-                                if(categ_list!=null && categ_list.size()>0){
-
-                                    categoryItemsList.addAll(categ_list);
-                                    categorySpinnerAdapter.notifyDataSetChanged();
-
-                                }else {
-                                    showToast(getString(R.string.list_empty));
-                                }
-                            }else {
-                                showToast(getString(R.string.list_empty));
-                            }
-                        }else {
-                            showToast(getString(R.string.list_empty));
-                        }
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<GetCategoryResponse> call, Throwable t) {
-                    Log.e("-----------","failed");
-                    hideProgress();
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             });
 
@@ -544,6 +432,10 @@ public class AddItemActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
+
+
+
+
 
     /**
      * add new item
@@ -617,74 +509,7 @@ public class AddItemActivity extends SharedActivity {
         }
     }
 
-    private void saveItemLocally(ItemEntity newItem){
-        try {
 
-            appExecutors.diskIO().execute(() -> {
-                try {
-
-                    localDb.itemDao().insertItem(newItem);
-
-                    //use ui thread to update ui
-                    runOnUiThread(() -> {
-                        ll_submit.setEnabled(false);
-                        hideProgress();
-                        showSuccess();
-                    });
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-
-        }
-    }
-
-    /**
-     * to check new items
-     * */
-    private boolean checkNameAlreadyExists(String itemName){
-        try {
-
-            for (ItemEntity item:allItemsArray) {
-                if(item.getItemName().trim().equals(itemName)){
-                    return true;
-                }
-            }
-
-            return false;
-        }catch (Exception e){
-            return true;
-        }
-    }
-
-    /**
-     * To check barcode is already used.
-     * */
-    private boolean checkBarcodeAvailable(String barcode){
-        try {
-
-            String itemBarcode;
-            for(ItemEntity item:allItemsArray){
-                if(item.getBarcodes()!=null && item.getBarcodes().size()>0){
-                    itemBarcode = item.getBarcodes().get(0);
-                    if(!itemBarcode.isEmpty() && itemBarcode.equals(barcode)){
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private void getItemsList(){
-
-    }
 
     private void showSuccess(){
         try {
@@ -727,6 +552,169 @@ public class AddItemActivity extends SharedActivity {
         progressDialog.hideProgressbar();
     }
 
-}
 
-//TODO : need to change uom id and category id
+    /**
+     * To get all uom values
+     * */
+    private void getAllUOMList(){
+        try {
+
+            ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            Call<GetUomListResponse> call = apiService.getUOMList();
+            call.enqueue(new Callback<GetUomListResponse>() {
+                @Override
+                public void onResponse(Call<GetUomListResponse> call, Response<GetUomListResponse> response) {
+                    try {
+
+                        if(response.isSuccessful()){
+
+                            GetUomListResponse getUomListResponse = response.body();
+                            if(getUomListResponse!=null){
+                                List<UomItem> dataList = getUomListResponse.getMessage();
+                                if(dataList!=null && dataList.size()>0){
+                                    uomList.clear();
+                                    uomList.addAll(dataList);
+                                    uomSpinnerAdapter.notifyDataSetChanged();
+
+                                    AppExecutors uomInsertExecutors = new AppExecutors();
+                                    uomInsertExecutors.diskIO().execute(() -> {
+                                        try {
+                                            for (int i=0;i<dataList.size();i++){
+                                                dataList.get(i).setUomId(""+i);
+                                            }
+                                            localDb.uomDao().insertUom(dataList);
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                    });
+
+                                }else {
+                                    showToast(getString(R.string.list_empty));
+                                }
+                            }else {
+                                showToast(getString(R.string.no_response));
+                            }
+
+                        }else {
+                            showToast(getString(R.string.no_response));
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<GetUomListResponse> call, Throwable t) {
+                    showToast(getString(R.string.error_occurred));
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    /**
+     * to get category list
+     * */
+    private void getCategoryListApi(){
+        try {
+
+            showProgress();
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            Call<GetCategoryResponse> call = api.getCategoryList();
+            call.enqueue(new Callback<GetCategoryResponse>() {
+                @Override
+                public void onResponse(Call<GetCategoryResponse> call, Response<GetCategoryResponse> response) {
+                    Log.e("-----------","APO"+response.isSuccessful());
+                    hideProgress();
+                    try {
+
+                        if(response.isSuccessful()){
+                            GetCategoryResponse getCategoryResponse = response.body();
+                            if(getCategoryResponse!=null){
+                                List<CategoryItem> categ_list = getCategoryResponse.getMessage();
+                                if(categ_list!=null && categ_list.size()>0){
+
+                                    categoryItemsList.addAll(categ_list);
+                                    categorySpinnerAdapter.notifyDataSetChanged();
+
+                                }else {
+                                    showToast(getString(R.string.list_empty));
+                                }
+                            }else {
+                                showToast(getString(R.string.list_empty));
+                            }
+                        }else {
+                            showToast(getString(R.string.list_empty));
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GetCategoryResponse> call, Throwable t) {
+                    Log.e("-----------","failed");
+                    hideProgress();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void saveItemLocally(ItemEntity newItem){
+        try {
+
+            appExecutors.diskIO().execute(() -> {
+                try {
+
+                    localDb.itemDao().insertItem(newItem);
+
+                    //use ui thread to update ui
+                    runOnUiThread(() -> {
+                        ll_submit.setEnabled(false);
+                        hideProgress();
+                        showSuccess();
+                    });
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+
+        }catch (Exception e){
+
+        }
+    }
+    /**
+     * To check barcode is already used.
+     * */
+    private boolean checkBarcodeAvailable(String barcode){
+        try {
+
+            String itemBarcode;
+            for(ItemEntity item:allItemsArray){
+                if(item.getBarcodes()!=null && item.getBarcodes().size()>0){
+                    itemBarcode = item.getBarcodes().get(0);
+                    if(!itemBarcode.isEmpty() && itemBarcode.equals(barcode)){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+    private void getItemsList(){
+
+    }
+
+}

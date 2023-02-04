@@ -150,24 +150,6 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1">
 
-                        <!--<androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/et_rate"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="@style/BorderedTextviewStyle"
-                            android:inputType="numberDecimal"
-                            android:hint="@string/rate_label"
-                            android:text="0.0"
-                            android:enabled="false"
-                            android:focusable="false"
-                            android:gravity="center"
-                            android:layout_marginTop="3dp"
-                            android:layout_marginBottom="3dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginEnd="20dp"
-                            android:paddingTop="@dimen/add_item_field_top_bottom_padding"
-                            android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>-->
-
                         <Spinner
                             android:id="@+id/sp_category"
                             android:layout_width="match_parent"
@@ -213,21 +195,42 @@
 
                 </LinearLayout>
 
-                <!--<LinearLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp">
 
                     <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_avl_stock_qty"
+                        android:id="@+id/et_rate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        style="@style/BorderedTextviewStyle"
+                        style="@style/BorderedInputWhiteBgStyle"
+                        android:inputType="numberDecimal"
+                        android:hint="@string/rate_label"
+                        android:text="0.0"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                        android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_stock"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/BorderedInputWhiteBgStyle"
                         android:hint="@string/available_stock_qty"
                         android:gravity="center"
-                        android:enabled="false"
-                        android:focusable="false"
-                        android:text="0"
                         android:inputType="numberSigned"
                         android:layout_marginTop="3dp"
                         android:layout_marginBottom="3dp"
@@ -236,7 +239,7 @@
                         android:paddingTop="@dimen/add_item_field_top_bottom_padding"
                         android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
 
-                </LinearLayout>-->
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

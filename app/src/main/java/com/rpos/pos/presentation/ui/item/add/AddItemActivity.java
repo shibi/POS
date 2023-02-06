@@ -509,8 +509,9 @@ public class AddItemActivity extends SharedActivity {
         }
     }
 
-
-
+    /**
+     * inform user with a dialog that , item successfully added
+     * */
     private void showSuccess(){
         try {
 
@@ -530,6 +531,9 @@ public class AddItemActivity extends SharedActivity {
         }
     }
 
+    /**
+     * redirect o item list screen
+     * */
     private void goBackToItemList(){
 
         Intent itemListIntent = new Intent(AddItemActivity.this, ItemActivity.class);

@@ -323,7 +323,7 @@ public class ItemListFragment extends SharedFragment {
 
                 @Override
                 public void onFailure(Call<GetItemsListResponse> call, Throwable t) {
-                    Log.e("----------","failed");
+                    Log.e("----------","failed>"+t.getMessage());
                     hideProgress();
                     //empty
                     showEmptyView();

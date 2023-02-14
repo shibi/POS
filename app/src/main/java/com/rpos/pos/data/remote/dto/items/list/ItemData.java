@@ -9,6 +9,10 @@ import java.util.List;
 
 public class ItemData {
 
+    @SerializedName("name")
+    @Expose
+    private String name;
+
     @SerializedName("item_id")
     @Expose
     private String itemId;
@@ -24,9 +28,14 @@ public class ItemData {
     @SerializedName("maintain_stock")
     @Expose
     private Integer maintainStock;
+
+    @SerializedName("brand")
+    @Expose
+    private Object brand;
+
     @SerializedName("barcodes")
     @Expose
-    private List<String> barcodes = null;
+    private List<BarcodeData> barcodes = null;
     @SerializedName("available_qty")
     @Expose
     private Integer availableQty;
@@ -44,6 +53,14 @@ public class ItemData {
     private float itemTax;
 
     private String uomName;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getItemId() {
         return itemId;
@@ -69,6 +86,14 @@ public class ItemData {
         this.uom = uom;
     }
 
+    public Object getBrand() {
+        return brand;
+    }
+
+    public void setBrand(Object brand) {
+        this.brand = brand;
+    }
+
     public String getCategory() {
         return category;
     }
@@ -85,11 +110,11 @@ public class ItemData {
         this.maintainStock = maintainStock;
     }
 
-    public List<String> getBarcodes() {
+    public List<BarcodeData> getBarcodes() {
         return barcodes;
     }
 
-    public void setBarcodes(List<String> barcodes) {
+    public void setBarcodes(List<BarcodeData> barcodes) {
         this.barcodes = barcodes;
     }
 
@@ -143,7 +168,7 @@ public class ItemData {
 
         this.category = itemEntity.getCategory();
         this.maintainStock = itemEntity.getMaintainStock();
-        barcodes = itemEntity.getBarcodes();
+        //barcodes = itemEntity.getBarcodes();
         this.availableQty = itemEntity.getAvailableQty();
         this.description = itemEntity.getDescription();
         this.rate = itemEntity.getRate();

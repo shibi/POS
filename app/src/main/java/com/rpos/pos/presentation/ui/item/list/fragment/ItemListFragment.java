@@ -298,7 +298,7 @@ public class ItemListFragment extends SharedFragment {
                         GetItemsListResponse itemsListResponse = response.body();
                         if(itemsListResponse!=null){
                             List<ItemData> itemList = itemsListResponse.getMessage();
-                            if(itemList!=null && itemList.size()>0){
+                            if(itemList!=null && itemList.size()>0) {
                                 //hide empty view
                                 hideEmptyView();
                                 //clear list
@@ -307,18 +307,15 @@ public class ItemListFragment extends SharedFragment {
                                 itemDataList.addAll(itemList);
                                 itemListAdapter.notifyDataSetChanged();
 
-                            }else {
-                                //empty
-                                showEmptyView();
+                                //All data set, stop proceeding
+                                return;
                             }
-                        }else {
-                            //empty
-                            showEmptyView();
                         }
-                    }else {
-                        //empty
-                        showEmptyView();
                     }
+
+                    //empty
+                    showEmptyView();
+
                 }
 
                 @Override

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">نقاط البيع</string>
+
     <string name="welcome_back">مرحبًا بعودتك</string>
     <string name="login_info">يرجى تسجيل الدخول إلى حسابك</string>
     <string name="_label">لغة :</string>
@@ -366,5 +367,6 @@
     <string name="mode_label">الوضع</string>
     <string name="zatca_qr_failed">Zatca Qr generation failed</string>
     <string name="printer_already_connected">Printer already connected</string>
+    <string name="version_label">إصدار</string>
 
 </resources>

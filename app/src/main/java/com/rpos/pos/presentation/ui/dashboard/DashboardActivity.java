@@ -1,10 +1,12 @@
 package com.rpos.pos.presentation.ui.dashboard;
 
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageView;
@@ -12,6 +14,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.rpos.pos.AppExecutors;
+import com.rpos.pos.BuildConfig;
 import com.rpos.pos.Config;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
@@ -65,6 +68,11 @@ public class DashboardActivity extends SharedActivity{
         rg_switch_tab = findViewById(R.id.rb_switchTab);
         appDialogs = new AppDialogs(this);
         iv_appLogo = findViewById(R.id.iv_dash_logo);
+        AppCompatTextView tv_version = findViewById(R.id.tv_version);
+
+        //to display current version
+        String versionLabel = getString(R.string.version_label);
+        tv_version.setText(versionLabel +" v"+ BuildConfig.VERSION_NAME);
 
         RadioButton rb_left = findViewById(R.id.rb_left);
         rb_left.setChecked(true);

@@ -23,6 +23,8 @@ public class ItemPriceListAdapter extends RecyclerView.Adapter<ItemPriceListAdap
     private String rateLabel;
     private ItemPriceListListener listener;
 
+    private String type, name, rate;
+
     public ItemPriceListAdapter(Context mContext,List<ItemPriceEntity> itemPriceList,ItemPriceListListener listener) {
         this.itemPriceList = itemPriceList;
         this.mContext = mContext;
@@ -46,11 +48,13 @@ public class ItemPriceListAdapter extends RecyclerView.Adapter<ItemPriceListAdap
 
             ItemPriceEntity itemPriceEntity = itemPriceList.get(position);
             
-            String type = typeLabel + " : " + ((itemPriceEntity.getPriceListType() == Constants.BUYING) ? mContext.getString(R.string.buying):mContext.getString(R.string.selling));
-            String data = rateLabel+" : "+itemPriceEntity.getRate();
+            type = ((itemPriceEntity.getPriceListType() == Constants.BUYING) ? mContext.getString(R.string.buying):mContext.getString(R.string.selling));
+            rate = rateLabel+" : "+itemPriceEntity.getRate();
             holder.tv_name.setText(itemPriceEntity.getItemName());
-            holder.tv_priceListName.setText(type);
-            holder.tv_type.setText(data);
+
+            name = itemPriceEntity.getPriceListName() + "("+type+")";
+            holder.tv_priceListName.setText(name);
+            holder.tv_rate.setText(rate);
 
 
             holder.itemView.setOnClickListener(view -> {
@@ -71,13 +75,13 @@ public class ItemPriceListAdapter extends RecyclerView.Adapter<ItemPriceListAdap
     }
 
     public static class ItemPriceListViewHolder extends RecyclerView.ViewHolder {
-        private AppCompatTextView tv_name ,tv_priceListName, tv_type;
+        private AppCompatTextView tv_name ,tv_priceListName, tv_rate;
         public ItemPriceListViewHolder(@NonNull View itemView) {
             super(itemView);
 
             tv_name = itemView.findViewById(R.id.tv_itemPriceName);
             tv_priceListName = itemView.findViewById(R.id.tv_pl_name);
-            tv_type = itemView.findViewById(R.id.tv_type);
+            tv_rate = itemView.findViewById(R.id.tv_type);
         }
     }
 

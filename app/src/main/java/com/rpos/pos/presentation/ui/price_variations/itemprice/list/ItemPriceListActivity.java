@@ -56,7 +56,7 @@ public class ItemPriceListActivity extends SharedActivity {
         itemPriceList = new ArrayList<>();
         itemPriceListAdapter = new ItemPriceListAdapter(ItemPriceListActivity.this, itemPriceList, itemPriceEntity -> {
             //on click item
-            gotoEditItemPriceListActivity(itemPriceEntity.getId());
+            gotoEditItemPriceListActivity(itemPriceEntity.getId(), itemPriceEntity.getItemId(), itemPriceEntity.getPriceListType());
         });
         rv_itemPriceList.setAdapter(itemPriceListAdapter);
 
@@ -114,7 +114,7 @@ public class ItemPriceListActivity extends SharedActivity {
         startActivity(addItemPrice);
     }
 
-    private void gotoEditItemPriceListActivity(int item_price_id){
+    private void gotoEditItemPriceListActivity(int item_price_id, int _itemId, int type){
         Intent editItemPrice = new Intent(this, ItemPriceEditActivity.class);
         editItemPrice.putExtra(Constants.ITEM_PRICE_LIST_ID, item_price_id);
         startActivity(editItemPrice);

@@ -20,6 +20,7 @@ public class ItemPriceEntity {
     private String customerId;
     private int itemUomId;
     private int priceListId;
+    private int companionPriceListId;
     private String priceListName;
     private String batchNo;
     private float packageUnit;
@@ -126,5 +127,13 @@ public class ItemPriceEntity {
 
     public void setPackageUnit(float packageUnit) {
         this.packageUnit = packageUnit;
+    }
+
+    public int getCompanionPriceListId() {
+        return companionPriceListId;
+    }
+
+    public void setCompanionPriceListId(int companionPriceListId) {
+        this.companionPriceListId = companionPriceListId;
     }
 }

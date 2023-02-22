@@ -34,50 +34,76 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginTop="30dp">
+                        android:gravity="center"
+                        android:layout_marginTop="8dp">
 
                         <androidx.appcompat.widget.AppCompatTextView
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/select_item"
                             android:layout_marginStart="20dp"
                             android:layout_marginEnd="20dp"
-                            android:layout_marginTop="4dp"
-                            android:layout_marginBottom="1dp"/>
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
+                            android:orientation="vertical"
                             android:gravity="center"
                             android:layout_marginStart="20dp"
                             android:layout_marginEnd="20dp">
 
-                            <androidx.appcompat.widget.AppCompatEditText
-                                android:id="@+id/et_itemName"
-                                android:layout_width="0dp"
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="110dp"
                                 android:layout_height="wrap_content"
-                                style="@style/BorderedInputWhiteBgStyle"
-                                android:hint="@string/select_item"
-                                android:gravity="center"
-                                android:clickable="false"
-                                android:focusable="false"
-                                android:layout_weight="3"
-                                android:layout_marginStart="2dp"
-                                android:layout_marginEnd="2dp"
-                                android:layout_marginTop="3dp"
-                                android:layout_marginBottom="3dp"
-                                android:paddingTop="@dimen/add_item_field_top_bottom_padding"
-                                android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+                                app:cardCornerRadius="8dp"
+                                android:elevation="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical"
+                                    android:gravity="center">
+
+                                    <ImageView
+                                        android:layout_width="70dp"
+                                        android:layout_height="70dp"
+                                        android:src="@drawable/ic_item_default2"
+                                        android:layout_margin="4dp"/>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="@color/blue_grey"
+                                        android:paddingTop="4dp"
+                                        android:paddingBottom="4dp">
+
+                                        <androidx.appcompat.widget.AppCompatTextView
+                                            android:id="@+id/tv_itemNames"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:gravity="center"
+                                            android:textColor="@color/color_accent_secondary"
+                                            android:text="@string/select_item"
+                                            android:layout_marginTop="4dp"
+                                            android:layout_marginBottom="4dp"/>
+
+                                    </LinearLayout>
+
+                                </LinearLayout>
+
+                            </androidx.cardview.widget.CardView>
 
                             <androidx.appcompat.widget.AppCompatButton
                                 android:id="@+id/btn_select_item"
-                                android:layout_width="0dp"
-                                android:layout_height="34dp"
-                                android:layout_weight="1"
+                                android:layout_width="110dp"
+                                android:layout_height="30dp"
                                 style="@style/SecondaryButtonStyle"
                                 android:layout_marginStart="2dp"
                                 android:layout_marginEnd="2dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="8dp"
                                 android:textSize="10dp"
                                 android:text="@string/choose"/>
 
@@ -85,7 +111,222 @@
 
                     </LinearLayout>
 
+
                     <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="match_parent"
+                                android:layout_height="250dp"
+                                android:layout_margin="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="40dp"
+                                        android:background="@color/blue_grey"
+                                        android:gravity="center"
+                                        android:paddingTop="4dp"
+                                        android:paddingBottom="4dp">
+
+                                        <androidx.appcompat.widget.AppCompatTextView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:gravity="center"
+                                            android:textSize="16dp"
+                                            android:text="@string/buying"
+                                            android:textColor="@color/color_accent_secondary"
+                                            android:layout_marginTop="4dp"
+                                            android:layout_marginBottom="4dp"/>
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="vertical"
+                                        android:gravity="center">
+
+                                        <androidx.appcompat.widget.AppCompatTextView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/select_price_list"
+                                            android:gravity="start"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:layout_marginTop="8dp"
+                                            android:layout_marginBottom="4dp"/>
+
+                                        <Spinner
+                                            android:id="@+id/sp_buy_pricelist"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:paddingTop="6dp"
+                                            android:paddingBottom="6dp"
+                                            android:layout_marginTop="4dp"
+                                            android:layout_marginBottom="4dp"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:background="@drawable/shape_uom_spinner_bg"/>
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
+                                        android:orientation="vertical">
+
+                                        <androidx.appcompat.widget.AppCompatTextView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/rate_label"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:layout_marginTop="4dp"
+                                            android:layout_marginBottom="4dp"/>
+
+                                        <androidx.appcompat.widget.AppCompatEditText
+                                            android:id="@+id/et_buy_rate"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            style="@style/BorderedInputWhiteBgStyle"
+                                            android:hint="@string/rate_label"
+                                            android:inputType="numberDecimal"
+                                            android:gravity="center"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                                            android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                                    </LinearLayout>
+
+
+                                </LinearLayout>
+
+                            </androidx.cardview.widget.CardView>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="match_parent"
+                                android:layout_height="250dp"
+                                android:layout_margin="4dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="40dp"
+                                        android:background="@color/blue_grey"
+                                        android:gravity="center"
+                                        android:paddingTop="4dp"
+                                        android:paddingBottom="4dp">
+
+                                        <androidx.appcompat.widget.AppCompatTextView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:gravity="center"
+                                            android:textSize="16dp"
+                                            android:text="@string/selling"
+                                            android:textColor="@color/color_accent_secondary"
+                                            android:layout_marginTop="4dp"
+                                            android:layout_marginBottom="4dp"/>
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="vertical"
+                                        android:gravity="center">
+
+                                        <androidx.appcompat.widget.AppCompatTextView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/select_price_list"
+                                            android:gravity="start"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:layout_marginTop="8dp"
+                                            android:layout_marginBottom="4dp"/>
+
+                                        <Spinner
+                                            android:id="@+id/sp_sell_pricelist"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:paddingTop="6dp"
+                                            android:paddingBottom="6dp"
+                                            android:layout_marginTop="4dp"
+                                            android:layout_marginBottom="4dp"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:background="@drawable/shape_uom_spinner_bg"/>
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
+                                        android:orientation="vertical">
+
+                                        <androidx.appcompat.widget.AppCompatTextView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/rate_label"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:layout_marginTop="4dp"
+                                            android:layout_marginBottom="4dp"/>
+
+                                        <androidx.appcompat.widget.AppCompatEditText
+                                            android:id="@+id/et_sell_rate"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            style="@style/BorderedInputWhiteBgStyle"
+                                            android:hint="@string/rate_label"
+                                            android:inputType="numberDecimal"
+                                            android:gravity="center"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:layout_marginStart="10dp"
+                                            android:layout_marginEnd="10dp"
+                                            android:paddingTop="@dimen/add_item_field_top_bottom_padding"
+                                            android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
+
+                                    </LinearLayout>
+
+
+                                </LinearLayout>
+
+                            </androidx.cardview.widget.CardView>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!--<LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -115,9 +356,9 @@
                             android:paddingTop="@dimen/add_item_field_top_bottom_padding"
                             android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
 
-                    </LinearLayout>
+                    </LinearLayout>-->
 
-                    <LinearLayout
+                    <!--<LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
@@ -169,7 +410,7 @@
 
                         </LinearLayout>
 
-                    </LinearLayout>
+                    </LinearLayout>-->
 
                     <!--Batch number is disabled for now-->
                     <LinearLayout
@@ -204,203 +445,6 @@
                             android:paddingBottom="@dimen/add_item_field_top_bottom_padding"/>
 
                     </LinearLayout>
-
-                    <!--Details of the selected item-->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center">
-
-                            <androidx.appcompat.widget.AppCompatTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/details"
-                                android:gravity="end"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="8dp"
-                                    android:layout_marginBottom="4dp">
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/item_id"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:gravity="end"/>
-
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:id="@+id/tv_itemId"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:text="-none"/>
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="4dp"
-                                    android:layout_marginBottom="4dp">
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/item_name"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:gravity="end"/>
-
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:id="@+id/tv_itemName"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:text="-none"/>
-
-                                </LinearLayout>
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="4dp"
-                                    android:layout_marginBottom="4dp">
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/item_description"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:gravity="end"/>
-
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:id="@+id/tv_itemDesc"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:text="-none"/>
-
-                                </LinearLayout>
-
-
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="end"
-                                    android:layout_marginTop="8dp"
-                                    android:layout_marginBottom="4dp">
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:id="@+id/tv_type"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginEnd="4dp"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:text="none"/>
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/type"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:gravity="end"/>
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="end"
-                                    android:layout_marginTop="4dp"
-                                    android:layout_marginBottom="4dp">
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:id="@+id/tv_currency"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginEnd="4dp"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:text="none"/>
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="Currency"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:gravity="end"/>
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:gravity="end"
-                                    android:layout_marginTop="4dp"
-                                    android:layout_marginBottom="4dp">
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:id="@+id/tv_itemUom"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:layout_marginEnd="4dp"
-                                        android:text="none"/>
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/uom"
-                                        android:textSize="@dimen/item_price_details_size"
-                                        android:gravity="end"/>
-
-                                </LinearLayout>
-
-                            </LinearLayout>
-
-
-                        </LinearLayout>
-
-
-                    </LinearLayout>
-
 
                 </LinearLayout>
 

@@ -2,7 +2,10 @@ package com.rpos.pos.presentation.ui.price_variations.itemprice.add;
 
 import android.content.Intent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -15,32 +18,43 @@ import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.ItemPriceEntity;
+import com.rpos.pos.data.local.entity.PriceListEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.item.select.ItemSelectActivity;
-import com.rpos.pos.presentation.ui.price_variations.pricelist.select.SelectPriceListActivity;
+import com.rpos.pos.presentation.ui.settings.adapter.pricelist.BuyPriceListSpinnerAdapter;
+import com.rpos.pos.presentation.ui.settings.adapter.pricelist.SellPriceListSpinnerAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddItemPriceActivity extends SharedActivity {
 
     private LinearLayout ll_back, ll_save;
-    private AppCompatButton btn_pick_item, btn_pick_priceList;
-    private AppCompatTextView tv_itemId, tv_itemName, tv_itemDesc, tv_itemUom, tv_currency, tv_type;
-    private AppCompatEditText et_itemRate, et_batchNo , et_selectedItem, et_selectedPLName;
+    private AppCompatButton btn_pick_item;
+    private AppCompatTextView tv_itemName;
+    private AppCompatEditText et_buy_rate,et_sell_rate, et_batchNo;
 
+    private int itemId;
+    private String itemName;
 
-    private int priceListId, priceListType;
-    private String priceListName;
-    private int itemId, item_uomId;
-    private String itemName, uomName, itemDescription, currency;
-
+    private String buy_priceListName, sell_priceListName;
+    private Integer buy_priceListId, sell_priceListId;
 
     private AppExecutors appExecutors;
     private AppDatabase localDb;
     private AppDialogs progressDialog;
     private AppDialogs appDialogs;
 
-    private ItemPriceEntity itemPriceEntity;
+    private ItemPriceEntity buyItemPriceEntity;
+    private ItemPriceEntity sellItemPriceEntity;
+
     private String STRING_SEPARATOR = " : ";
+
+    private Spinner sp_priceListBuy, sp_priceListSell;
+    private List<PriceListEntity> buyPriceListArray, sellPriceListArray;
+    private BuyPriceListSpinnerAdapter buyPriceListSpinnerAdapter;
+    private SellPriceListSpinnerAdapter sellPriceListSpinnerAdapter;
 
     @Override
     public int setUpLayout() {
@@ -65,25 +79,22 @@ public class AddItemPriceActivity extends SharedActivity {
 
         ll_back = findViewById(R.id.ll_back);
         btn_pick_item = findViewById(R.id.btn_select_item);
-        btn_pick_priceList = findViewById(R.id.btn_select_pricelist);
         ll_save = findViewById(R.id.ll_rightMenu);
 
-        et_itemRate = findViewById(R.id.et_rate);
-        et_selectedItem = findViewById(R.id.et_itemName);
-        et_selectedPLName = findViewById(R.id.et_priceListName);
+        et_sell_rate = findViewById(R.id.et_sell_rate);
+        et_buy_rate = findViewById(R.id.et_buy_rate);
+
         et_batchNo = findViewById(R.id.et_batchNo);
 
+        //price list spinners
+        sp_priceListBuy = findViewById(R.id.sp_buy_pricelist);
+        sp_priceListSell = findViewById(R.id.sp_sell_pricelist);
 
-        tv_itemId = findViewById(R.id.tv_itemId);
-        tv_itemName = findViewById(R.id.tv_itemName);
-        tv_itemDesc = findViewById(R.id.tv_itemDesc);
-        tv_itemUom = findViewById(R.id.tv_itemUom);
-        tv_currency = findViewById(R.id.tv_currency);
-        tv_type = findViewById(R.id.tv_type);
+        tv_itemName = findViewById(R.id.tv_itemNames);
 
-        priceListId = Constants.EMPTY_INT;;
-        priceListType = Constants.EMPTY_INT;;
-        priceListName = itemName = itemDescription = "";
+        sell_priceListId = Constants.EMPTY_INT;
+        buy_priceListId = Constants.EMPTY_INT;
+
         itemId = Constants.EMPTY_INT;
 
 
@@ -98,23 +109,61 @@ public class AddItemPriceActivity extends SharedActivity {
 
         });
 
-        btn_pick_item.setOnClickListener(view -> selectItem());
+        buyPriceListArray = new ArrayList<>();
+        buyPriceListSpinnerAdapter = new BuyPriceListSpinnerAdapter(this, buyPriceListArray);
+        sp_priceListBuy.setAdapter(buyPriceListSpinnerAdapter);
+        sp_priceListBuy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                try {
 
-        //choose price list
-        btn_pick_priceList.setOnClickListener(view -> selectPriceList());
+                    buy_priceListId = buyPriceListArray.get(position).getId();
+                    buy_priceListName = buyPriceListArray.get(position).getPriceListName();
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        sellPriceListArray = new ArrayList<>();
+        sellPriceListSpinnerAdapter = new SellPriceListSpinnerAdapter(this, sellPriceListArray);
+        sp_priceListSell.setAdapter(sellPriceListSpinnerAdapter);
+        sp_priceListSell.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                try {
+
+                    sell_priceListId = sellPriceListArray.get(position).getId();
+                    sell_priceListName = sellPriceListArray.get(position).getPriceListName();
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        btn_pick_item.setOnClickListener(view -> selectItem());
 
         //back
         ll_back.setOnClickListener(view -> onBackPressed());
+
+        getPriceList();
     }
 
     @Override
     public void initObservers() {
 
-    }
-
-    private void selectPriceList(){
-        Intent selecteIntent = new Intent(AddItemPriceActivity.this, SelectPriceListActivity.class);
-        launchPriceListPicker.launch(selecteIntent);
     }
 
     private void selectItem(){
@@ -134,39 +183,12 @@ public class AddItemPriceActivity extends SharedActivity {
                 if(data!=null){
                     itemId = data.getIntExtra(Constants.ITEM_ID,-1);
                     itemName = data.getStringExtra(Constants.ITEM_NAME);
-                    itemDescription = data.getStringExtra(Constants.ITEM_DESC);
-                    String str_uomId = data.getStringExtra(Constants.ITEM_UOM_ID);
-                    item_uomId = Integer.parseInt(str_uomId);
-
-                    et_selectedItem.setText(itemName);
-                    tv_itemId.setText(STRING_SEPARATOR + itemId);
-                    tv_itemName.setText(STRING_SEPARATOR + itemName);
-                    tv_itemUom.setText(item_uomId + STRING_SEPARATOR);
-                    tv_itemDesc.setText(STRING_SEPARATOR + itemDescription);
-                    tv_currency.setText("default" + STRING_SEPARATOR);
+                    tv_itemName.setText(itemName);
                 }
             }
         }
     });
 
-    private ActivityResultLauncher<Intent> launchPriceListPicker = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if(result.getResultCode() == RESULT_OK){
-                Intent data  = result.getData();
-                if(data!=null){
-
-                    priceListId = data.getIntExtra(Constants.PRICELIST_ID, Constants.EMPTY_INT);
-                    priceListName = data.getStringExtra(Constants.PRICELIST_NAME);
-                    priceListType = data.getIntExtra(Constants.PRICELIST_TYPE, Constants.EMPTY_INT);
-
-                    et_selectedPLName.setText(priceListName);
-                    String type =  (priceListType == Constants.BUYING)?getString(R.string.buying):getString(R.string.selling);
-                    tv_type.setText(type + STRING_SEPARATOR);
-                }
-            }
-        }
-    });
 
     /**
      * To validate user entry fields
@@ -175,45 +197,74 @@ public class AddItemPriceActivity extends SharedActivity {
         try {
 
             String itemCode = "no-data";
-            String str_itemRate = et_itemRate.getText().toString();
+            String str_sell_rate = et_sell_rate.getText().toString();
+            String str_buy_rate = et_buy_rate.getText().toString();
+
             String itemBatchNo = et_batchNo.getText().toString();
-            float rate;
+            float sell_rate,buy_rate;
 
-            /*if(itemCode.isEmpty()){
-                et_itemCode.setError(getString(R.string.enter_valid_data));
-                return false;
-            }*/
-
-            if(str_itemRate.isEmpty()){
-                et_itemRate.setError(getString(R.string.enter_amount));
-                return false;
-            }
-
-            if(priceListId == Constants.EMPTY_INT){
-                showToast(getString(R.string.select_price_list));
-                return false;
-            }
-
-            rate = Float.parseFloat(str_itemRate);
-            if(rate <= 0){
-                showToast(getString(R.string.enter_amount));
-                return false;
-            }
-
+            //check whether item selected
             if(itemId == Constants.EMPTY_INT){
                 showToast(getString(R.string.select_item));
                 return false;
             }
 
-            itemPriceEntity = new ItemPriceEntity();
-            itemPriceEntity.setItemCode(itemCode); //
-            itemPriceEntity.setItemId(itemId); //
-            itemPriceEntity.setItemName(itemName); //
-            itemPriceEntity.setPriceListId(priceListId);
-            itemPriceEntity.setPriceListName(priceListName);
-            itemPriceEntity.setBatchNo(itemBatchNo); //
-            itemPriceEntity.setRate(rate);//
-            itemPriceEntity.setPriceListType(priceListType);
+            //check whether buying rate entered.
+            if(str_buy_rate.isEmpty()){
+                et_buy_rate.setError(getString(R.string.enter_amount));
+                et_buy_rate.requestFocus();
+                return false;
+            }
+            //check whether selling rate entered.
+            if(str_sell_rate.isEmpty()){
+                et_sell_rate.setError(getString(R.string.enter_amount));
+                et_sell_rate.requestFocus();
+                return false;
+            }
+
+            if(buy_priceListId == Constants.EMPTY_INT){
+                showToast(getString(R.string.select_price_list));
+                return false;
+            }
+            if(sell_priceListId == Constants.EMPTY_INT){
+                showToast(getString(R.string.select_price_list));
+                return false;
+            }
+
+
+            sell_rate = Float.parseFloat(str_sell_rate);
+            if(sell_rate <= 0){
+                showToast(getString(R.string.enter_amount));
+                return false;
+            }
+
+            buy_rate = Float.parseFloat(str_buy_rate);
+            if(buy_rate <= 0){
+                showToast(getString(R.string.enter_amount));
+                return false;
+            }
+
+            buyItemPriceEntity = new ItemPriceEntity();
+            buyItemPriceEntity.setItemCode(itemCode); //
+            buyItemPriceEntity.setItemId(itemId); //
+            buyItemPriceEntity.setItemName(itemName); //
+            buyItemPriceEntity.setPriceListId(buy_priceListId);
+            buyItemPriceEntity.setPriceListName(buy_priceListName);
+            buyItemPriceEntity.setCompanionPriceListId(sell_priceListId);
+            buyItemPriceEntity.setBatchNo(itemBatchNo); //
+            buyItemPriceEntity.setRate(buy_rate);//
+            buyItemPriceEntity.setPriceListType(Constants.BUYING);
+
+            sellItemPriceEntity = new ItemPriceEntity();
+            sellItemPriceEntity.setItemCode(itemCode); //
+            sellItemPriceEntity.setItemId(itemId); //
+            sellItemPriceEntity.setItemName(itemName); //
+            sellItemPriceEntity.setPriceListId(sell_priceListId);
+            sellItemPriceEntity.setPriceListName(sell_priceListName);
+            sellItemPriceEntity.setCompanionPriceListId(buy_priceListId);
+            sellItemPriceEntity.setBatchNo(itemBatchNo); //
+            sellItemPriceEntity.setRate(sell_rate);//
+            sellItemPriceEntity.setPriceListType(Constants.SELLING);
 
             return true;
         }catch (Exception e){
@@ -238,15 +289,25 @@ public class AddItemPriceActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
 
-                    //check whether item already exists
-                    if(checkWhetherItemAlreadyExists(priceListId, itemId)){
+                    //check whether buy item price already exists
+                    if(checkWhetherItemAlreadyExists(buy_priceListId, itemId)){
                         //if exists , alert user
-                        alertUserAboutItemExists();
+                        alertUserAboutItemExists(buy_priceListName);
                         return; //stop proceeding
                     }
 
+                    //check whether sell item price  already exists
+                    if(checkWhetherItemAlreadyExists(sell_priceListId, itemId)){
+                        //if exists , alert user
+                        alertUserAboutItemExists(sell_priceListName);
+                        return; //stop proceeding
+                    }
+
+
                     //insert item
-                    localDb.itemPriceListDao().insertItem(itemPriceEntity);
+                    localDb.itemPriceListDao().insertItem(buyItemPriceEntity);
+
+                    localDb.itemPriceListDao().insertItem(sellItemPriceEntity);
 
                     //Use ui thread to Show insertion success dialog
                     runOnUiThread(() -> {
@@ -293,12 +354,12 @@ public class AddItemPriceActivity extends SharedActivity {
      * to show alert to user
      *  item is already exist in the price list
      * */
-    private void alertUserAboutItemExists() throws Exception{
+    private void alertUserAboutItemExists(String _plName) throws Exception{
         try {
             runOnUiThread(() -> {
                 try {
 
-                    String message = getString(R.string.item_exists) + "\n" + itemName + "(" + priceListName + ")";
+                    String message = getString(R.string.item_exists) + "\n" + itemName + "(" + _plName + ")";
                     appDialogs.showCommonAlertDialog(message, view -> {
                         try {
                             progressDialog.hideProgressbar();
@@ -313,6 +374,50 @@ public class AddItemPriceActivity extends SharedActivity {
             });
         }catch (Exception e){
             throw e;
+        }
+    }
+
+    private void getPriceList(){
+        try {
+
+            AppExecutors appExecutors = new AppExecutors();
+            appExecutors.diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        //get all price list
+                        List<PriceListEntity> allPricesList = localDb.priceListDao().getAllPriceList();
+                        //clear all data in lists
+                        buyPriceListArray.clear();
+                        sellPriceListArray.clear();
+
+                        //sort buying and selling price lists and add them separately
+                        for (PriceListEntity priceListEntity : allPricesList) {
+                            if (priceListEntity.getPriceType() == 0) {
+                                buyPriceListArray.add(priceListEntity);
+                            } else {
+                                sellPriceListArray.add(priceListEntity);
+                            }
+                        }
+
+                        //update list
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                buyPriceListSpinnerAdapter.notifyDataSetChanged();
+                                sellPriceListSpinnerAdapter.notifyDataSetChanged();
+                            }
+                        });
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 }

@@ -166,6 +166,11 @@ public class PurchaseReportAdapter extends RecyclerView.Adapter<PurchaseReportAd
         }
     };
 
+    public List<PurchaseInvoiceEntity> getCurrentList(){
+        List<PurchaseInvoiceEntity> temp = new ArrayList<>(filteredInvoiceList);
+        return temp;
+    }
+
 
 
 

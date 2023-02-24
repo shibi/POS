@@ -368,5 +368,11 @@
     <string name="zatca_qr_failed">Zatca Qr generation failed</string>
     <string name="printer_already_connected">Printer already connected</string>
     <string name="version_label">version</string>
+    <string name="purchase_report">Purchase report</string>
+    <string name="sales_report">Sales report</string>
+    <string name="check">check</string>
+    <string name="report_confirmation_message">Do you want to print report</string>
+    <string name="exit_label">Exit</string>
+    <string name="exit_confirmation">Are you sure want to exit?</string>
 
 </resources>

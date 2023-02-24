@@ -254,32 +254,11 @@ public class PurchaseBillView extends SharedActivity {
                     rv_billedItems.setAdapter(invoiceItemsAdapter);
 
 
-
                     //flag to verify whether to show or hide QR Code
-                    boolean isShowQr = true;
-                    //show qr code only if country is saudi arabia
-                    //hide for all other countries
-                    if(billingCountryId!=Constants.COUNTRY_SAUDI_ARABIA){
-                        iv_qrcode.setVisibility(View.GONE);
-                        isShowQr = false;
-                    }
+                    //boolean isShowQr = false;   //FORCEFULLY HIDING QR CODE. NO QR CODE REQUIRED FOR PURCHASE ( BY CLIENT )  (update by client -23-02-2023 )
 
-                    //To generate qr code , requires seller details
-                    //check whether saved seller details available.
-                    //if flag is false ,then qr code is hidden.So no need to generate qr code
-                    if(savedCompanyDetails!=null && isShowQr) {
-
-                        String dateTime = DateTimeUtils.getCurrentDateTimeInvoice();
-                        String sellerName = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)?savedCompanyDetails.getCompanyNameInEng():savedCompanyDetails.getCompanyNameInArb());
-                        try {
-                            getZatcaQr(sellerName, savedCompanyDetails.getTaxNumber(), currentInvoice.getGrossAmount(), currentInvoice.getTaxAmount(), dateTime);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }else {
-
-                        if(isShowQr) {
-                            AppDialogs appDialogs = new AppDialogs(PurchaseBillView.this);
+                    if(savedCompanyDetails==null) {
+                        AppDialogs appDialogs = new AppDialogs(PurchaseBillView.this);
                             appDialogs.showCommonAlertDialog(getString(R.string.update_seller_details), new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -287,7 +266,7 @@ public class PurchaseBillView extends SharedActivity {
                                 }
                             });
                         }
-                    }
+
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -359,7 +338,7 @@ public class PurchaseBillView extends SharedActivity {
         try {
 
             //check if bluetooth printer not connected
-            if (!BluetoothUtil.isBlueToothPrinter) {
+            /*if (!BluetoothUtil.isBlueToothPrinter) {*/
 
                 //using sunmi printer interface to print
                 SunmiPrintHelper.getInstance().printTransaction_purchase(PurchaseBillView.this,currentInvoice,companyAddressEntity, printItemsList, printerQrData, new InnerResultCallback() {
@@ -379,12 +358,13 @@ public class PurchaseBillView extends SharedActivity {
                     public void onPrintResult(int code, String msg) throws RemoteException {
                     }
                 });
-            } else {
+            /*} else {
                 //printByBluTooth(content);
-            }
+            }*/
 
 
         }catch (Exception e){
+            showToast("purchase print error", this);
             e.printStackTrace();
         }
     }

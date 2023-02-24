@@ -380,7 +380,7 @@ public class BillViewActivity extends SharedActivity {
     private void print(){
         try {
             //check if not connected to bluetooth printer
-            if (!BluetoothUtil.isBlueToothPrinter) {
+            /*if (!BluetoothUtil.isBlueToothPrinter) {*/
 
                 //using sunmi printing interface to print
                 //prepares printing data and prints
@@ -402,11 +402,13 @@ public class BillViewActivity extends SharedActivity {
                     }
                 });
 
-            } else {
+            /*} else {
+
                 //printByBluTooth(content);
-            }
+            }*/
 
         }catch (Exception e){
+            showToast("sales print error", this);
             e.printStackTrace();
         }
     }

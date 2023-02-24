@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/color_primary"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -10,12 +11,75 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.rpos.pos.domain.utils.AppHeader
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="Sales report"
-            app:leftIcon="@drawable/ic_left_arrow"
-            app:rightIcon="@drawable/ic_baseline_download_for_offline_24"/>
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <LinearLayout
+                android:id="@+id/ll_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="17dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_left_arrow"/>
+
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="21dp"
+                android:typeface="normal"
+                android:textStyle="bold"
+                android:layout_centerInParent="true"
+                android:textColor="@color/color_accent_secondary"
+                android:text="@string/sales_report"/>
+
+            <LinearLayout
+                android:id="@+id/ll_print"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginEnd="55dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_print"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_download"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:clickable="true"
+                android:layout_marginEnd="17dp">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_baseline_download_for_offline_24"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
 
         <!--Filter bar-->
         <include layout="@layout/view_report_filter_bar"/>

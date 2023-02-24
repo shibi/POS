@@ -44,7 +44,7 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
 
     protected LinearLayout ll_back;
     protected View viewEmpty;
-    protected LinearLayout ll_downloadFile;
+    protected LinearLayout ll_downloadFile , ll_print;
 
     protected AppExecutors appExecutors;
     protected AppDatabase localDb;
@@ -76,7 +76,8 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
         progressDialog = new AppDialogs(getContext());
         ll_back = getView.findViewById(R.id.ll_back);
         viewEmpty = getView.findViewById(R.id.view_empty);
-        ll_downloadFile = getView.findViewById(R.id.ll_rightMenu);
+        ll_downloadFile = getView.findViewById(R.id.ll_download);
+        ll_print = getView.findViewById(R.id.ll_print);
 
         cv_fromDate = getView.findViewById(R.id.cv_fromdate);
         cv_toDate = getView.findViewById(R.id.cv_todate);
@@ -147,6 +148,9 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
             }
         });
 
+
+        //print report
+        ll_print.setOnClickListener(v -> print());
     }
 
     @Override
@@ -166,6 +170,7 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
     protected abstract void onFilterReport(int type, String fromDate,String toDate);
     protected abstract void onSearchQueryChange(String query);
     protected abstract void onSearchClear();
+    protected abstract void print();
 
 
     /**
@@ -390,7 +395,6 @@ public abstract class ReportBaseFragment<T> extends SharedFragment {
         }
         return isSuccess;
     }
-
 
     private void pickFromDate(View view){
         openDatePickerDialog(tv_fromDate);

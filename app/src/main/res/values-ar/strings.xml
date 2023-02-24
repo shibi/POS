@@ -313,7 +313,7 @@
     <string name="cancelled">ألغيت</string>
     <string name="some_items_sold">فشلت عملية الإرجاع. \ n تم بيع بعض العناصر المشتراة بالفعل. </string>
     <string name="mop">ممسحة</string>
-    <string name="tax_label">Tax</string>
+    <string name="tax_label">ضريبة</string>
     <string name="report_saved">تم حفظ التقرير</string>
     <string name="saving">إنقاذ</string>
     <string name="ending_cash">إنهاء النقد</string>
@@ -368,5 +368,11 @@
     <string name="zatca_qr_failed">Zatca Qr generation failed</string>
     <string name="printer_already_connected">Printer already connected</string>
     <string name="version_label">إصدار</string>
+    <string name="purchase_report">تقرير الشراء</string>
+    <string name="sales_report">تقرير المبيعات</string>
+    <string name="check">يفحص</string>
+    <string name="report_confirmation_message">هل تريد طباعة التقرير</string>
+    <string name="exit_label">مخرج</string>
+    <string name="exit_confirmation">هل ترغب فعلا بالخروج؟</string>
 
 </resources>

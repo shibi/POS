@@ -151,20 +151,45 @@ public class AppDialogs {
 
     public void showExitAlertDialog(OnDualActionButtonClickListener listener){
 
-        createDualActionAlertDialogBox("Exit",
-                "Are you sure want to exit?",
+        String title = mContext.getResources().getString(R.string.exit_label);
+        String message = mContext.getResources().getString(R.string.exit_confirmation);
+        String cancel = mContext.getResources().getString(R.string.btn_cancel);
+
+        createDualActionAlertDialogBox(title,
+                message,
                 R.drawable.ic_baseline_warning_24,
                 false,
-                "Exit","Cancel",listener);
+                title,
+                cancel,
+                listener);
+    }
+
+    public void showReportPrintConfirmation(OnDualActionButtonClickListener listener){
+
+        String title = mContext.getResources().getString(R.string.print_label);
+        String message = mContext.getResources().getString(R.string.report_confirmation_message);
+
+        createDualActionAlertDialogBox(title,
+                message,
+                R.drawable.ic_print,
+                true,
+                mContext.getString(R.string.btn_yes),
+                mContext.getString(R.string.btn_cancel),
+                listener);
     }
 
 
     public void showCommonSuccessDialog(String msg, View.OnClickListener listener){
-        createSingleActionDialog(mContext.getResources().getString(R.string.success),msg,false,"Ok",listener);
+        createSingleActionDialog(mContext.getResources().getString(R.string.success),msg,false,mContext.getResources().getString(R.string.btn_ok),listener);
     }
 
     public void showCommonAlertDialog(String msg, View.OnClickListener listener){
-        createSingleActionDialog(mContext.getResources().getString(R.string.alert),msg,false,"Ok",listener);
+
+        createSingleActionDialog(mContext.getResources().getString(R.string.alert),
+                msg,
+                false,
+                mContext.getResources().getString(R.string.btn_ok),
+                listener);
     }
 
     public void showCommonSingleAlertDialog(String title,String msg, View.OnClickListener listener){
@@ -174,7 +199,9 @@ public class AppDialogs {
     public void showCommonDualActionAlertDialog(String title,String msg, OnDualActionButtonClickListener listener){
 
         String str_title = (title!=null && !title.isEmpty())?title:mContext.getResources().getString(R.string.alert);
-        createDualActionAlertDialogBox(str_title, msg, R.drawable.ic_baseline_warning_24, true, "Yes", "Cancel", listener);
+        String yes_label = mContext.getResources().getString(R.string.btn_yes);
+        String cancel_label = mContext.getResources().getString(R.string.btn_cancel);
+        createDualActionAlertDialogBox(str_title, msg, R.drawable.ic_baseline_warning_24, true, yes_label, cancel_label, listener);
 
     }
 

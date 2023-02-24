@@ -39,7 +39,7 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
         NET_PREFIX = context.getResources().getString(R.string.net_amount) + SEPARATOR;
         GRAND_TOTAL_PREFIX = context.getResources().getString(R.string.gross_amount) + SEPARATOR;
         ID_PREFIX = "INV" + SEPARATOR;
-        TAX_PREFIX = context.getResources().getString(R.string.tax_label) + SEPARATOR;
+        TAX_PREFIX = context.getResources().getString(R.string.tax) + SEPARATOR;
     }
 
     @NonNull
@@ -165,5 +165,10 @@ public class SalesReportAdapter extends RecyclerView.Adapter<SalesReportAdapter.
             notifyDataSetChanged();
         }
     };
+
+    public List<InvoiceEntity> getCurrentList(){
+        List<InvoiceEntity> temp = new ArrayList<>(filteredInvoiceList);
+        return temp;
+    }
 
 }

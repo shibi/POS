@@ -1,5 +1,6 @@
 package com.rpos.pos.presentation.ui.report.fragments;
 
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Filter;
@@ -7,10 +8,15 @@ import android.widget.Filter;
 import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Config;
 import com.rpos.pos.R;
+import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
+import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.Utility;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.report.adapter.PurchaseReportAdapter;
+import com.sunmi.peripheral.printer.InnerResultCallback;
+
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -207,6 +213,62 @@ public class PurchaseReportFragment extends ReportBaseFragment {
                 progressDialog.hideProgressbar();
             }
         });
+    }
+
+    @Override
+    protected void print() {
+
+        //show print confirmation to avoid accidental clicks
+        AppDialogs appDialogs = new AppDialogs(getActivity());
+        appDialogs.showReportPrintConfirmation(new AppDialogs.OnDualActionButtonClickListener() {
+            @Override
+            public void onClickPositive(String id) {
+                try{
+
+                    List<PurchaseInvoiceEntity> reportList = purchaseReportAdapter.getCurrentList();
+                    if(reportList!=null){
+
+                        //using sunmi printing interface to print
+                        //prepares printing data and prints
+                        SunmiPrintHelper.getInstance().printPurchaseReportTransaction(getContext(),reportList, new InnerResultCallback() {
+                            @Override
+                            public void onRunResult(boolean isSuccess) throws RemoteException {
+                            }
+
+                            @Override
+                            public void onReturnString(String result) throws RemoteException {
+                            }
+
+                            @Override
+                            public void onRaiseException(int code, String msg) throws RemoteException {
+                            }
+
+                            @Override
+                            public void onPrintResult(int code, String msg) throws RemoteException {
+                            }
+                        });
+
+
+
+                    }else {
+                        showToast("Nothing to print :)");
+                    }
+
+                    Log.e("-----------","print");
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onClickNegetive(String id) {
+                //do nothing
+            }
+        });
+
+
     }
 
 }

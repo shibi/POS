@@ -36,6 +36,7 @@ import com.rpos.pos.data.local.entity.PriceListEntity;
 import com.rpos.pos.domain.models.country.CountryItem;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.login.LoginActivity;
 import com.rpos.pos.presentation.ui.settings.adapter.pricelist.BuyPriceListSpinnerAdapter;
@@ -319,7 +320,11 @@ public class SettingsActivity extends SharedActivity {
 
         btn_BT_pair.setOnClickListener(view -> {
             try {
-                showToast(getString(R.string.printer_already_connected), SettingsActivity.this);
+                String pVersion = SunmiPrintHelper.getInstance().getPrinterVersion();
+                String deviceModel = SunmiPrintHelper.getInstance().getDeviceModel();
+                String details = getString(R.string.printer_already_connected) + " \n Printer version :"+pVersion+"\n printer model : "+deviceModel;
+
+                showToast(details, SettingsActivity.this);
             }catch (Exception e){
                 e.printStackTrace();
             }

@@ -51,7 +51,7 @@ public class ItemPriceEditActivity extends SharedActivity {
 
     private String STRING_SEPARATOR = " : ";
 
-    private int selectedPriceListId, selectedItemId, selectedItemType;
+    private int selectedPriceListId;
 
     private String buy_priceListName, sell_priceListName;
     private Integer buy_priceListId, sell_priceListId;

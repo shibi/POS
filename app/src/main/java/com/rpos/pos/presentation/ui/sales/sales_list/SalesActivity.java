@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.ChipGroup;
@@ -20,11 +19,16 @@ import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.ShiftRegEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListData;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListMessage;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
+import com.rpos.pos.domain.requestmodel.RequestWithUserId;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.category.list.CategoryListActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
-import com.rpos.pos.presentation.ui.customer.addcustomer.AddCustomerActivity;
-import com.rpos.pos.presentation.ui.purchase.list.PurchaseActivity;
 import com.rpos.pos.presentation.ui.sales.order.list.OrderQueueActivity;
 import com.rpos.pos.presentation.ui.sales.payment.PaymentActivity;
 import com.rpos.pos.presentation.ui.sales.adapter.InvoiceAdapter;
@@ -32,10 +36,14 @@ import com.rpos.pos.presentation.ui.sales.order.create.CreateOrderActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SalesActivity extends SharedActivity {
 
     private RecyclerView rv_invoices;
-    private ArrayList<InvoiceEntity> invoiceArrayList;
+    private ArrayList<SalesListData> invoiceArrayList;
     private InvoiceAdapter invoiceAdapter;
     private LinearLayout ll_back;
     private LinearLayout ll_category;
@@ -76,17 +84,17 @@ public class SalesActivity extends SharedActivity {
 
         filter_chipGroup = findViewById(R.id.chip_group);
 
+        //Empty array
         invoiceArrayList = new ArrayList<>();
-
         invoiceAdapter = new InvoiceAdapter(SalesActivity.this, invoiceArrayList, new InvoiceAdapter.OnInvoiceClickListener() {
             @Override
-            public void onInvoiceClick(InvoiceEntity invoice) {
+            public void onInvoiceClick(SalesListData invoice) {
                 onSelectedInvoice(invoice);
             }
 
             @Override
-            public void onInvoiceCancel(InvoiceEntity invoice) {
-                onClickInvoiceReturn(invoice);
+            public void onInvoiceCancel(SalesListData invoice) {
+                //onClickInvoiceReturn(invoice);
             }
         });
         rv_invoices.setAdapter(invoiceAdapter);
@@ -173,6 +181,11 @@ public class SalesActivity extends SharedActivity {
         //add sales
         ll_add_sales.setOnClickListener(view -> {
             try {
+                //forcefully avoiding shift open check to test order creation
+                if(1*1 == 1){
+                    gotoAddOrderActivity();
+                    return;
+                }
 
                 if(checkShiftOpen()){
                     gotoAddOrderActivity();
@@ -184,6 +197,8 @@ public class SalesActivity extends SharedActivity {
                 e.printStackTrace();
             }
         });
+
+        getAllInvoiceFromWebservice();
 
     }
 
@@ -233,10 +248,7 @@ public class SalesActivity extends SharedActivity {
         super.onResume();
 
         //refresh onGoing order count
-        getOnGoingOrdersCount();
-
-        //get all invoices
-        getAllInvoices();
+        //getOnGoingOrdersCount();
 
     }
 
@@ -272,6 +284,70 @@ public class SalesActivity extends SharedActivity {
         }
     }
 
+    /**
+     * to get all invoice list from web service
+     * */
+    private void getAllInvoiceFromWebservice(){
+        try {
+
+            String userId = SharedPrefHelper.getInstance(this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid));
+                return;
+            }
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            RequestWithUserId request = new RequestWithUserId();
+            request.setUserId(userId);
+            Call<SalesListResponse> call = api.getAllInvoicesList(request);
+            call.enqueue(new Callback<SalesListResponse>() {
+                @Override
+                public void onResponse(Call<SalesListResponse> call, Response<SalesListResponse> response) {
+                    try {
+                        invoiceArrayList.clear();
+
+                        if(response.isSuccessful()){
+                            SalesListResponse salesListResponse = response.body();
+                            if(salesListResponse!=null){
+                                SalesListMessage salesListMessage = salesListResponse.getMessage();
+                                if(salesListMessage.getSuccess()){
+                                    List<SalesListData> list = salesListMessage.getData();
+                                    if(list!=null && !list.isEmpty()){
+                                        Log.e("------------","received");
+                                        invoiceArrayList.addAll(list);
+                                        invoiceAdapter.notifyDataSetChanged();
+                                        showEmptyView(false);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+
+                        showEmptyView(true);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<SalesListResponse> call, Throwable t) {
+                    try {
+
+
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private void showEmptyView(boolean isShow){
         runOnUiThread(new Runnable() {
             @Override
@@ -284,11 +360,11 @@ public class SalesActivity extends SharedActivity {
     /**
      * on select invoice
      * */
-    private void onSelectedInvoice(InvoiceEntity invoice){
+    private void onSelectedInvoice(SalesListData invoice){
         try {
 
             Intent intent = new Intent(SalesActivity.this, PaymentActivity.class);
-            intent.putExtra(Constants.INVOICE_ID, invoice.getId());
+            intent.putExtra(Constants.INVOICE_ID, ""+invoice.getName());
             startActivity(intent);
 
         }catch (Exception e){
@@ -393,9 +469,9 @@ public class SalesActivity extends SharedActivity {
             runOnUiThread(() -> {
                 try {
 
-                    invoiceArrayList.clear();
+                    /*invoiceArrayList.clear();
                     invoiceArrayList.addAll(_invoicesList);
-                    invoiceAdapter.notifyDataSetChanged();
+                    invoiceAdapter.notifyDataSetChanged();*/
 
                 }catch (Exception e){
                     e.printStackTrace();

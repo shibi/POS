@@ -14,10 +14,13 @@ import com.rpos.pos.data.remote.dto.login.LoginResponse;
 import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
 import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgram;
 import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgramListResponse;
+import com.rpos.pos.data.remote.dto.sales.add.AddSalesInvoiceResponse;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
 import com.rpos.pos.data.remote.dto.suppliers.add.AddSupplierResponse;
 import com.rpos.pos.data.remote.dto.suppliers.list.GetSuppliersListResponse;
 import com.rpos.pos.data.remote.dto.uom.list.GetUomListResponse;
 
+import com.rpos.pos.domain.requestmodel.RequestWithUserId;
 import com.rpos.pos.domain.requestmodel.category.add.AddCategoryRequest;
 import com.rpos.pos.domain.requestmodel.category.details.CategoryDetailsRequest;
 import com.rpos.pos.domain.requestmodel.customer.add.AddCustomerRequest;
@@ -25,6 +28,8 @@ import com.rpos.pos.domain.requestmodel.customer.details.CustomerDetailsRequest;
 import com.rpos.pos.domain.requestmodel.item.add.AddItemRequest;
 import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
+import com.rpos.pos.domain.requestmodel.sales.add.AddSalesRequest;
+import com.rpos.pos.domain.requestmodel.sales.view.InvoiceViewRequest;
 import com.rpos.pos.domain.requestmodel.shift.ShiftOpenRequestJson;
 import com.rpos.pos.domain.requestmodel.supplier.add.AddSupplierRequest;
 import com.rpos.pos.data.remote.dto.shift.ShiftOpenResponse;
@@ -87,6 +92,15 @@ public interface ApiService {
 
     @GET("custom_integration.api.loyalty_program.loyalty_program_list")
     Call<RoyaltyProgramListResponse> getRoyaltyProgramsList();
+
+    @POST("custom_integration.api.invoice.sales_list")
+    Call<SalesListResponse> getAllInvoicesList(@Body RequestWithUserId params);
+
+    @POST("custom_integration.api.invoice.view_invoice")
+    Call<SalesListResponse> invoiceDetails(@Body InvoiceViewRequest params);
+
+    @POST("custom_integration.api.invoice.add_invoice")
+    Call<AddSalesInvoiceResponse> addSalesInvoice(@Body AddSalesRequest params);
 
 
     @GET("https://api-fatoora.herokuapp.com/to_base64?")

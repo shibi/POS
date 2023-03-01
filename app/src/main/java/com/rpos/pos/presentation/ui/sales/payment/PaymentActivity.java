@@ -21,6 +21,13 @@ import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.CurrencyItem;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.PaymentModeEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListData;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListMessage;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
+import com.rpos.pos.domain.requestmodel.RequestWithUserId;
+import com.rpos.pos.domain.requestmodel.sales.view.InvoiceViewRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
@@ -29,6 +36,10 @@ import com.rpos.pos.presentation.ui.sales.bill.BillViewActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PaymentActivity extends SharedActivity {
 
@@ -46,11 +57,13 @@ public class PaymentActivity extends SharedActivity {
 
     private InvoiceEntity currentInvoice;
     private int defaultCurrency;
+    private String str_invoiceId;
 
     private AppExecutors appExecutors;
     private AppDatabase localDb;
 
     private List<PaymentModeEntity> payModeList;
+    private SalesListData salesInvoice;
 
     @Override
     public int setUpLayout() {
@@ -88,10 +101,12 @@ public class PaymentActivity extends SharedActivity {
         localDb = getCoreApp().getLocalDb();
 
         currentInvoice = null;
+        salesInvoice = null;
 
         Intent data = getIntent();
         if(data!=null){
-            invoiceId = data.getIntExtra(Constants.INVOICE_ID, Constants.EMPTY_INT);
+            invoiceId = -1;//data.getIntExtra(Constants.INVOICE_ID, Constants.EMPTY_INT);
+            str_invoiceId = data.getStringExtra(Constants.INVOICE_ID);
         }
 
         //set the current date
@@ -160,12 +175,11 @@ public class PaymentActivity extends SharedActivity {
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
 
-        //get the current invoice with id
-        getCurrentInvoice();
+        //get invoice details with id
+        getInvoiceDetailsFromWeb(str_invoiceId);
 
         //get default currency selected
         getDefaultCurrency();
-
 
     }
 
@@ -203,6 +217,68 @@ public class PaymentActivity extends SharedActivity {
     }
 
     /**
+     * get invoice details
+     * */
+    private void getInvoiceDetailsFromWeb(String invoice_id){
+        try {
+
+            String userId = SharedPrefHelper.getInstance(this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid));
+                return;
+            }
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            InvoiceViewRequest request = new InvoiceViewRequest();
+            request.setUserId(userId);
+            request.setInvoiceId(invoice_id);
+            Call<SalesListResponse> call = api.invoiceDetails(request);
+            call.enqueue(new Callback<SalesListResponse>() {
+                @Override
+                public void onResponse(Call<SalesListResponse> call, Response<SalesListResponse> response) {
+                    try{
+
+                        if(response.isSuccessful()){
+                            SalesListResponse salesListResponse = response.body();
+                            if(salesListResponse != null){
+                                SalesListMessage salesListMessage = salesListResponse.getMessage();
+                                if(salesListMessage!=null){
+                                    if(salesListMessage.getSuccess()){
+                                        Log.e("----------","list response");
+                                        List<SalesListData> list = salesListMessage.getData();
+                                        if(list!=null && !list.isEmpty()){
+                                            salesInvoice = list.get(0);
+                                            populateData();
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        showToast(getString(R.string.please_check_internet));
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<SalesListResponse> call, Throwable t) {
+                    try{
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * to get the default currency
      * */
     private void getDefaultCurrency(){
@@ -229,6 +305,22 @@ public class PaymentActivity extends SharedActivity {
                     }
                 });
             }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * populate data in display fields
+     * */
+    private void populateData(){
+        try {
+
+            tv_customerName.setText(salesInvoice.getCustomer());
+            tv_currency.setText(salesInvoice.getCurrency());
+            tv_billAmount.setText(String.valueOf(salesInvoice.getBaseRoundedTotal()));
+            tv_invoiceId.setText(salesInvoice.getName());
 
         }catch (Exception e){
             e.printStackTrace();

@@ -15,14 +15,16 @@ import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
+import com.rpos.pos.data.remote.dto.items.list.BarcodeData;
+import com.rpos.pos.data.remote.dto.items.list.ItemData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemPickerListAdapter extends RecyclerView.Adapter<ItemPickerListAdapter.ItemViewHolder> implements Filterable {
 
-    private List<ItemEntity> itemList;
-    private List<ItemEntity> filteredItemList;
+    private List<ItemData> itemList;
+    private List<ItemData> filteredItemList;
     private Context mContext;
     private OnItemClickListener listener;
     private String currencySymbol;
@@ -33,7 +35,7 @@ public class ItemPickerListAdapter extends RecyclerView.Adapter<ItemPickerListAd
     private String IN_STOCK, OUT_OF_STOCK;
     private String stockStatus;
 
-    public ItemPickerListAdapter(List<ItemEntity> itemList, String currencySymbol, Context mContext, OnItemClickListener listener) {
+    public ItemPickerListAdapter(List<ItemData> itemList, String currencySymbol, Context mContext, OnItemClickListener listener) {
         this.itemList = itemList;
         this.filteredItemList = itemList;
         this.mContext = mContext;
@@ -61,7 +63,7 @@ public class ItemPickerListAdapter extends RecyclerView.Adapter<ItemPickerListAd
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         try {
 
-            ItemEntity item = filteredItemList.get(position);
+            ItemData item = filteredItemList.get(position);
             isMaintainStock = (item.getMaintainStock() != 0); //get the maintain stock flag
 
             if(!isMaintainStock){
@@ -129,7 +131,7 @@ public class ItemPickerListAdapter extends RecyclerView.Adapter<ItemPickerListAd
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
 
-            ArrayList<ItemEntity> filteredList = new ArrayList<>();
+            ArrayList<ItemData> filteredList = new ArrayList<>();
             if (constraint == null || constraint.toString().isEmpty()) {
                 filteredList.addAll(itemList);
             } else {
@@ -138,8 +140,8 @@ public class ItemPickerListAdapter extends RecyclerView.Adapter<ItemPickerListAd
 
                     String filterString = constraint.toString().toLowerCase();
                     String itemNameLowerCase;
-                    String barcode;
-                    ItemEntity item;
+                    BarcodeData barcode;
+                    ItemData item;
                     for (int i = 0; i < itemList.size(); i++) {
                         item = itemList.get(i);
                         itemNameLowerCase = item.getItemName();
@@ -148,7 +150,7 @@ public class ItemPickerListAdapter extends RecyclerView.Adapter<ItemPickerListAd
                             continue;
                         }else if(item.getBarcodes()!=null && item.getBarcodes().size()>0){
                             barcode = item.getBarcodes().get(0);
-                            if(barcode.contains(filterString)){
+                            if(barcode.getBarcode().contains(filterString)){
                                 filteredList.add(item);
                                 continue;
                             }
@@ -172,6 +174,6 @@ public class ItemPickerListAdapter extends RecyclerView.Adapter<ItemPickerListAd
     };
 
     public interface OnItemClickListener{
-        void onItemClick(ItemEntity item);
+        void onItemClick(ItemData item);
     }
 }

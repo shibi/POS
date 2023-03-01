@@ -22,7 +22,14 @@ import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.local.entity.OrderDetailsEntity;
 import com.rpos.pos.data.local.entity.OrderEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.sales.add.AddSalesInvoiceResponse;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
 import com.rpos.pos.domain.models.item.PickedItem;
+import com.rpos.pos.domain.requestmodel.RequestWithUserId;
+import com.rpos.pos.domain.requestmodel.sales.add.AddSalesRequest;
+import com.rpos.pos.domain.requestmodel.sales.add.SalesItem;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
@@ -36,6 +43,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CreateOrderActivity extends SharedActivity {
 
@@ -474,6 +485,59 @@ public class CreateOrderActivity extends SharedActivity {
                 }
             });
 
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * create order
+     * */
+    private void createOnlineOrder(View view){
+        try {
+
+            String userId = SharedPrefHelper.getInstance(this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid), CreateOrderActivity.this);
+                return;
+            }
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            AddSalesRequest request = new AddSalesRequest();
+            request.setCustomerId(customerId);
+            request.setUserId(userId);
+
+            PickedItem pickedItem;
+            SalesItem requestItem;
+            for (int i= 0;i<pickedItemList.size();i++){
+
+                requestItem = new SalesItem();
+                pickedItem = pickedItemList.get(i);
+
+                requestItem.setItemCode(""+pickedItem.getId());
+
+            }
+
+            Call<AddSalesInvoiceResponse> call = api.addSalesInvoice(request);
+            call.enqueue(new Callback<AddSalesInvoiceResponse>() {
+                @Override
+                public void onResponse(Call<AddSalesInvoiceResponse> call, Response<AddSalesInvoiceResponse> response) {
+                    try {
+
+
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AddSalesInvoiceResponse> call, Throwable t) {
+                   showToast(t.getMessage(), CreateOrderActivity.this);
+                }
+            });
 
         }catch (Exception e){
             e.printStackTrace();

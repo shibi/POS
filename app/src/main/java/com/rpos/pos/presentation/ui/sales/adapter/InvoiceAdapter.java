@@ -15,15 +15,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListData;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 
 import java.util.ArrayList;
 
 public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceViewHolder> implements Filterable {
 
-    private ArrayList<InvoiceEntity> invoicesList;
+    private ArrayList<SalesListData> invoicesList;
     private OnInvoiceClickListener listener;
-    private ArrayList<InvoiceEntity> filteredInvoiceList;
+    private ArrayList<SalesListData> filteredInvoiceList;
     //private Context mContext;
 
     private String formatedDate;
@@ -36,7 +37,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
     private String CANCELLED;
 
 
-    public InvoiceAdapter(Context context,ArrayList<InvoiceEntity> _invoicesList, OnInvoiceClickListener listener){
+    public InvoiceAdapter(Context context,ArrayList<SalesListData> _invoicesList, OnInvoiceClickListener listener){
         this.invoicesList = _invoicesList;
         this.listener = listener;
         this.filteredInvoiceList = _invoicesList;
@@ -61,30 +62,30 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
     public void onBindViewHolder(@NonNull InvoiceViewHolder holder, int position) {
         try {
 
-            InvoiceEntity invoice = filteredInvoiceList.get(position);
+            SalesListData invoice = filteredInvoiceList.get(position);
 
-            holder.tv_invoiceid.setText("SNo : "+invoice.getId());
+            holder.tv_invoiceid.setText(invoice.getName());
             holder.tv_name.setText(cust_prefix_label + invoice.getCustomerName());
-            holder.tv_invoiceAmount.setText(amount_prefix_label + invoice.getBillAmount());
-            holder.tv_custId.setText("INV#"+invoice.getId());
+            holder.tv_invoiceAmount.setText(amount_prefix_label + ""+invoice.getBaseGrandTotal());
+            holder.tv_custId.setText("INV#"+invoice.getIdx());
 
             try {
 
-                date = DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp());
+                date = DateTimeUtils.getFormattedDateF1(invoice.getCreation());
                 if(date!=null && !date.isEmpty()){
                     formatedDate = date;
                 }else {
                     formatedDate = "date : none";
                 }
 
-                holder.tv_invoiceDate.setText(date_prefix_label+ formatedDate);
+                holder.tv_invoiceDate.setText(date_prefix_label + formatedDate);
             }catch (Exception e){
                 holder.tv_invoiceDate.setText("date : none");
                 e.printStackTrace();
             }
 
 
-            if(invoice.getStatus().equals(Constants.PAYMENT_PAID)){
+            /*if(invoice.getStatus().equals(Constants.PAYMENT_PAID)){
                 holder.tv_status.setTextColor(Color.GREEN);
                 paymentStatus = Constants.PAYMENT_PAID;
             }else if(invoice.getStatus().equals(Constants.PAYMENT_RETURN)){
@@ -103,12 +104,12 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
                     paymentStatus = Constants.PAYMENT_UNPAID;
                 }
                 holder.tv_status.setTextColor(Color.RED);
-            }
+            }*/
 
             holder.tv_status.setText(paymentStatus);
 
 
-            if(!invoice.getStatus().equals(Constants.PAYMENT_RETURN)) {
+            /*if(!invoice.getStatus().equals(Constants.PAYMENT_RETURN)) {
                 //cancel click
                 holder.btn_cancel.setOnClickListener(null); //clearing previous listeners
                 holder.btn_cancel.setOnClickListener(view -> {
@@ -122,7 +123,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
                 });
             }else {
                 holder.btn_cancel.setText(CANCELLED);
-            }
+            }*/
 
             //item click
             holder.itemView.setOnTouchListener(null); //clearing previous listeners
@@ -167,8 +168,8 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
     }
 
     public interface OnInvoiceClickListener{
-        void onInvoiceClick(InvoiceEntity invoice);
-        void onInvoiceCancel(InvoiceEntity invoice);
+        void onInvoiceClick(SalesListData invoice);
+        void onInvoiceCancel(SalesListData invoice);
     }
 
     private Filter Searched_Filter = new Filter() {
@@ -176,7 +177,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
         protected FilterResults performFiltering(CharSequence constraint) {
 
             ArrayList<InvoiceEntity> filteredList = new ArrayList<>();
-            if (constraint == null) {
+            /*if (constraint == null) {
 
                 filteredList.addAll(invoicesList);
 
@@ -263,7 +264,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
                     }
                 }
 
-            }
+            }*/
             FilterResults results = new FilterResults();
             results.values = filteredList;
             return results;

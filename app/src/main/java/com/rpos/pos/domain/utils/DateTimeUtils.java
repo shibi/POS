@@ -53,6 +53,24 @@ public class DateTimeUtils {
         }
     }
 
+    /**
+     * formate date f1
+     *  input format :  "2023-02-14 04:40:50.558507"
+     * */
+    public static String getFormattedDateF1(String _date){
+        try {
+
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            Date date = inputFormat.parse(_date);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            return formatter.format(date);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return "00-00-0000";
+        }
+    }
+
     public static String getDiffBetweenTimeStamps(long timestamp1,long timestamp2){
         try {
 

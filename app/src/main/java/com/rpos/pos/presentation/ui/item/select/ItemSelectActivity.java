@@ -57,7 +57,7 @@ public class ItemSelectActivity extends SharedActivity {
 
 
     private RecyclerView rv_itemList;
-    private List<ItemEntity> itemDataList;
+    private List<ItemData> itemDataList;
     private ItemPickerListAdapter itemPickerAdapter;
     private AppDialogs progressDialog;
     private View viewEmpty;
@@ -130,7 +130,7 @@ public class ItemSelectActivity extends SharedActivity {
 
         //Check whether price list is selected ,
         //if empty , then no need to proceed since there is no price attached.
-        if(priceListId == Constants.EMPTY_INT && selectionType == Constants.ITEM_SELECTION_QUANTITY_PICK){
+        /*if(priceListId == Constants.EMPTY_INT && selectionType == Constants.ITEM_SELECTION_QUANTITY_PICK){
             //inform user that the default price is not selected and finish proceeding after that
             AppDialogs appDialogs = new AppDialogs(ItemSelectActivity.this);
             appDialogs.showCommonAlertDialog(getString(R.string.default_pricelist_not_selected), new View.OnClickListener() {
@@ -140,27 +140,27 @@ public class ItemSelectActivity extends SharedActivity {
                 }
             });
             return;
-        }
+        }*/
 
-        itemDataList = getCoreApp().getAllItemsList();
-        if(itemDataList == null){
-            itemDataList = new ArrayList<>();
+        //if(itemDataList == null){
+        //    itemDataList = new ArrayList<>();
             //get Locally available items
-            getOfflineItemList();
-        }
+            //getOfflineItemList();
+            getItemsListApiCall();
+        //}
         //item list adapter
         itemPickerAdapter = new ItemPickerListAdapter(itemDataList, defaultCurrencySymbol,ItemSelectActivity.this, new ItemPickerListAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(ItemEntity item) {
+            public void onItemClick(ItemData item) {
                 if(selectionType == Constants.ITEM_SELECTION_QUANTITY_PICK) {
                     //separate method call for sales and purchase
-                    if(itemRequestedScreen == Constants.PARENT_SALES)
+                    /*if(itemRequestedScreen == Constants.PARENT_SALES)
                         selectItemForSales(item); // item selection for sales
                     else if(itemRequestedScreen == Constants.PARENT_PURCHASE)
-                        selectItemForPurchase(item); // item selection for purchase
+                        selectItemForPurchase(item);*/ // item selection for purchase
 
                 }else if(selectionType == Constants.ITEM_SELECTION_SINGLE_PICK) {
-                    sendResultBack(item);
+                    //sendResultBack(item);
                 }
             }
         });
@@ -231,6 +231,70 @@ public class ItemSelectActivity extends SharedActivity {
 
     }
 
+
+    /**
+     * To get items list  API
+     * */
+    private void getItemsListApiCall(){
+        try {
+
+            showProgress();
+
+            String userId = SharedPrefHelper.getInstance(this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid), ItemSelectActivity.this);
+                hideProgress();
+                return;
+            }
+
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            //request params
+            GetItemListRequest requestParams = new GetItemListRequest();
+            requestParams.setUserId(userId);
+            Call<GetItemsListResponse> call = api.getItemsList(requestParams);
+            call.enqueue(new Callback<GetItemsListResponse>() {
+                @Override
+                public void onResponse(Call<GetItemsListResponse> call, Response<GetItemsListResponse> response) {
+                    hideProgress();
+                    Log.e("----------","res"+response.isSuccessful());
+                    if(response.isSuccessful()){
+                        GetItemsListResponse itemsListResponse = response.body();
+                        if(itemsListResponse!=null){
+                            List<ItemData> itemList = itemsListResponse.getMessage();
+                            if(itemList!=null && itemList.size()>0) {
+                                //hide empty view
+                                hideEmptyView();
+                                //clear list
+                                itemDataList.clear();
+                                itemDataList.addAll(itemList);
+                                itemPickerAdapter.notifyDataSetChanged();
+
+                                //All data set, stop proceeding
+                                return;
+                            }
+                        }
+                    }
+
+                    //empty
+                    showEmptyView();
+
+                }
+
+                @Override
+                public void onFailure(Call<GetItemsListResponse> call, Throwable t) {
+                    Log.e("----------","failed>"+t.getMessage());
+                    hideProgress();
+                    //empty
+                    showEmptyView();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     /**
      * get locally saved item list
      * */
@@ -251,8 +315,8 @@ public class ItemSelectActivity extends SharedActivity {
                 //then refresh list
                 runOnUiThread(() -> {
                     try {
-                        itemDataList.addAll(localItemList);
-                        itemPickerAdapter.notifyDataSetChanged();
+                        /*itemDataList.addAll(localItemList);
+                        itemPickerAdapter.notifyDataSetChanged();*/
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -285,72 +349,6 @@ public class ItemSelectActivity extends SharedActivity {
 
         }catch (Exception e){
             throw e;
-        }
-    }
-
-    /**
-     * To get items list from API
-     * */
-    private void getItemsList(){
-        try {
-
-            showProgress();
-
-            String userId = SharedPrefHelper.getInstance(ItemSelectActivity.this).getUserId();
-            if(userId.isEmpty()){
-                showToast(getString(R.string.invalid_userid), ItemSelectActivity.this);
-                hideProgress();
-                return;
-            }
-
-            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
-            //request params
-            GetItemListRequest requestParams = new GetItemListRequest();
-            requestParams.setUserId(userId);
-            Call<GetItemsListResponse> call = api.getItemsList(requestParams);
-            call.enqueue(new Callback<GetItemsListResponse>() {
-                @Override
-                public void onResponse(Call<GetItemsListResponse> call, Response<GetItemsListResponse> response) {
-                    hideProgress();
-                    Log.e("----------","res"+response.isSuccessful());
-                    if(response.isSuccessful()){
-                        GetItemsListResponse itemsListResponse = response.body();
-                        if(itemsListResponse!=null){
-                            List<ItemData> itemList = itemsListResponse.getMessage();
-                            if(itemList!=null && itemList.size()>0){
-                                //hide empty view
-                                hideEmptyView();
-                                //clear list
-                           //     itemDataList.clear();
-                                //
-                            //    itemDataList.addAll(itemList);
-                            //    itemListAdapter.notifyDataSetChanged();
-
-                            }else {
-                                //empty
-                                showEmptyView();
-                            }
-                        }else {
-                            //empty
-                            showEmptyView();
-                        }
-                    }else {
-                        //empty
-                        showEmptyView();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<GetItemsListResponse> call, Throwable t) {
-                    Log.e("----------","failed");
-                    hideProgress();
-                    //empty
-                    showEmptyView();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 

@@ -127,40 +127,25 @@ public class ItemSelectActivity extends SharedActivity {
             priceListId = Constants.EMPTY_INT;
         }
 
+        getItemsListApiCall();
 
-        //Check whether price list is selected ,
-        //if empty , then no need to proceed since there is no price attached.
-        /*if(priceListId == Constants.EMPTY_INT && selectionType == Constants.ITEM_SELECTION_QUANTITY_PICK){
-            //inform user that the default price is not selected and finish proceeding after that
-            AppDialogs appDialogs = new AppDialogs(ItemSelectActivity.this);
-            appDialogs.showCommonAlertDialog(getString(R.string.default_pricelist_not_selected), new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    finish();
-                }
-            });
-            return;
-        }*/
 
-        //if(itemDataList == null){
-        //    itemDataList = new ArrayList<>();
-            //get Locally available items
-            //getOfflineItemList();
-            getItemsListApiCall();
-        //}
         //item list adapter
         itemPickerAdapter = new ItemPickerListAdapter(itemDataList, defaultCurrencySymbol,ItemSelectActivity.this, new ItemPickerListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(ItemData item) {
+
                 if(selectionType == Constants.ITEM_SELECTION_QUANTITY_PICK) {
                     //separate method call for sales and purchase
-                    /*if(itemRequestedScreen == Constants.PARENT_SALES)
-                        selectItemForSales(item); // item selection for sales
-                    else if(itemRequestedScreen == Constants.PARENT_PURCHASE)
-                        selectItemForPurchase(item);*/ // item selection for purchase
+                    if(itemRequestedScreen == Constants.PARENT_SALES)
+                        selectItemForSale(item); // item selection for sales
+                    else if(itemRequestedScreen == Constants.PARENT_PURCHASE) {
+                        selectItemForPurchase(item); // item selection for purchase
+                    }
 
                 }else if(selectionType == Constants.ITEM_SELECTION_SINGLE_PICK) {
                     //sendResultBack(item);
+                    showToast("Not implemented", ItemSelectActivity.this);
                 }
             }
         });
@@ -406,56 +391,19 @@ public class ItemSelectActivity extends SharedActivity {
                 Intent data  = result.getData();
                 if(data!=null){
                     String barcode = data.getStringExtra(Constants.BARCODE_NUMBER);
-                    List<String> codeList = new ArrayList<>();
-                    codeList.add(barcode);
-                    findItemWithBarcode(codeList);
+                    findItemWithBarcode(barcode);
                 }
             }
         }
     });
 
-    /**
-     * item selection method for sales
-     * */
-    private void selectItemForSales(ItemEntity item){
-        try {
 
-            final boolean isMaintainStock = (item.getMaintainStock() != 0);
-            if(priceListId!= Constants.EMPTY_INT){
-                //new thread
-                appExecutors.diskIO().execute(() -> {
-                    try {
-                        //check stock type
-                        if(isMaintainStock){
-                            //if stock is maintained, then need to check
-                            // available stock and price list to proceed.
-                            if(item.getAvailableQty() > 0){
-                                //retrieve the item price for the item.
-                                ItemPriceEntity itemPrice = localDb.itemPriceListDao().findPriceForItemWithPriceListId(priceListId, item.getItemId());
-                                //check whether item price is available.
-                                if(itemPrice!=null) {
-                                    //item rate is fetched from the variable price list
-                                    item.setRate(itemPrice.getRate());
+    private void selectItemForSale(ItemData item){
+        try{
 
-                                    //to show the item picker dialog
-                                    showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_SALES);
-                                }else {
-                                    //item price not found, show alert dialog to inform user
-                                    PriceListEntity priceList = localDb.priceListDao().getPriceListWithId(priceListId);
-                                    //show alert , item price not set
-                                    showAlertItemPriceNotSet(item.getItemName(), priceList.getPriceListName());
-                                }
-                            }else {
-                                runOnUiThread(() -> showToast(getString(R.string.item_stock_update), ItemSelectActivity.this));
-                            }
-                        }else {
-                            showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_SALES);
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                });
-            }
+            boolean isMaintainStock = true; //(item.getMaintainStock() != 0);
+            showItemQuantitySelectionDialogBox(item, item.getUomName(), isMaintainStock, Constants.PARENT_SALES);
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -465,10 +413,13 @@ public class ItemSelectActivity extends SharedActivity {
     /**
      * item selection for purchase
      * */
-    private void selectItemForPurchase(ItemEntity item){
+    private void selectItemForPurchase(ItemData item){
         try {
 
-            appExecutors.diskIO().execute(new Runnable() {
+            boolean isMaintainStock = true; //(item.getMaintainStock() != 0);
+            showItemQuantitySelectionDialogBox(item, item.getUomName(), isMaintainStock, Constants.PARENT_PURCHASE);
+
+            /*appExecutors.diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -484,7 +435,7 @@ public class ItemSelectActivity extends SharedActivity {
                                     //set the item price rate
                                     item.setRate(itemPrice.getRate());
 
-                                    showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_PURCHASE);
+                                    showItemQuantitySelectionDialogBox(item, item.getUomName(), isMaintainStock, Constants.PARENT_PURCHASE);
 
                                 }else {
                                     PriceListEntity priceList = localDb.priceListDao().getPriceListWithId(priceListId);
@@ -496,14 +447,14 @@ public class ItemSelectActivity extends SharedActivity {
                         }else {
                             //no need to maintain stock
                             //simply select the item with quantity
-                            showItemQuantitySelectionDialog(item, item.getUomName(), isMaintainStock, Constants.PARENT_PURCHASE);
+                            showItemQuantitySelectionDialogBox(item, item.getUomName(), isMaintainStock, Constants.PARENT_PURCHASE);
                         }
 
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                 }
-            });
+            });*/
 
         }catch (Exception e){
             throw e;
@@ -540,10 +491,34 @@ public class ItemSelectActivity extends SharedActivity {
      * To find item with barcode
      * if not found, shows a message box
      * */
-    private void findItemWithBarcode(List<String> code){
+    private void findItemWithBarcode(String scannedBarcode){
         try {
 
-            appExecutors.diskIO().execute(new Runnable() {
+            ItemData scannedItem = null;
+
+            if(scannedBarcode!=null && !scannedBarcode.isEmpty()){
+                for (ItemData item: itemDataList) {
+                    if(item.getBarcodes()!=null && !item.getBarcodes().isEmpty()){
+                        if(item.getBarcodes().get(0).getBarcode().equals(scannedBarcode)){
+                            scannedItem = item;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            //if scanned item not found
+            if(scannedItem == null){
+                //show barcode item not found
+                showScannerBarcodeNotFound(scannedBarcode);
+            }else {
+                //scanned item found.
+                //goto the quantity selection window
+                selectItemForSale(scannedItem);
+            }
+
+
+            /*appExecutors.diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -562,7 +537,7 @@ public class ItemSelectActivity extends SharedActivity {
                         e.printStackTrace();
                     }
                 }
-            });
+            });*/
 
         }catch (Exception e){
             e.printStackTrace();
@@ -590,6 +565,37 @@ public class ItemSelectActivity extends SharedActivity {
                 e.printStackTrace();
             }
         });
+    }
+
+    /**
+     * To show quantity selection window
+     * */
+    private void showItemQuantitySelectionDialogBox(ItemData _item,String uom_name,boolean isMaintainStock, int requestedParent){
+        try {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    AppDialogs appDialogs = new AppDialogs(ItemSelectActivity.this);
+                    appDialogs.showOrderItemPicker(_item.getAvailableQty(), _item.getRate(), uom_name, isMaintainStock, requestedParent,quantity -> {
+                        Intent intent = new Intent();
+                        intent.putExtra(Constants.ITEM_ID, _item.getItemId());
+                        intent.putExtra(Constants.ITEM_QUANTITY, quantity);
+                        intent.putExtra(Constants.ITEM_STOCK, _item.getAvailableQty());
+                        intent.putExtra(Constants.ITEM_NAME, _item.getItemName());
+                        intent.putExtra(Constants.ITEM_UOM_ID, _item.getUom());
+                        intent.putExtra(Constants.ITEM_RATE, ""+_item.getRate());
+                        intent.putExtra(Constants.ITEM_MAINTAIN_STOCK, isMaintainStock);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    });
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**

@@ -25,6 +25,7 @@ import com.rpos.pos.data.local.entity.OrderEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.sales.add.AddSalesInvoiceResponse;
+import com.rpos.pos.data.remote.dto.sales.add.AddSalesMessage;
 import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
 import com.rpos.pos.domain.models.item.PickedItem;
 import com.rpos.pos.domain.requestmodel.RequestWithUserId;
@@ -181,24 +182,20 @@ public class CreateOrderActivity extends SharedActivity {
 
 
         //Submit order
-        btn_confirm_order.setOnClickListener(this::createOfflineOrder);
+        btn_confirm_order.setOnClickListener(this::createOnlineOrder);
 
-        //not using right now
-        cv_customer_view.setOnClickListener(view -> {
-            //selectCustomer();
-        });
+
 
         //add item click
         fab_item_add.setOnClickListener(this::selectItem);
 
         //select customer
         ll_select_customer.setOnClickListener(this::selectCustomer);
+        cv_customer_view.setOnClickListener(this::selectCustomer); //not using right now
 
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
 
-        //preload items for speed
-        preLoadAllItems();
     }
 
     @Override
@@ -211,7 +208,7 @@ public class CreateOrderActivity extends SharedActivity {
      * since order is not save at this moment, we can
      * just remove the items from the list and update the adapter
      * */
-    private void removeItemFromList(int _itemId){
+    private void removeItemFromList(String _itemId){
         try {
 
             //to avoid unnecessary refresh of adapter, use flag
@@ -222,7 +219,7 @@ public class CreateOrderActivity extends SharedActivity {
             //find the item in array
             //remove and update adapter
             for (int i=0;i< pickedItemList.size();i++){
-                if(pickedItemList.get(i).getId() == _itemId) {
+                if(pickedItemList.get(i).getId().equals(_itemId)) {
                     pickedItemList.remove(i);
                     refreshPosition = i;
                     isRefresh = true;
@@ -238,9 +235,6 @@ public class CreateOrderActivity extends SharedActivity {
                     selectedItemAdapter.notifyDataSetChanged();
                 }
             }
-
-            //remove item from source entity list
-            removeItemSourceHashMap(_itemId);
 
             //hide progress
             progressDialog.hideProgressbar();
@@ -366,12 +360,16 @@ public class CreateOrderActivity extends SharedActivity {
     private ActivityResultLauncher<Intent> launchItemPicker = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
+
             if(result.getResultCode() == RESULT_OK){
+
                 Intent data  = result.getData();
 
                 if(data!=null){
-                    int itemId = data.getIntExtra(Constants.ITEM_ID,-1);
+
+                    String itemId = data.getStringExtra(Constants.ITEM_ID);
                     int quantity = data.getIntExtra(Constants.ITEM_QUANTITY, 0);
+                    String uomId = data.getStringExtra(Constants.ITEM_UOM_ID);
                     String itemName = data.getStringExtra(Constants.ITEM_NAME);
                     String itemRate = data.getStringExtra(Constants.ITEM_RATE);
                     int stock = data.getIntExtra(Constants.ITEM_STOCK, 0);
@@ -381,7 +379,7 @@ public class CreateOrderActivity extends SharedActivity {
 
                     PickedItem existingItem = checkItemAlreadyAdded(itemId);
                     if(existingItem == null){
-                        PickedItem item  = new PickedItem().getPickedItemFrom(itemId,itemName,rate,quantity,stock,isMaintainStock);
+                        PickedItem item  = new PickedItem().getPickedItemFromFields(itemId,itemName,uomId, rate,quantity,stock,isMaintainStock);
                         addItemToList(item);
                     }else {
                         existingItem.setQuantity(quantity);
@@ -392,105 +390,6 @@ public class CreateOrderActivity extends SharedActivity {
             }
         }
     });
-
-    /**
-     * To create offline order
-     * */
-    private void createOfflineOrder(View view){
-        try{
-
-            //validate items
-            if(pickedItemList.isEmpty()){
-                showToast(getString(R.string.select_items), CreateOrderActivity.this);
-                return;
-            }
-
-            //validate customer
-            if(customerId.isEmpty()){
-                showToast(getString(R.string.select_customer), CreateOrderActivity.this);
-                return;
-            }
-
-            //prepare order entity
-            String date_time = DateTimeUtils.getCurrentDateTime();
-            final OrderEntity newOrder = new OrderEntity();
-            newOrder.setCustomerId(Integer.parseInt(customerId));
-            newOrder.setCustomerName(customerName);
-            newOrder.setDateTime(date_time);
-            newOrder.setShift(presentShiftId);
-            newOrder.setStatus(Constants.ORDER_CREATED);
-
-
-            float totalAmount = 0.0f;
-            for (int i =0;i< pickedItemList.size();i++){
-                totalAmount+= pickedItemList.get(i).getRate();
-            }
-            newOrder.setAmount(totalAmount);
-
-
-
-            appExecutors.diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                      //insert order
-                      final long orderId = localDb.ordersDao().insertOrder(newOrder);
-
-                      //save items to order details
-                      List<OrderDetailsEntity> orderDetailsList = new ArrayList<>();
-                      OrderDetailsEntity orderDetails;
-                      PickedItem pickedItem;
-                      for (int i= 0;i<pickedItemList.size();i++){
-                          //prepare entity
-                          orderDetails= new OrderDetailsEntity();
-                          pickedItem = pickedItemList.get(i);
-                          orderDetails.setOrderId(orderId);  //order id
-                          orderDetails.setItemId(pickedItem.getId());  //item id
-                          orderDetails.setQuantity(pickedItem.getQuantity());
-                          orderDetails.setVariablePrice(pickedItem.getRate()); //saving current price with respect to the price list
-                          //add to list
-                          orderDetailsList.add(orderDetails);
-                      }
-
-                      //insert details
-                      localDb.orderDetailsDao().insertOrderDetailsList(orderDetailsList);
-
-                      //To update stock on order create
-                      //update item with new stock quantity
-                      ItemEntity tempItemEntity;
-                      int stock, balanceStock;
-                      boolean isMaintainStock;
-                      for (int i=0;i< pickedItemList.size();i++){
-                          //get database item from hashmap
-                          tempItemEntity = hashmap_source.get(pickedItemList.get(i).getId());
-                          isMaintainStock = tempItemEntity.getMaintainStock()!=0?true:false;
-                          if(isMaintainStock) { //No need to care about stock if the product is non stock based ie:(maintainstock - false)
-                              //get the current stock
-                              stock = tempItemEntity.getAvailableQty();
-                              //calculate balance
-                              balanceStock = stock - pickedItemList.get(i).getQuantity();
-                              //set the new stock to database entity
-                              tempItemEntity.setAvailableQty(balanceStock);
-                              //update the item
-                              localDb.itemDao().insertItem(tempItemEntity);
-                          }
-                      }
-
-                      //use the ui thread to update success dialog
-                      runOnUiThread(() -> showSuccess());
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
 
     /**
      * create order
@@ -504,6 +403,24 @@ public class CreateOrderActivity extends SharedActivity {
                 return;
             }
 
+            //validate items
+            if(pickedItemList.isEmpty()){
+                showToast(getString(R.string.select_items), CreateOrderActivity.this);
+                return;
+            }
+
+            //validate customer
+            if(customerId.isEmpty()){
+                showToast(getString(R.string.select_customer), CreateOrderActivity.this);
+                return;
+            }
+
+            /*"item_code": "21",
+                    "item_name": "apple",
+                    "rate": "23",
+                    "qty": "3",
+                    "uom": "120"*/
+
             ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
             AddSalesRequest request = new AddSalesRequest();
             request.setCustomerId(customerId);
@@ -511,22 +428,40 @@ public class CreateOrderActivity extends SharedActivity {
 
             PickedItem pickedItem;
             SalesItem requestItem;
+            List<SalesItem> salesItemList = new ArrayList<>();
             for (int i= 0;i<pickedItemList.size();i++){
-
                 requestItem = new SalesItem();
                 pickedItem = pickedItemList.get(i);
 
-                requestItem.setItemCode(""+pickedItem.getId());
-
+                requestItem.setItemCode(pickedItem.getId());
+                requestItem.setItemName(pickedItem.getItemName());
+                requestItem.setQty(String.valueOf(pickedItem.getQuantity()));
+                requestItem.setRate(String.valueOf(pickedItem.getRate()));
+                requestItem.setUom(pickedItem.getUom());
+                salesItemList.add(requestItem);
             }
+            request.setItems(salesItemList);
 
             Call<AddSalesInvoiceResponse> call = api.addSalesInvoice(request);
             call.enqueue(new Callback<AddSalesInvoiceResponse>() {
                 @Override
                 public void onResponse(Call<AddSalesInvoiceResponse> call, Response<AddSalesInvoiceResponse> response) {
                     try {
+                        Log.e("-----------","resp "+response.isSuccessful());
+                        if(response.isSuccessful()){
+                            Log.e("-----------","resp true");
+                            AddSalesInvoiceResponse addSalesInvoiceResponse = response.body();
+                            if(addSalesInvoiceResponse!=null){
+                                AddSalesMessage addSalesMessage = addSalesInvoiceResponse.getMessage();
+                                Log.e("-----------","resp mess "+addSalesMessage.getSuccess());
+                                if(addSalesMessage.getSuccess()){
+                                    showSuccess();
+                                    return;
+                                }
+                            }
+                        }
 
-
+                        showToast(getString(R.string.item_add_failed), CreateOrderActivity.this);
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -544,7 +479,7 @@ public class CreateOrderActivity extends SharedActivity {
         }
     }
 
-    private PickedItem checkItemAlreadyAdded(int itemId){
+    private PickedItem checkItemAlreadyAdded(String itemId){
 
         for (int i =0;i< pickedItemList.size();i++){
             if(pickedItemList.get(i).getId() == itemId){
@@ -587,69 +522,6 @@ public class CreateOrderActivity extends SharedActivity {
             //calculate total and update
             reCalculateTotalAndUpdate();
 
-
-            appExecutors.diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-
-                        ItemEntity itemEntity = localDb.itemDao().getItemDetails(item.getId());
-                        if(itemEntity!=null){
-                            hashmap_source.put(itemEntity.getItemId(),itemEntity);
-                        }
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * get locally saved item list
-     * */
-    private void preLoadAllItems(){
-        try{
-            //thread for room db function
-            appExecutors.diskIO().execute(() -> {
-
-                final List<ItemEntity> localItemList = localDb.itemDao().getAllItems();
-                //check item list size
-                if(localItemList == null || localItemList.isEmpty()){
-                    //show alert for items empty
-                    getCoreApp().setAllItemsList(null);
-                }else {
-                    getCoreApp().setAllItemsList(localItemList);
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * to remove item entity objects from the temporary list
-     * hash map is used to store database item entities to  update the item stock on order create
-     */
-    private void removeItemSourceHashMap(Integer _itemId){
-        try {
-
-            Iterator itemIterator = hashmap_source.entrySet().iterator();
-            while (itemIterator.hasNext()){
-                Map.Entry entry = (Map.Entry)itemIterator.next();
-
-               ItemEntity itemEntity = (ItemEntity)entry.getValue();
-               if(itemEntity.getItemId() == _itemId){
-                   itemIterator.remove();
-                   break;
-               }
-            }
 
         }catch (Exception e){
             e.printStackTrace();

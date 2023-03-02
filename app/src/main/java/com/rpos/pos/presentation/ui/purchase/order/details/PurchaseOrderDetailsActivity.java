@@ -203,7 +203,7 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
                             return;
                         }
                         //delete for zero quantity
-                        deleteItem(orderId, item.getId());
+                       // deleteItem(orderId, item.getId());
                     }else { Log.e("-----------","3");
                         //update quantity
                         updateSelectedItems(item);
@@ -512,7 +512,7 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
                 Intent data  = result.getData();
 
                 if(data!=null){
-                    int itemId = data.getIntExtra(Constants.ITEM_ID,-1);
+                    String itemId = data.getStringExtra(Constants.ITEM_ID);
                     int quantity = data.getIntExtra(Constants.ITEM_QUANTITY, 0);
                     String itemName = data.getStringExtra(Constants.ITEM_NAME);
                     String itemRate = data.getStringExtra(Constants.ITEM_RATE);
@@ -543,10 +543,10 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
         }
     });
 
-    private PickedItem checkItemAlreadyAdded(int itemId){
+    private PickedItem checkItemAlreadyAdded(String itemId){
 
         for (int i =0;i< pickedItemList.size();i++){
-            if(pickedItemList.get(i).getId() == itemId){
+            if(pickedItemList.get(i).getId().equals(itemId)){
                 return pickedItemList.get(i);
             }
         }
@@ -557,7 +557,7 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
     private void addItemToList(PickedItem pickedItem,long _orderId){
         try{
 
-            appExecutors.diskIO().execute(() -> {
+            /*appExecutors.diskIO().execute(() -> {
                 try {
 
                     PurchaseOrderDetailsEntity newItem= new PurchaseOrderDetailsEntity();
@@ -582,7 +582,7 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            });
+            });*/
 
         }catch (Exception e){
             e.printStackTrace();
@@ -655,12 +655,12 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
                 //find the item in array
                 //remove and update adapter
                 for (int i = 0; i < pickedItemList.size(); i++) {
-                    if (pickedItemList.get(i).getId() == _itemId) {
+                    /*if (pickedItemList.get(i).getId() == _itemId) {
                         pickedItemList.remove(i);
                         refreshPosition = i;
                         isRefresh = true;
                         break;
-                    }
+                    }*/
                 }
 
 
@@ -770,9 +770,9 @@ public class PurchaseOrderDetailsActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
 
-                    PurchaseOrderDetailsEntity modifyItem = localDb.purchaseOrderDetailsDao().getSingleItem(orderId,updateItem.getId());
+                    /*PurchaseOrderDetailsEntity modifyItem = localDb.purchaseOrderDetailsDao().getSingleItem(orderId,updateItem.getId());
                     modifyItem.setQuantity(updateItem.getQuantity());
-                    localDb.purchaseOrderDetailsDao().insertOrderDetail(modifyItem);
+                    localDb.purchaseOrderDetailsDao().insertOrderDetail(modifyItem);*/
 
                     runOnUiThread(() -> {
 

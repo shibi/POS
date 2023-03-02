@@ -5,7 +5,7 @@ import com.rpos.pos.data.local.entity.OrderDetailsEntity;
 
 public class PickedItem {
 
-    private int id;
+    private String id;
     private String itemName;
     private String uom;
     private int quantity;
@@ -16,11 +16,11 @@ public class PickedItem {
     private float tax;
     private boolean isMaintainStock;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -97,7 +97,7 @@ public class PickedItem {
     }
 
     public void convertFromSavedItemEntity(ItemEntity item){
-        this.id = item.getItemId();
+        //this.id = item.getItemId();
         this.itemName = item.getItemName();
         this.uom = item.getUom();
         this.stock = item.getAvailableQty();
@@ -110,7 +110,7 @@ public class PickedItem {
 
     public ItemEntity getItemEntityFromPickedItem(){
         ItemEntity itemEntity = new ItemEntity();
-        itemEntity.setItemId(id);
+        //itemEntity.setItemId(id);
         itemEntity.setItemName(itemName);
         itemEntity.setUom(uom);
         itemEntity.setAvailableQty(stock);
@@ -121,10 +121,22 @@ public class PickedItem {
         return itemEntity;
     }
 
-    public PickedItem getPickedItemFrom(int id, String itemName, float rate,int quantity,int stock, boolean maintain_stock){
+    public PickedItem getPickedItemFrom(String id, String itemName, float rate,int quantity,int stock, boolean maintain_stock){
         PickedItem item = new PickedItem();
         item.setId(id);
         item.setItemName(itemName);
+        item.setRate(rate);
+        item.setQuantity(quantity);
+        item.setStock(stock);
+        item.setMaintainStock(maintain_stock);
+        return item;
+    }
+
+    public PickedItem getPickedItemFromFields(String id, String itemName,String uomId, float rate,int quantity,int stock, boolean maintain_stock){
+        PickedItem item = new PickedItem();
+        item.setId(id);
+        item.setItemName(itemName);
+        item.setUom(uomId);
         item.setRate(rate);
         item.setQuantity(quantity);
         item.setStock(stock);

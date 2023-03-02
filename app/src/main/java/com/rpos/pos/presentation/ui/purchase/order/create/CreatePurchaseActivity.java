@@ -124,7 +124,7 @@ public class CreatePurchaseActivity extends SharedActivity {
 
                         if(item.getQuantity() < 1){
                             //delete for zero quantity
-                            removeItemFromList(item.getId());
+                    //        removeItemFromList(item.getId());
                         }
 
                         //re-calculate total
@@ -176,7 +176,7 @@ public class CreatePurchaseActivity extends SharedActivity {
                 Intent data  = result.getData();
 
                 if(data!=null){
-                    int itemId = data.getIntExtra(Constants.ITEM_ID,-1);
+                    String itemId = data.getStringExtra(Constants.ITEM_ID);
                     int quantity = data.getIntExtra(Constants.ITEM_QUANTITY, 0);
                     String itemName = data.getStringExtra(Constants.ITEM_NAME);
                     String itemRate = data.getStringExtra(Constants.ITEM_RATE);
@@ -190,9 +190,7 @@ public class CreatePurchaseActivity extends SharedActivity {
                         PickedItem item  = new PickedItem().getPickedItemFrom(itemId,itemName,rate,quantity,stock,isMaintainStock);
                         addItemToList(item);
                     }else {
-
                         existingItem.setQuantity(quantity);
-
                         //refresh to reflect the change in recyclerview
                         selectedItemAdapter.notifyDataSetChanged();
                         showToast(getString(R.string.item_updated), CreatePurchaseActivity.this);
@@ -227,10 +225,10 @@ public class CreatePurchaseActivity extends SharedActivity {
         }
     });
 
-    private PickedItem checkItemAlreadyAdded(int itemId){
+    private PickedItem checkItemAlreadyAdded(String itemId){
 
         for (int i =0;i< pickedItemList.size();i++){
-            if(pickedItemList.get(i).getId() == itemId){
+            if(pickedItemList.get(i).getId().equals(itemId)){
                 return pickedItemList.get(i);
             }
         }
@@ -248,8 +246,7 @@ public class CreatePurchaseActivity extends SharedActivity {
             //calculate total and update
              reCalculateTotalAndUpdate();
 
-
-            appExecutors.diskIO().execute(new Runnable() {
+            /*appExecutors.diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -263,7 +260,7 @@ public class CreatePurchaseActivity extends SharedActivity {
                         e.printStackTrace();
                     }
                 }
-            });
+            });*/
 
         }catch (Exception e){
             e.printStackTrace();
@@ -346,7 +343,7 @@ public class CreatePurchaseActivity extends SharedActivity {
      * since order is not save at this moment, we can
      * just remove the items from the list and update the adapter
      * */
-    private void removeItemFromList(int _itemId){
+    private void removeItemFromList(String _itemId){
         try {
 
             //to avoid unnecessary refresh of adapter, use flag
@@ -357,7 +354,7 @@ public class CreatePurchaseActivity extends SharedActivity {
             //find the item in array
             //remove and update adapter
             for (int i=0;i< pickedItemList.size();i++){
-                if(pickedItemList.get(i).getId() == _itemId) {
+                if(pickedItemList.get(i).getId().equals(_itemId)) {
                     pickedItemList.remove(i);
                     refreshPosition = i;
                     isRefresh = true;
@@ -373,9 +370,6 @@ public class CreatePurchaseActivity extends SharedActivity {
                     selectedItemAdapter.notifyDataSetChanged();
                 }
             }
-
-            //remove item from source entity list
-            removeItemSourceHashMap(_itemId);
 
             //hide progress
             progressDialog.hideProgressbar();
@@ -456,7 +450,7 @@ public class CreatePurchaseActivity extends SharedActivity {
                             pickedItem = pickedItemList.get(i);
 
                             orderDetails.setOrderId(orderId);  //order id
-                            orderDetails.setItemId(pickedItem.getId());  //item id
+                            //orderDetails.setItemId(pickedItem.getId());  //item id
                             orderDetails.setQuantity(pickedItem.getQuantity());
                             orderDetails.setVariableRate(pickedItem.getRate()); //adding new price
                             orderDetailsList.add(orderDetails);

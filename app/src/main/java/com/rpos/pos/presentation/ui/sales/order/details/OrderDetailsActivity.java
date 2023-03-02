@@ -674,7 +674,7 @@ public class OrderDetailsActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
 
-                    OrderDetailsEntity modifyItem = localDb.orderDetailsDao().getSingleItem(orderId,updateItem.getId());
+                    /*OrderDetailsEntity modifyItem = localDb.orderDetailsDao().getSingleItem(orderId,updateItem.getId());
                     modifyItem.setQuantity(updateItem.getQuantity());
                     localDb.orderDetailsDao().insertOrderDetail(modifyItem);
 
@@ -697,7 +697,7 @@ public class OrderDetailsActivity extends SharedActivity {
                         calculateTotalAndUpdate();
 
                         isDbOperationOn = false;
-                    });
+                    });*/
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -712,7 +712,7 @@ public class OrderDetailsActivity extends SharedActivity {
     private void deleteItem(long _orderId,PickedItem item){
         try {
 
-            int _itemId = item.getId();
+            String _itemId = item.getId();
 
             //flag to check deleting status
             isDbOperationOn = true;
@@ -723,17 +723,17 @@ public class OrderDetailsActivity extends SharedActivity {
                 try{
                     Log.e("-----------","3-0");
                     //delete item from order details table
-                    localDb.orderDetailsDao().deleteItem(_orderId,_itemId);
+                    //localDb.orderDetailsDao().deleteItem(_orderId,_itemId);
 
 
                     if(item.getMaintainStock()) {//------------------------------------------------------------------------------------------------start
                         //TO UPDATE THE STOCK OF ORIGINAL ITEM ON DELETING.THE LAST QUANTITY NEEDS TO BE UPDATED HERE.
                         // QUANTITY GREATER THAN 1 WILL BE UPDATED IN THE ELSE PART OF ADAPTER INCREMENT FUNCTION.   IE : - onItemQuantityChange();
                         //get original item
-                        ItemEntity originalItem = localDb.itemDao().getItemDetails(_itemId); //get the original item
-                        int updateStock = originalItem.getAvailableQty() + 1; //updated stock
-                        originalItem.setAvailableQty(updateStock);  //set the new stock
-                        localDb.itemDao().insertItem(originalItem); //update the item
+                    //    ItemEntity originalItem = localDb.itemDao().getItemDetails(_itemId); //get the original item
+                    //    int updateStock = originalItem.getAvailableQty() + 1; //updated stock
+                    //    originalItem.setAvailableQty(updateStock);  //set the new stock
+                     //   localDb.itemDao().insertItem(originalItem); //update the item
                     } //------------------------------------------------------------------------------------------------end
 
                     //update ui details outside the thread
@@ -767,7 +767,7 @@ public class OrderDetailsActivity extends SharedActivity {
                 Intent data  = result.getData();
 
                 if(data!=null){
-                    int itemId = data.getIntExtra(Constants.ITEM_ID,-1);
+                    String itemId = data.getStringExtra(Constants.ITEM_ID);
                     int quantity = data.getIntExtra(Constants.ITEM_QUANTITY, 0);
                     String itemName = data.getStringExtra(Constants.ITEM_NAME);
                     String itemRate = data.getStringExtra(Constants.ITEM_RATE);
@@ -796,10 +796,10 @@ public class OrderDetailsActivity extends SharedActivity {
         tv_itemCount.setText(""+count);
     }
 
-    private PickedItem checkItemAlreadyAdded(int itemId){
+    private PickedItem checkItemAlreadyAdded(String itemId){
 
         for (int i =0;i< pickedItemList.size();i++){
-            if(pickedItemList.get(i).getId() == itemId){
+            if(pickedItemList.get(i).getId().equals(itemId)){
                 return pickedItemList.get(i);
             }
         }
@@ -813,9 +813,9 @@ public class OrderDetailsActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
 
-                    OrderDetailsEntity newItem= new OrderDetailsEntity();
+                    OrderDetailsEntity newItem = new OrderDetailsEntity();
                     newItem.setOrderId(_orderId);  //order id
-                    newItem.setItemId(pickedItem.getId());  //item id
+                    //newItem.setItemId(pickedItem.getId());  //item id
                     newItem.setQuantity(pickedItem.getQuantity()); //set quantity
                     localDb.orderDetailsDao().insertOrderDetail(newItem);
 
@@ -863,12 +863,12 @@ public class OrderDetailsActivity extends SharedActivity {
                 //find the item in array
                 //remove and update adapter
                 for (int i = 0; i < pickedItemList.size(); i++) {
-                    if (pickedItemList.get(i).getId() == _itemId) {
+                    /*if (pickedItemList.get(i).getId() == _itemId) {
                         pickedItemList.remove(i);
                         refreshPosition = i;
                         isRefresh = true;
                         break;
-                    }
+                    }*/
                 }
 
 

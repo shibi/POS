@@ -19,8 +19,10 @@ import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerListResponse;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.ConverterFactory;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.customer.addcustomer.AddCustomerActivity;
+import com.rpos.pos.presentation.ui.customer.list.CustomerListActivity;
 import com.rpos.pos.presentation.ui.customer.list.adapter.CustomerListAdapter;
 
 import java.util.ArrayList;
@@ -40,8 +42,7 @@ public class CustomerSelectActivity extends SharedActivity {
     private AppDialogs progressDialog;
     private LinearLayout ll_add_customer;
 
-    private AppExecutors appExecutors;
-    private AppDatabase localDb;
+    private View viewEmpty;
 
     @Override
     public int setUpLayout() {
@@ -61,14 +62,12 @@ public class CustomerSelectActivity extends SharedActivity {
         rv_customerList = findViewById(R.id.rv_customerlist);
         ll_back = findViewById(R.id.ll_back);
 
+        viewEmpty = findViewById(R.id.view_empty);
+
         ll_add_customer = findViewById(R.id.ll_add_customer);
 
         customerList = new ArrayList<>();
         progressDialog = new AppDialogs(this);
-
-
-        appExecutors = new AppExecutors();
-        localDb = getCoreApp().getLocalDb();
 
         customerListAdapter = new CustomerListAdapter(CustomerSelectActivity.this, customerList, new CustomerListAdapter.OnClickCustomer() {
             @Override
@@ -136,39 +135,20 @@ public class CustomerSelectActivity extends SharedActivity {
     protected void onResume() {
         super.onResume();
 
-        //getCustomerList();
-        getCustomerListFromDb();
+        getCustomerList();
+
     }
 
     /**
-     * get customer list from db
+     * to get customer list
      * */
-    private void getCustomerListFromDb(){
+    private void getCustomerList(){
         try {
 
-            appExecutors.diskIO().execute(() -> {
-                try {
-                    List<CustomerEntity> tempList = localDb.customerDao().getAllCustomer();
-                    if(tempList!=null && !tempList.isEmpty()){
-                        customerList.clear();
-                        customerList.addAll(tempList);
-                        runOnUiThread(() -> customerListAdapter.notifyDataSetChanged());
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /*private void getCustomerList(){
-        try {
-
+            //show progress
             progressDialog.showProgressBar();
 
+            //api service
             ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
             Call<CustomerListResponse> call = api.getCustomerList();
             call.enqueue(new Callback<CustomerListResponse>() {
@@ -177,25 +157,28 @@ public class CustomerSelectActivity extends SharedActivity {
                     Log.e("------------","res"+response.isSuccessful());
                     try{
 
+                        //hide progress bar
                         progressDialog.hideProgressbar();
 
+                        //check success
                         if(response.isSuccessful()){
                             CustomerListResponse customerListResp = response.body();
                             if(customerListResp!=null){
                                 List<CustomerData> customerDataList = customerListResp.getMessage();
+
                                 if(customerDataList!=null && customerDataList.size()>0){
                                     customerList.clear();
-                                    customerList.addAll(customerDataList);
+                                    for (CustomerData customer: customerDataList) {
+                                        customerList.add(ConverterFactory.convertToEntity(customer));
+                                    }
                                     customerListAdapter.notifyDataSetChanged();
-                                }else {
-
+                                    hideEmptyView();
+                                    return;
                                 }
-                            }else {
-
                             }
-                        }else {
-
                         }
+
+                        showEmptyList();
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -204,13 +187,29 @@ public class CustomerSelectActivity extends SharedActivity {
 
                 @Override
                 public void onFailure(Call<CustomerListResponse> call, Throwable t) {
-                    Log.e("------------","failed");
                     progressDialog.hideProgressbar();
+                    showToast(getString(R.string.please_check_internet), CustomerSelectActivity.this);
+                    //showEmptyList();
                 }
             });
 
         }catch (Exception e){
             e.printStackTrace();
         }
-    }*/
+    }
+
+    /**
+     * to show empty view
+     * */
+    private void showEmptyList(){
+        viewEmpty.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * to hide empty view
+     * */
+    private void hideEmptyView(){
+        viewEmpty.setVisibility(View.GONE);
+    }
+
 }

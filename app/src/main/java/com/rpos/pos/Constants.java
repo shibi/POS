@@ -80,7 +80,7 @@ public class Constants {
     public static final String ORDER_CANCELLED = "Cancelled";
 
     public static final String PAYMENT_PAID = "Paid";
-    public static final String PAYMENT_UNPAID = "Un-paid";
+    public static final String PAYMENT_UNPAID = "Unpaid";//"Un-paid";
     public static final String PAYMENT_OVERDUE = "Overdue";
     public static final String PAYMENT_RETURN = "Return";
     public static final String PAYMENT_COMPLETE = "Completed";

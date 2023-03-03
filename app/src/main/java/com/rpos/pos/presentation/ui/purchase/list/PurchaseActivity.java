@@ -2,6 +2,7 @@ package com.rpos.pos.presentation.ui.purchase.list;
 
 import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,7 +16,17 @@ import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceItemHistory;
 import com.rpos.pos.data.local.entity.ShiftRegEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseInvoiceData;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListMessage;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListResponse;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListData;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListMessage;
+import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
+import com.rpos.pos.domain.requestmodel.RequestWithUserId;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.purchase.list.adapter.PurchaseInvoiceAdapter;
 import com.rpos.pos.presentation.ui.purchase.order.create.CreatePurchaseActivity;
@@ -25,6 +36,10 @@ import com.rpos.pos.presentation.ui.sales.sales_list.SalesActivity;
 import com.rpos.pos.presentation.ui.supplier.lsit.SuppliersListActivity;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PurchaseActivity extends SharedActivity {
 
@@ -36,7 +51,7 @@ public class PurchaseActivity extends SharedActivity {
     private View viewEmpty;
     private ChipGroup filter_chipGroup;
 
-    private ArrayList<PurchaseInvoiceEntity> invoiceArrayList;
+    private ArrayList<PurchaseInvoiceData> invoiceArrayList;
     private PurchaseInvoiceAdapter purchaseInvoiceAdapter;
 
     private AppDatabase localDb;
@@ -106,14 +121,15 @@ public class PurchaseActivity extends SharedActivity {
         super.onResume();
 
         //to get count of orders
-        getOnGoingOrdersCount();
+        //getOnGoingOrdersCount();
 
         //to get all invoices list
-        getAllInvoices();
+        //getAllInvoices();
+        getAllInvoiceFromWebservice();
 
     }
 
-    private void getAllInvoices(){
+    /*private void getAllInvoices(){
         try {
 
             progressDialog.showProgressBar();
@@ -131,6 +147,73 @@ public class PurchaseActivity extends SharedActivity {
                                 showEmpty();
                             });
                         }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }*/
+
+
+    /**
+     * to get all invoice list from web service
+     * */
+    private void getAllInvoiceFromWebservice(){
+        try {
+
+            String userId = SharedPrefHelper.getInstance(this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid), PurchaseActivity.this);
+                return;
+            }
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            RequestWithUserId request = new RequestWithUserId();
+            request.setUserId(userId);
+            Call<PurchaseListResponse> call = api.getAlllPurchaseInvoices(request);
+            call.enqueue(new Callback<PurchaseListResponse>() {
+                @Override
+                public void onResponse(Call<PurchaseListResponse> call, Response<PurchaseListResponse> response) {
+                    try {
+                        invoiceArrayList.clear();
+
+                        if(response.isSuccessful()){
+                            PurchaseListResponse purchaseListResponse = response.body();
+                            if(purchaseListResponse!=null){
+                                PurchaseListMessage purchaseListMessage = purchaseListResponse.getMessage();
+                                if(purchaseListMessage.getSuccess()){
+                                    List<PurchaseInvoiceData> list = purchaseListMessage.getData();
+                                    if(list!=null && !list.isEmpty()){
+
+                                        Log.e("------------","received");
+                                        invoiceArrayList.addAll(list);
+                                        purchaseInvoiceAdapter.notifyItemChanged(0);
+
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+
+                        Log.e("------------","not");
+                        //showEmptyView(true);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<PurchaseListResponse> call, Throwable t) {
+                    try {
+
+
+
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -167,7 +250,7 @@ public class PurchaseActivity extends SharedActivity {
         }
     }
 
-    private void updateInvoiceAdapter(List<PurchaseInvoiceEntity> _invoicesList){
+    private void updateInvoiceAdapter(List<PurchaseInvoiceData> _invoicesList){
         try {
 
             runOnUiThread(() -> {
@@ -275,12 +358,12 @@ public class PurchaseActivity extends SharedActivity {
      * */
     private PurchaseInvoiceAdapter.PurchaseInvoiceListener purchaseInvoiceCallBack = new PurchaseInvoiceAdapter.PurchaseInvoiceListener() {
         @Override
-        public void onClickPurchaseInvoice(int invoiceId) {
+        public void onClickPurchaseInvoice(String invoiceId) {
             gotoPurchasePaymentScreen(invoiceId);
         }
 
         @Override
-        public void onCancelPurchaseInvoice(PurchaseInvoiceEntity pInvoice) {
+        public void onCancelPurchaseInvoice(PurchaseInvoiceData pInvoice) {
             onClickInvoiceReturn(pInvoice);
         }
     };
@@ -322,7 +405,7 @@ public class PurchaseActivity extends SharedActivity {
      * on click cancel ( return )
      *  show confirmation for user and mark invoice as return when user allows
      * */
-    private void onClickInvoiceReturn(PurchaseInvoiceEntity invoice){
+    private void onClickInvoiceReturn(PurchaseInvoiceData invoice){
         try {
             if(invoice.getStatus().equals(Constants.PAYMENT_RETURN)){
                 showToast(getString(R.string.cancelled),PurchaseActivity.this);
@@ -336,7 +419,7 @@ public class PurchaseActivity extends SharedActivity {
             appDialogs.showCommonDualActionAlertDialog(title, message, new AppDialogs.OnDualActionButtonClickListener() {
                 @Override
                 public void onClickPositive(String id) {
-                    markInvoiceAsReturn(invoice);
+                    //markInvoiceAsReturn(invoice);
                 }
 
                 @Override
@@ -414,7 +497,7 @@ public class PurchaseActivity extends SharedActivity {
                                 localDb.itemDao().updateList(selectedItems);
 
                                 //refresh the adapter to reflect change
-                                refreshInvoiceInAdapter(invoice.getId());
+                                //refreshInvoiceInAdapter(invoice.get));
                             }
 
                         }else {
@@ -440,7 +523,7 @@ public class PurchaseActivity extends SharedActivity {
      * To find the position of invoice in array list and refresh adapter in that position
      * So that the cancelled is reflected in recyclerview list item
      * */
-    private void refreshInvoiceInAdapter(int invoice_id){
+    private void refreshInvoiceInAdapter(String invoice_id){
         try {
 
             runOnUiThread(() -> {
@@ -451,7 +534,7 @@ public class PurchaseActivity extends SharedActivity {
 
                     //find the invoice position in array list with invoice id
                     for (int i=0;i<invoiceArrayList.size();i++){
-                        if(invoiceArrayList.get(i).getId() == invoice_id){
+                        if(invoiceArrayList.get(i).getName().equals(invoice_id)){
                             isRefresh = true;
                             refreshPosition = i;
                             break;
@@ -521,7 +604,7 @@ public class PurchaseActivity extends SharedActivity {
         viewEmpty.setVisibility(View.GONE);
     }
 
-    private void gotoPurchasePaymentScreen(int invoice_id){
+    private void gotoPurchasePaymentScreen(String invoice_id){
         Intent intent = new Intent(PurchaseActivity.this, PurchasePaymentActivity.class);
         intent.putExtra(Constants.INVOICE_ID, invoice_id);
         startActivity(intent);

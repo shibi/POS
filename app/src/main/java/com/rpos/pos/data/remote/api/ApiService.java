@@ -12,6 +12,7 @@ import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
 import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListResponse;
 import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgram;
 import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgramListResponse;
 import com.rpos.pos.data.remote.dto.sales.add.AddSalesInvoiceResponse;
@@ -101,6 +102,9 @@ public interface ApiService {
 
     @POST("custom_integration.api.invoice.add_invoice")
     Call<AddSalesInvoiceResponse> addSalesInvoice(@Body AddSalesRequest params);
+
+    @POST("custom_integration.api.purchase.purchase_list")
+    Call<PurchaseListResponse> getAlllPurchaseInvoices(@Body RequestWithUserId params);
 
 
     @GET("https://api-fatoora.herokuapp.com/to_base64?")

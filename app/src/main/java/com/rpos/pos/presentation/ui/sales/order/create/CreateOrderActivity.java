@@ -62,9 +62,6 @@ public class CreateOrderActivity extends SharedActivity {
     private LinearLayout ll_back;
     private AppCompatTextView tv_customerChooseBtn;
 
-    private AppDatabase localDb;
-    private AppExecutors appExecutors;
-
     //loading view
     private AppDialogs progressDialog;
 
@@ -75,8 +72,6 @@ public class CreateOrderActivity extends SharedActivity {
     private int totalItemCount;
 
     private int presentShiftId;
-
-    private Map<Integer, ItemEntity> hashmap_source;
 
     @Override
     public int setUpLayout() {
@@ -102,13 +97,8 @@ public class CreateOrderActivity extends SharedActivity {
         tv_taxid = findViewById(R.id.tv_customerPhone);
         tv_customerChooseBtn = findViewById(R.id.tv_customer_choose);
 
-        hashmap_source = new HashMap<>();
-
         prefHelper = SharedPrefHelper.getInstance(this);
         progressDialog = new AppDialogs(CreateOrderActivity.this);
-
-        localDb = getCoreApp().getLocalDb();
-        appExecutors = new AppExecutors();
 
         customerId = "";
         customerName = "";
@@ -183,8 +173,6 @@ public class CreateOrderActivity extends SharedActivity {
 
         //Submit order
         btn_confirm_order.setOnClickListener(this::createOnlineOrder);
-
-
 
         //add item click
         fab_item_add.setOnClickListener(this::selectItem);

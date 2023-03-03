@@ -16,8 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.rpos.pos.Constants;
 import com.rpos.pos.R;
+import com.rpos.pos.data.local.dao.PurchaseInvoiceDao;
 import com.rpos.pos.data.local.entity.InvoiceEntity;
 import com.rpos.pos.data.local.entity.PurchaseInvoiceEntity;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseInvoiceData;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 
 import java.util.ArrayList;
@@ -25,8 +27,8 @@ import java.util.List;
 
 public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoiceAdapter.PurchaseInvoiceViewHolder> implements Filterable {
 
-    private List<PurchaseInvoiceEntity> purchaseInvoiceEntityList;
-    private List<PurchaseInvoiceEntity> filteredList;
+    private List<PurchaseInvoiceData> purchaseInvoiceEntityList;
+    private List<PurchaseInvoiceData> filteredList;
     private PurchaseInvoiceListener listener;
 
     private boolean isCreditSale;
@@ -39,7 +41,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
     private String date;
 
 
-    public PurchaseInvoiceAdapter(Context context, List<PurchaseInvoiceEntity> purchaseInvoiceEntityList, PurchaseInvoiceListener listener) {
+    public PurchaseInvoiceAdapter(Context context, List<PurchaseInvoiceData> purchaseInvoiceEntityList, PurchaseInvoiceListener listener) {
 
         this.purchaseInvoiceEntityList = purchaseInvoiceEntityList;
         this.filteredList = purchaseInvoiceEntityList;
@@ -63,13 +65,13 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
     public void onBindViewHolder(@NonNull PurchaseInvoiceViewHolder holder, int position) {
         try{
 
-            PurchaseInvoiceEntity invoice = purchaseInvoiceEntityList.get(position);
+            PurchaseInvoiceData invoice = purchaseInvoiceEntityList.get(position);
 
-            holder.tv_invoiceId.setText("PNo : "+invoice.getId());
-            holder.tv_supplierName.setText(SUPPLIER_PREFIX + invoice.getCustomerName());
-            holder.tv_amount.setText(AMOUNT_PREFIX +invoice.getBillAmount());
-            Log.e("------------","P_I_A_OB TS:"+invoice.getTimestamp());
-            date = DateTimeUtils.convertTimerStampToDateTime(invoice.getTimestamp());
+            holder.tv_invoiceId.setText(invoice.getName());
+            holder.tv_supplierName.setText(SUPPLIER_PREFIX + invoice.getSupplierName());
+            holder.tv_amount.setText(AMOUNT_PREFIX + invoice.getBaseRoundedTotal());
+
+            date = DateTimeUtils.getFormattedDateF1(invoice.getCreation());
             Log.e("------------","P_I_A_OB TS TO DT:"+date);
             holder.tv_date.setText(DATE_PREFIX + date);
 
@@ -81,7 +83,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                 paymentStatus = Constants.PAYMENT_RETURN;
             }else if(invoice.getStatus().equals(Constants.PAYMENT_UNPAID)){
                 //check whether invoice is credit sale
-                isCreditSale = (invoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE);
+                /*isCreditSale = (invoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE);
                 if(isCreditSale){
 
                     if(DateTimeUtils.checkDatePassed(invoice.getDueDate())) {
@@ -93,7 +95,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                     paymentStatus = Constants.PAYMENT_UNPAID;
                 }
 
-                holder.tv_status.setTextColor(Color.RED);
+                holder.tv_status.setTextColor(Color.RED);*/
             }
 
             holder.tv_status.setText(paymentStatus);
@@ -104,7 +106,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                 holder.btn_cancel.setOnClickListener(view -> {
                     try {
                         if (listener != null) {
-                            listener.onCancelPurchaseInvoice(invoice);
+                        //    listener.onCancelPurchaseInvoice(invoice);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -116,7 +118,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
 
             holder.itemView.setOnClickListener(null);
             holder.itemView.setOnClickListener(view -> {
-                if(listener!=null) listener.onClickPurchaseInvoice(invoice.getId());
+                if(listener!=null) listener.onClickPurchaseInvoice(invoice.getName());
             });
 
         }catch(Exception e){
@@ -156,7 +158,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
 
-            ArrayList<PurchaseInvoiceEntity> filteredList = new ArrayList<>();
+            ArrayList<PurchaseInvoiceData> filteredList = new ArrayList<>();
             if (constraint == null) {
 
                 filteredList.addAll(purchaseInvoiceEntityList);
@@ -177,7 +179,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                                 break;
                             case Constants.FILTER_PAID:
 
-                                for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
+                                for (PurchaseInvoiceData invoice : purchaseInvoiceEntityList) {
                                     if(invoice.getStatus().equals(Constants.PAYMENT_PAID)){
                                         filteredList.add(invoice);
                                     }
@@ -186,7 +188,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                                 break;
                             case Constants.FILTER_UNPAID:
 
-                                for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
+                                for (PurchaseInvoiceData invoice : purchaseInvoiceEntityList) {
                                     if(invoice.getStatus().equals(Constants.PAYMENT_UNPAID)){
                                         filteredList.add(invoice);
                                     }
@@ -197,7 +199,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                             case Constants.FILTER_OVERDUE:
 
                                 //loop through invoice list
-                                for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
+                                /*for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
                                     //find the credit sale type invoices
                                     if(invoice.getPaymentType() == Constants.PAY_TYPE_CREDIT_SALE){
                                         //check amount paid. find unpaid with balance payable
@@ -209,20 +211,20 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                                             }
                                         }
                                     }
-                                }
+                                }*/
 
                                 break;
 
                             case Constants.FILTER_RETURN:
 
                                 //loop through invoice list
-                                for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
+                                /*for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
                                     //find the credit sale type invoices
                                     if(invoice.getStatus().equals(Constants.PAYMENT_RETURN)){
                                         //check amount paid. find unpaid with balance payable
                                         filteredList.add(invoice);
                                     }
-                                }
+                                }*/
 
                                 break;
 
@@ -237,9 +239,9 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
                         String str_invoiceId;
                         String str_customerName;
 
-                        for (PurchaseInvoiceEntity invoice : purchaseInvoiceEntityList) {
-                            str_invoiceId = Constants.INVOICE_PREFIX + ""+invoice.getId();
-                            str_customerName = invoice.getCustomerName().toLowerCase();
+                        for (PurchaseInvoiceData invoice : purchaseInvoiceEntityList) {
+                            str_invoiceId = Constants.INVOICE_PREFIX + ""+invoice.getName();
+                            str_customerName = invoice.getName().toLowerCase();
                             if(str_invoiceId.contains(filterString) || str_customerName.contains(filterString.toLowerCase())){
                                 filteredList.add(invoice);
                             }
@@ -260,7 +262,7 @@ public class PurchaseInvoiceAdapter extends RecyclerView.Adapter<PurchaseInvoice
     };
 
     public interface PurchaseInvoiceListener{
-        void onClickPurchaseInvoice(int invoiceId);
-        void onCancelPurchaseInvoice(PurchaseInvoiceEntity pInvoice);
+        void onClickPurchaseInvoice(String invoiceId);
+        void onCancelPurchaseInvoice(PurchaseInvoiceData pInvoice);
     }
 }

@@ -342,6 +342,13 @@ public class PurchaseActivity extends SharedActivity {
      * */
     private void onClickCreatePurchase(){
         try {
+
+            //test implementation
+            if(1/1 == 1){
+                gotoCreatePurchaseScreen();
+                return;
+            }
+
             if(checkShiftOpen()){
                 gotoCreatePurchaseScreen();
             }else {

@@ -16,6 +16,9 @@ import com.rpos.pos.Constants;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.SupplierEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.suppliers.list.GetSuppliersListResponse;
 import com.rpos.pos.data.remote.dto.suppliers.list.SuppliersData;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
@@ -25,6 +28,10 @@ import com.rpos.pos.presentation.ui.supplier.lsit.adapter.SupplierListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SupplierSelectionActivity extends SharedActivity {
 
@@ -116,12 +123,58 @@ public class SupplierSelectionActivity extends SharedActivity {
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
 
-        getSupplierListLocalDb();
+        //getSupplierListLocalDb();
+        getSuppliersListApi();
     }
 
     @Override
     public void initObservers() {
 
+    }
+
+    private void getSuppliersListApi(){
+        try {
+
+            ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            Call<GetSuppliersListResponse> call = apiService.getSuppliersList();
+            call.enqueue(new Callback<GetSuppliersListResponse>() {
+                @Override
+                public void onResponse(Call<GetSuppliersListResponse> call, Response<GetSuppliersListResponse> response) {
+                    try{
+
+                        Log.e("---------------","res"+response.isSuccessful());
+                        if(response.isSuccessful()){
+                            GetSuppliersListResponse suppliersListResponse = response.body();
+                            if(suppliersListResponse!=null){
+                                List<SuppliersData> suppDataList = suppliersListResponse.getMessage();
+
+                                if(suppDataList!=null && suppDataList.size()>0) {
+
+                                    suppliersDataList.clear();
+                                    suppliersDataList.addAll(suppDataList);
+                                    supplierListAdapter.notifyDataSetChanged();
+                                    return;
+                                }
+                            }
+                        }
+
+                        showToast(getString(R.string.empty_data));
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GetSuppliersListResponse> call, Throwable t) {
+                    Log.e("---------------","failed");
+                    showToast(getString(R.string.please_check_internet));
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void getSupplierListLocalDb(){

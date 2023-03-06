@@ -12,6 +12,7 @@ import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
 import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
+import com.rpos.pos.data.remote.dto.purchase.add.AddPurchaseResponse;
 import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListResponse;
 import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgram;
 import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgramListResponse;
@@ -29,6 +30,7 @@ import com.rpos.pos.domain.requestmodel.customer.details.CustomerDetailsRequest;
 import com.rpos.pos.domain.requestmodel.item.add.AddItemRequest;
 import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
+import com.rpos.pos.domain.requestmodel.purchase.add.AddPurchaseRequest;
 import com.rpos.pos.domain.requestmodel.sales.add.AddSalesRequest;
 import com.rpos.pos.domain.requestmodel.sales.view.InvoiceViewRequest;
 import com.rpos.pos.domain.requestmodel.shift.ShiftOpenRequestJson;
@@ -106,6 +108,8 @@ public interface ApiService {
     @POST("custom_integration.api.purchase.purchase_list")
     Call<PurchaseListResponse> getAlllPurchaseInvoices(@Body RequestWithUserId params);
 
+    @POST("custom_integration.api.purchase.add_purchase")
+    Call<AddPurchaseResponse> addNewPurchaseInvoice(@Body AddPurchaseRequest params);
 
     @GET("https://api-fatoora.herokuapp.com/to_base64?")
     Call<ZatcaResponse> generate(@QueryMap Map<String, String> params);

@@ -21,12 +21,24 @@ import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.local.entity.PurchaseOrderDetailsEntity;
 import com.rpos.pos.data.local.entity.PurchaseOrderEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.purchase.add.AddPurchaseMessage;
+import com.rpos.pos.data.remote.dto.purchase.add.AddPurchaseResponse;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseInvoiceData;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListMessage;
+import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListResponse;
 import com.rpos.pos.domain.models.item.PickedItem;
+import com.rpos.pos.domain.requestmodel.RequestWithUserId;
+import com.rpos.pos.domain.requestmodel.purchase.add.AddPurchaseRequest;
+import com.rpos.pos.domain.requestmodel.purchase.add.PurchaseItem;
+import com.rpos.pos.domain.requestmodel.sales.add.SalesItem;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.item.select.ItemSelectActivity;
+import com.rpos.pos.presentation.ui.purchase.list.PurchaseActivity;
 import com.rpos.pos.presentation.ui.sales.adapter.SelectedItemAdapter;
 import com.rpos.pos.presentation.ui.supplier.selection.SupplierSelectionActivity;
 
@@ -35,6 +47,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CreatePurchaseActivity extends SharedActivity {
 
@@ -142,7 +158,7 @@ public class CreatePurchaseActivity extends SharedActivity {
         rv_itemList.setAdapter(selectedItemAdapter);
 
         //order confirm
-        btn_confirm_order.setOnClickListener(view -> createOfflineOrder());
+        btn_confirm_order.setOnClickListener(view -> createOnlineOrder());
 
         //item select
         fab_item_add.setOnClickListener(view -> selectItem());
@@ -162,6 +178,8 @@ public class CreatePurchaseActivity extends SharedActivity {
 
     }
 
+
+
     private void selectItem(){
         Intent selecteIntent = new Intent(CreatePurchaseActivity.this, ItemSelectActivity.class);
         selecteIntent.putExtra(Constants.ITEM_REQUESTED_PARENT, Constants.PARENT_PURCHASE); // Mandatory field
@@ -179,6 +197,7 @@ public class CreatePurchaseActivity extends SharedActivity {
                     String itemId = data.getStringExtra(Constants.ITEM_ID);
                     int quantity = data.getIntExtra(Constants.ITEM_QUANTITY, 0);
                     String itemName = data.getStringExtra(Constants.ITEM_NAME);
+                    String uomId = data.getStringExtra(Constants.ITEM_UOM_ID);
                     String itemRate = data.getStringExtra(Constants.ITEM_RATE);
                     int stock = data.getIntExtra(Constants.ITEM_STOCK, 0);
                     boolean isMaintainStock = data.getBooleanExtra(Constants.ITEM_MAINTAIN_STOCK, true);
@@ -187,7 +206,7 @@ public class CreatePurchaseActivity extends SharedActivity {
 
                     PickedItem existingItem = checkItemAlreadyAdded(itemId);
                     if(existingItem == null){
-                        PickedItem item  = new PickedItem().getPickedItemFrom(itemId,itemName,rate,quantity,stock,isMaintainStock);
+                        PickedItem item  = new PickedItem().getPickedItemFromFields(itemId,itemName,uomId,rate,quantity,stock,isMaintainStock);
                         addItemToList(item);
                     }else {
                         existingItem.setQuantity(quantity);
@@ -490,6 +509,105 @@ public class CreatePurchaseActivity extends SharedActivity {
             e.printStackTrace();
         }
     }
+
+    private void createOnlineOrder(){
+        try {
+
+            if(pickedItemList.isEmpty()){
+                showToast(getString(R.string.select_items), CreatePurchaseActivity.this);
+                return;
+            }
+
+            if(supplierId == Constants.EMPTY_INT){
+                showToast(getString(R.string.select_supplier), CreatePurchaseActivity.this);
+                return;
+            }
+
+            addPurchaseInvoice();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * to get all invoice list from web service
+     * */
+    private void addPurchaseInvoice(){
+        try {
+
+            String userId = SharedPrefHelper.getInstance(this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid), CreatePurchaseActivity.this);
+                return;
+            }
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+
+            //parameter
+            AddPurchaseRequest request = new AddPurchaseRequest();
+            request.setUserId(userId);
+            request.setSupplierId(String.valueOf(supplierId));
+
+
+            PickedItem pickedItem;
+            PurchaseItem requestItem;
+            List<PurchaseItem> purchaseItemList = new ArrayList<>();
+            for (int i= 0;i<pickedItemList.size();i++){
+                requestItem = new PurchaseItem();
+                pickedItem = pickedItemList.get(i);
+
+                requestItem.setItemCode(pickedItem.getId());
+                requestItem.setItemName(pickedItem.getItemName());
+                requestItem.setQty(String.valueOf(pickedItem.getQuantity()));
+                requestItem.setRate(String.valueOf(pickedItem.getRate()));
+                requestItem.setUom(pickedItem.getUom());
+                purchaseItemList.add(requestItem);
+            }
+            request.setItems(purchaseItemList);
+
+            Call<AddPurchaseResponse> call = api.addNewPurchaseInvoice(request);
+            call.enqueue(new Callback<AddPurchaseResponse>() {
+                @Override
+                public void onResponse(Call<AddPurchaseResponse> call, Response<AddPurchaseResponse> response) {
+                    try {
+
+                        if(response.isSuccessful()){
+
+                            AddPurchaseResponse addPurchaseResponse = response.body();
+
+                            if(addPurchaseResponse!=null){
+
+                                AddPurchaseMessage addPurchaseMessage = addPurchaseResponse.getMessage();
+
+                                if(addPurchaseMessage.getSuccess()){
+                                    Log.e("------------","received");
+                                    showSuccess();
+                                    return;
+                                }
+                            }
+                        }
+
+                        showToast(getString(R.string.please_check_internet), CreatePurchaseActivity.this);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AddPurchaseResponse> call, Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     private void showSuccess(){
         try {

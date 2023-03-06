@@ -9,6 +9,7 @@ import com.rpos.pos.R;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.login.LoginActivity;
 
+//version v1.0
 public class SplashActivity extends SharedActivity {
 
     @Override

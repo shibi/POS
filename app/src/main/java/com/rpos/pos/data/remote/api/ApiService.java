@@ -3,12 +3,15 @@ package com.rpos.pos.data.remote.api;
 import com.rpos.pos.data.remote.dto.ZatcaResponse;
 import com.rpos.pos.data.remote.dto.address.list.GetAddressListResponse;
 import com.rpos.pos.data.remote.dto.category.add.AddCategoryResponse;
+import com.rpos.pos.data.remote.dto.category.delete.CategoryDeleteResponse;
 import com.rpos.pos.data.remote.dto.category.details.CategoryDetailsResponse;
 import com.rpos.pos.data.remote.dto.category.list.GetCategoryResponse;
 import com.rpos.pos.data.remote.dto.customer.add.AddCustomerResponse;
+import com.rpos.pos.data.remote.dto.customer.delete.CustomerDeleteResponse;
 import com.rpos.pos.data.remote.dto.customer.details.CustomerDetailsResponse;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerListResponse;
 import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
+import com.rpos.pos.data.remote.dto.items.delete.DeleteItemResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
 import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
@@ -24,10 +27,13 @@ import com.rpos.pos.data.remote.dto.uom.list.GetUomListResponse;
 
 import com.rpos.pos.domain.requestmodel.RequestWithUserId;
 import com.rpos.pos.domain.requestmodel.category.add.AddCategoryRequest;
+import com.rpos.pos.domain.requestmodel.category.delete.CategoryDeleteRequest;
 import com.rpos.pos.domain.requestmodel.category.details.CategoryDetailsRequest;
 import com.rpos.pos.domain.requestmodel.customer.add.AddCustomerRequest;
+import com.rpos.pos.domain.requestmodel.customer.delete.CustomerDeleteRequest;
 import com.rpos.pos.domain.requestmodel.customer.details.CustomerDetailsRequest;
 import com.rpos.pos.domain.requestmodel.item.add.AddItemRequest;
+import com.rpos.pos.domain.requestmodel.item.delete.DeleteItemRequest;
 import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
 import com.rpos.pos.domain.requestmodel.purchase.add.AddPurchaseRequest;
@@ -111,7 +117,14 @@ public interface ApiService {
     @POST("custom_integration.api.purchase.add_purchase")
     Call<AddPurchaseResponse> addNewPurchaseInvoice(@Body AddPurchaseRequest params);
 
-    @GET("https://api-fatoora.herokuapp.com/to_base64?")
-    Call<ZatcaResponse> generate(@QueryMap Map<String, String> params);
+    @POST("custom_integration.api.items.delete_item")
+    Call<DeleteItemResponse> deleteItem(@Body DeleteItemRequest params);
+
+    @POST("custom_integration.api.customer.delete_customer")
+    Call<CustomerDeleteResponse> deleteCustomer(@Body CustomerDeleteRequest params);
+
+    @POST("custom_integration.api.category.delete_category")
+    Call<CategoryDeleteResponse> deleteCategory(@Body CategoryDeleteRequest params);
+
 
 }

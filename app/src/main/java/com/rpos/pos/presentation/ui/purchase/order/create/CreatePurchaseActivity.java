@@ -194,12 +194,13 @@ public class CreatePurchaseActivity extends SharedActivity {
                 Intent data  = result.getData();
 
                 if(data!=null){
-                    String itemId = data.getStringExtra(Constants.ITEM_ID);
+                    Integer _itemId = data.getIntExtra(Constants.ITEM_ID,Constants.EMPTY_INT);
+                    String itemId = String.valueOf(_itemId);
                     int quantity = data.getIntExtra(Constants.ITEM_QUANTITY, 0);
                     String itemName = data.getStringExtra(Constants.ITEM_NAME);
-                    String uomId = data.getStringExtra(Constants.ITEM_UOM_ID);
+                    Integer uomId = data.getIntExtra(Constants.ITEM_UOM_ID,Constants.EMPTY_INT);
                     String itemRate = data.getStringExtra(Constants.ITEM_RATE);
-                    int stock = data.getIntExtra(Constants.ITEM_STOCK, 0);
+                    float stock = data.getFloatExtra(Constants.ITEM_STOCK, 0.0f);
                     boolean isMaintainStock = data.getBooleanExtra(Constants.ITEM_MAINTAIN_STOCK, true);
 
                     float rate = Float.parseFloat(itemRate);
@@ -264,22 +265,6 @@ public class CreatePurchaseActivity extends SharedActivity {
 
             //calculate total and update
              reCalculateTotalAndUpdate();
-
-            /*appExecutors.diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-
-                        ItemEntity itemEntity = localDb.itemDao().getItemDetails(item.getId());
-                        if(itemEntity!=null){
-                            hashmap_source.put(itemEntity.getItemId(),itemEntity);
-                        }
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });*/
 
         }catch (Exception e){
             e.printStackTrace();

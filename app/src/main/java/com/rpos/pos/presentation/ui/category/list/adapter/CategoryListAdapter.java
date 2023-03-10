@@ -66,12 +66,11 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
             });
 
             //item remove
-            //hidden remove button, since theres is no delete api
-            /*holder.iv_remove.setOnClickListener(view -> {
+            holder.ll_remove.setOnClickListener(view -> {
                 if(listener!=null){
                     listener.onRemoveClick(_category);
                 }
-            });*/
+            });
 
         }catch (Exception e){
             e.printStackTrace();
@@ -85,9 +84,8 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
 
     public static class CategoryListViewHolder extends RecyclerView.ViewHolder {
 
-        public LinearLayout ll_color_circle;
+        public LinearLayout ll_color_circle , ll_remove;
         public AppCompatTextView tv_categoryName,tv_itemCount,tv_categoryStatus,tv_billId, tv_categoryFirstLetter;
-        public ImageView iv_remove;
 
         public CategoryListViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -97,7 +95,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
             tv_itemCount = itemView.findViewById(R.id.tv_item_count);
             tv_categoryStatus = itemView.findViewById(R.id.tv_item_stockstatus);
             tv_categoryFirstLetter = itemView.findViewById(R.id.tv_categoryLetter);
-            iv_remove= itemView.findViewById(R.id.iv_remove);
+            ll_remove = itemView.findViewById(R.id.ll_remove);
 
         }
     }

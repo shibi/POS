@@ -132,14 +132,14 @@ public class PickedItem {
         return item;
     }
 
-    public PickedItem getPickedItemFromFields(String id, String itemName,String uomId, float rate,int quantity,int stock, boolean maintain_stock){
+    public PickedItem getPickedItemFromFields(String id, String itemName,Integer uomId, float rate,int quantity,float stock, boolean maintain_stock){
         PickedItem item = new PickedItem();
         item.setId(id);
         item.setItemName(itemName);
-        item.setUom(uomId);
+        item.setUom(String.valueOf(uomId));
         item.setRate(rate);
         item.setQuantity(quantity);
-        item.setStock(stock);
+        item.setStock((int)stock);   //FORCE CONVERTING FLOAT TO INT
         item.setMaintainStock(maintain_stock);
         return item;
     }

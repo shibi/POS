@@ -26,7 +26,7 @@ public class ConverterFactory {
 
     public static CategoryEntity convertToCategoryEntity(CategoryItem category){
         CategoryEntity entity = new CategoryEntity();
-        entity.setCategoryId(category.getCategoryId());
+        entity.setCategoryId(""+category.getCategoryId());
         entity.setCategoryName(category.getCategory());
         return entity;
     }

@@ -23,10 +23,13 @@ import com.rpos.pos.data.local.entity.CategoryEntity;
 import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.category.delete.CategoryDeleteMessage;
+import com.rpos.pos.data.remote.dto.category.delete.CategoryDeleteResponse;
 import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
 import com.rpos.pos.data.remote.dto.category.list.GetCategoryResponse;
 import com.rpos.pos.data.remote.dto.items.list.ItemData;
 import com.rpos.pos.domain.models.item.PickedItem;
+import com.rpos.pos.domain.requestmodel.category.delete.CategoryDeleteRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.ConverterFactory;
 import com.rpos.pos.presentation.ui.category.add.AddCategoryActivity;
@@ -81,7 +84,7 @@ public class CategoryListActivity extends SharedActivity {
         categoryListAdapter = new CategoryListAdapter(categoryItemsArray, new CategoryListAdapter.CategoryClickListener() {
             @Override
             public void onClickCategoryItem(CategoryItem category) {
-                gotoCategoryViewScreen(category.getCategoryId(), category.getCategory());
+                gotoCategoryViewScreen(""+category.getCategoryId(), category.getCategory());
             }
 
             @Override
@@ -92,7 +95,8 @@ public class CategoryListActivity extends SharedActivity {
                     @Override
                     public void onClickPositive(String id) {
                         //delete item from db
-                        deleteCategory(category.getCategoryId());
+                        //deleteCategory(category.getCategoryId());
+                        deleteCategoryApiCall(category.getCategoryId());
                     }
 
                     @Override
@@ -113,90 +117,12 @@ public class CategoryListActivity extends SharedActivity {
 
         //api to get all category list
         getCategoryListApi();
-        //getCategoryFromLocalDb();
 
     }
 
     @Override
     public void initObservers() {
 
-    }
-
-
-    /**
-     * Get saved category from local db
-     * */
-    private void getCategoryFromLocalDb(){
-        try{
-
-            appExecutors.diskIO().execute(() -> {
-                try{
-
-                    List<CategoryEntity> savedCategory = localDb.categoryDao().getAllCategory();
-                    if(savedCategory!=null && !savedCategory.isEmpty()) {
-                        processCategoryList(savedCategory);
-                    }else {
-                        runOnUiThread(() -> showEmptyList());
-                    }
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     *  delete category
-     *  verify category usage before
-     * */
-    private void deleteCategory(String categoryId){
-        try {
-
-            appExecutors.diskIO().execute(() -> {
-                try {
-                    //verify category id
-                    ItemEntity categoryLinkedItem = checkAnyItemUsingCategory(categoryId);
-                    if(categoryLinkedItem !=null){
-                        //item exists with provided category
-                        runOnUiThread(() -> {
-                            //Notify user
-                            String msg = getString(R.string.delete_category_linked)+categoryLinkedItem.getItemName();
-                            appDialogs.showCommonAlertDialog(msg, null);
-                        });
-                        return;
-                    }
-
-                    localDb.categoryDao().deleteCategoryWithId(categoryId);
-                    removeCategoryFromRecyclerView(categoryId);
-                    showToast(getString(R.string.category_delete_success));
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * check any item is linked to this category provided
-     * @param categoryId id of category selected for delete
-     * */
-    private ItemEntity checkAnyItemUsingCategory(String categoryId){
-        //get all items with provided category from local db
-        List<ItemEntity> itemsList = localDb.itemDao().getAllItemWithProvidedCategory(categoryId);
-        //check if it is null
-        if(itemsList == null || itemsList.isEmpty()){
-            return null;
-        }else {
-            //return the first item
-            return itemsList.get(0);
-        }
     }
 
     /**
@@ -218,81 +144,6 @@ public class CategoryListActivity extends SharedActivity {
                         break;
                     }
                 }
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private void processCategoryList(List<CategoryEntity> savedCategory){
-        try {
-
-            //clear previous items
-            categoryItemsArray.clear();
-
-            CategoryItem categoryItem;
-            CategoryEntity categorySaved;
-            for (int i =0;i< savedCategory.size();i++){
-                categoryItem = new CategoryItem();
-                categorySaved = savedCategory.get(i);
-
-                categoryItem.setCategoryId(categorySaved.getCategoryId());
-                categoryItem.setCategory(categorySaved.getCategoryName());
-                categoryItemsArray.add(categoryItem);
-            }
-
-            runOnUiThread(() -> {
-                try {
-                    hideEmptyView();
-                    categoryListAdapter.notifyDataSetChanged();
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * To remove category from recycler view
-     * */
-    private void removeCategoryFromRecyclerView(String catId){
-        try {
-
-            if(catId==null || catId.isEmpty()){
-                showToast(getString(R.string.no_such_category));
-                return;
-            }
-
-            int listSize = categoryItemsArray.size();
-            CategoryItem _category;
-            int removePos = 0;
-            if(listSize>0) {
-                for (int i = 0; i < listSize; i++) {
-                    _category = categoryItemsArray.get(i);
-                    if (_category.getCategoryId().equals(catId)) {
-                        categoryItemsArray.remove(i);
-                        removePos = i;
-                        break;
-                    }
-                }
-
-                final int removeRefPos = removePos;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            categoryListAdapter.notifyItemRemoved(removeRefPos);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
             }
 
         }catch (Exception e){
@@ -352,6 +203,81 @@ public class CategoryListActivity extends SharedActivity {
                     hideProgress();
                 }
             });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    private void deleteCategoryApiCall(Integer cat_Id){
+        try {
+
+            showProgress();
+
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            CategoryDeleteRequest params = new CategoryDeleteRequest();
+            params.setCategoryId(String.valueOf(cat_Id));
+            Call<CategoryDeleteResponse> call = api.deleteCategory(params);
+            call.enqueue(new Callback<CategoryDeleteResponse>() {
+                @Override
+                public void onResponse(Call<CategoryDeleteResponse> call, Response<CategoryDeleteResponse> response) {
+                    try {
+                        Log.e("-----------","APO"+response.isSuccessful());
+                        hideProgress();
+
+                        //check response success
+                        if(response.isSuccessful()){
+                            CategoryDeleteResponse categoryDeleteResponse = response.body();
+                            if(categoryDeleteResponse!=null && categoryDeleteResponse.getMessage()!=null){
+                                CategoryDeleteMessage categoryDeleteMessage = categoryDeleteResponse.getMessage();
+                                if(categoryDeleteMessage.getSuccess()){
+                                    removeCategoryFromRecyclerView(cat_Id);
+                                    showToast(getString(R.string.category_delete_success));
+                                    return;
+                                }
+                                showToast(categoryDeleteMessage.getMessage(),CategoryListActivity.this);
+                                return;
+                            }
+                        }
+
+                        showToast(getString(R.string.please_check_internet), CategoryListActivity.this);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CategoryDeleteResponse> call, Throwable t) {
+                    Log.e("-----------","failed");
+                    hideProgress();
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * To remove category from recycler view
+     * */
+    private void removeCategoryFromRecyclerView(Integer catId){
+        try {
+
+            int listSize = categoryItemsArray.size();
+            CategoryItem _category;
+            if(listSize>0) {
+                for (int i = 0; i < listSize; i++) {
+                    _category = categoryItemsArray.get(i);
+                    if (_category.getCategoryId() == catId) {
+                        categoryItemsArray.remove(i);
+                        categoryListAdapter.notifyItemRemoved(i);
+                        break;
+                    }
+                }
+            }
 
         }catch (Exception e){
             e.printStackTrace();
@@ -418,11 +344,7 @@ public class CategoryListActivity extends SharedActivity {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        // There are no request codes
-                        //Intent data = result.getData();
-
                         getCategoryListApi();    // API
-                        //getCategoryFromLocalDb();  // ROOM DB
                     }
                 }});
 

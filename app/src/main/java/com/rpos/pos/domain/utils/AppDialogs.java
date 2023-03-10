@@ -182,7 +182,7 @@ public class AppDialogs {
     /**
      * to select quantity for items
      * */
-    public void showOrderItemPicker(int stock, float unitprice, String uom,boolean isMaintainStock,int requestedParent, ItemPickerListener listener){
+    public void showOrderItemPicker(Float stock, float unitprice, String uom,boolean isMaintainStock,int requestedParent, ItemPickerListener listener){
         try{
 
             //check whether dialog box showing

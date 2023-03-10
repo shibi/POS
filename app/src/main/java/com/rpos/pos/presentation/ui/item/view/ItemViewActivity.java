@@ -130,7 +130,7 @@ public class ItemViewActivity extends SharedActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(savedItemEntity!=null) {
-                    savedItemEntity.setCategory(categoryItemsList.get(i).getCategoryId());
+                    savedItemEntity.setCategory(""+categoryItemsList.get(i).getCategoryId());
                 }
             }
 
@@ -234,7 +234,7 @@ public class ItemViewActivity extends SharedActivity {
                 categoryItem = new CategoryItem();
                 categorySaved = savedCategory.get(i);
 
-                categoryItem.setCategoryId(categorySaved.getCategoryId());
+                categoryItem.setCategoryId(Integer.parseInt(categorySaved.getCategoryId()));
                 categoryItem.setCategory(categorySaved.getCategoryName());
                 categoryItemsList.add(categoryItem);
             }

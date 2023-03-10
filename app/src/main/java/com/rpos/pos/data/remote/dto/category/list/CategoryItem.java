@@ -10,16 +10,16 @@ public class CategoryItem {
 
     @SerializedName("category_id")
     @Expose
-    private String categoryId;
+    private Integer categoryId;
     @SerializedName("category")
     @Expose
     private String category;
 
-    public String getCategoryId() {
+    public Integer getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(String categoryId) {
+    public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
 

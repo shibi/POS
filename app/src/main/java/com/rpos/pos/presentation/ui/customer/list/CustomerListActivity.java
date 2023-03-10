@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
@@ -17,9 +19,13 @@ import com.rpos.pos.data.local.entity.PaymentModeEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.Customer;
+import com.rpos.pos.data.remote.dto.customer.delete.CustomerDeleteMessage;
+import com.rpos.pos.data.remote.dto.customer.delete.CustomerDeleteResponse;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerListResponse;
+import com.rpos.pos.data.remote.dto.items.list.ItemData;
 import com.rpos.pos.domain.models.item.PickedItem;
+import com.rpos.pos.domain.requestmodel.customer.delete.CustomerDeleteRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.ConverterFactory;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
@@ -30,6 +36,7 @@ import com.rpos.pos.presentation.ui.paymentmodes.list.PaymentModeListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -99,7 +106,7 @@ public class CustomerListActivity extends SharedActivity {
 
                 gotoAddCustomerScreen();
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -111,7 +118,6 @@ public class CustomerListActivity extends SharedActivity {
     }
 
 
-
     @Override
     public void initObservers() {
 
@@ -119,33 +125,33 @@ public class CustomerListActivity extends SharedActivity {
 
     /**
      * to get customer list
-     * */
-    private void getCustomerList(){
+     */
+    private void getCustomerList() {
         try {
 
             //show progress
             progressDialog.showProgressBar();
 
             //
-            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
             Call<CustomerListResponse> call = api.getCustomerList();
             call.enqueue(new Callback<CustomerListResponse>() {
                 @Override
                 public void onResponse(Call<CustomerListResponse> call, Response<CustomerListResponse> response) {
-                    Log.e("------------","res"+response.isSuccessful());
-                    try{
+                    Log.e("------------", "res" + response.isSuccessful());
+                    try {
                         //hide progress bar
                         progressDialog.hideProgressbar();
 
                         //check success
-                        if(response.isSuccessful()){
+                        if (response.isSuccessful()) {
                             CustomerListResponse customerListResp = response.body();
-                            if(customerListResp!=null){
+                            if (customerListResp != null) {
                                 List<CustomerData> customerDataList = customerListResp.getMessage();
 
-                                if(customerDataList!=null && customerDataList.size()>0){
+                                if (customerDataList != null && customerDataList.size() > 0) {
                                     customerList.clear();
-                                    for (CustomerData customer: customerDataList) {
+                                    for (CustomerData customer : customerDataList) {
                                         customerList.add(ConverterFactory.convertToEntity(customer));
                                     }
                                     customerListAdapter.notifyDataSetChanged();
@@ -157,7 +163,7 @@ public class CustomerListActivity extends SharedActivity {
 
                         showEmptyList();
 
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -170,65 +176,66 @@ public class CustomerListActivity extends SharedActivity {
                 }
             });
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
      * refresh adapter position after item remove
+     *
      * @param position position of the item removed
-     * */
-    private void refreshAfterRemove(final int position){
+     */
+    private void refreshAfterRemove(final int position) {
         try {
 
             runOnUiThread(() -> customerListAdapter.notifyItemRemoved(position));
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private ActivityResultLauncher<Intent> launchAddCustomerScreen = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
 
-        if(result.getResultCode() == RESULT_OK){
+        if (result.getResultCode() == RESULT_OK) {
             getCustomerListFromDb();
         }
     });
 
-    private void gotoAddCustomerScreen(){
+    private void gotoAddCustomerScreen() {
         Intent addCustomerIntent = new Intent(CustomerListActivity.this, AddCustomerActivity.class);
         launchAddCustomerScreen.launch(addCustomerIntent);
     }
 
     /**
      * get customer list from db
-     * */
-    private void getCustomerListFromDb(){
+     */
+    private void getCustomerListFromDb() {
         try {
 
             appExecutors.diskIO().execute(() -> {
                 try {
                     List<CustomerEntity> tempList = localDb.customerDao().getAllCustomer();
-                    if(tempList!=null && !tempList.isEmpty()){
+                    if (tempList != null && !tempList.isEmpty()) {
                         customerList.clear();
                         customerList.addAll(tempList);
                         runOnUiThread(() -> customerListAdapter.notifyDataSetChanged());
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
      * prompt user to confirm deletion
-     * */
-    private void promptDeleteConfirmation(CustomerEntity customer){
+     */
+    private void promptDeleteConfirmation(CustomerEntity customer) {
         try {
 
             String message = getString(R.string.delete_confirmation);
@@ -239,25 +246,9 @@ public class CustomerListActivity extends SharedActivity {
                 public void onClickPositive(String id) {
                     try {
 
-                        appExecutors.diskIO().execute(() -> {
-                            try {
+                        deleteCustomerApiCall(customer.getCustomerId());
 
-                                localDb.customerDao().delete(customer);
-
-                                for (int i=0;i < customerList.size();i++){
-                                    if(customerList.get(i).getCustomerId().equals(customer.getCustomerId())){
-                                        customerList.remove(i);
-                                        refreshAfterRemove(i);
-                                        break;
-                                    }
-                                }
-
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        });
-
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -268,6 +259,81 @@ public class CustomerListActivity extends SharedActivity {
                 }
             });
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteCustomerApiCall(String custId){
+        try {
+
+            //show progress
+            progressDialog.showProgressBar();
+
+            //
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY, Constants.API_SECRET);
+            CustomerDeleteRequest param = new CustomerDeleteRequest();
+            param.setCustomerId(custId);
+            Call<CustomerDeleteResponse> call = api.deleteCustomer(param);
+            call.enqueue(new Callback<CustomerDeleteResponse>() {
+                @Override
+                public void onResponse(Call<CustomerDeleteResponse> call, Response<CustomerDeleteResponse> response) {
+                    Log.e("------------", "res" + response.isSuccessful());
+                    try {
+                        //hide progress bar
+                        progressDialog.hideProgressbar();
+
+                        //check success
+                        if (response.isSuccessful()) {
+                            CustomerDeleteResponse customerDeleteResponse = response.body();
+                            if(customerDeleteResponse!=null && customerDeleteResponse.getMessage()!=null){
+
+                                CustomerDeleteMessage customerDeleteMessage = customerDeleteResponse.getMessage();
+                                if(customerDeleteMessage.getSuccess()){
+                                    removeCustomerFromRecyclerView(custId);
+                                }
+                                showToast(customerDeleteMessage.getMessage(), CustomerListActivity.this);
+                                return;
+                            }
+                        }
+
+                        showToast(getString(R.string.please_check_internet), CustomerListActivity.this);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CustomerDeleteResponse> call, Throwable t) {
+                    progressDialog.hideProgressbar();
+                    showToast(getString(R.string.please_check_internet), CustomerListActivity.this);
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void removeCustomerFromRecyclerView(String custId){
+        try {
+
+            int listSize = customerList.size();
+             CustomerEntity customerEntity;
+
+            if(listSize>0) {
+                for (int i = 0; i < listSize; i++) {
+                    customerEntity = customerList.get(i);
+                    if (customerEntity.getCustomerId().equals(custId)) {
+                        customerList.remove(i);
+                        customerListAdapter.notifyItemRemoved(i);
+                        Log.e("----------","item remo2");
+                        break;
+                    }
+                }
+            }
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -275,24 +341,23 @@ public class CustomerListActivity extends SharedActivity {
 
     /**
      * to show empty view
-     * */
-    private void showEmptyList(){
+     */
+    private void showEmptyList() {
         viewEmpty.setVisibility(View.VISIBLE);
     }
 
     /**
      * to hide empty view
-     * */
-    private void hideEmptyView(){
+     */
+    private void hideEmptyView() {
         viewEmpty.setVisibility(View.GONE);
     }
 
-    private void gotoCustomerDetailsActivity(String customer_ID){
+    private void gotoCustomerDetailsActivity(String customer_ID) {
         Intent intent = new Intent(CustomerListActivity.this, CustomerDetailsActivity.class);
         intent.putExtra(Constants.CUSTOMER_ID, customer_ID);
         startActivity(intent);
     }
-
 
 
 }

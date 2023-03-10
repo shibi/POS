@@ -152,7 +152,7 @@ public class AddItemActivity extends SharedActivity {
         sp_category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                str_category_id = categoryItemsList.get(i).getCategoryId();
+                str_category_id = ""+categoryItemsList.get(i).getCategoryId();
                 categoryName = categoryItemsList.get(i).getCategory();
             }
 
@@ -413,7 +413,7 @@ public class AddItemActivity extends SharedActivity {
                 categoryItem = new CategoryItem();
                 categorySaved = savedCategory.get(i);
 
-                categoryItem.setCategoryId(categorySaved.getCategoryId());
+                categoryItem.setCategoryId(Integer.parseInt(categorySaved.getCategoryId()));
                 categoryItem.setCategory(categorySaved.getCategoryName());
                 categoryItemsList.add(categoryItem);
             }

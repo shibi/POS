@@ -16,17 +16,17 @@ import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
-import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
+import com.rpos.pos.data.remote.dto.items.delete.DeleteItemResponse;
+import com.rpos.pos.data.remote.dto.items.delete.ItemDeleteMessage;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.items.list.ItemData;
+import com.rpos.pos.domain.requestmodel.item.delete.DeleteItemRequest;
 import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
-import com.rpos.pos.presentation.ui.category.list.CategoryListActivity;
 import com.rpos.pos.presentation.ui.common.SharedFragment;
 import com.rpos.pos.presentation.ui.item.list.ItemActivity;
 import com.rpos.pos.presentation.ui.item.list.adapter.ItemListAdapter;
-import com.rpos.pos.presentation.ui.item.select.ItemSelectActivity;
 import com.rpos.pos.presentation.ui.item.view.ItemViewActivity;
 
 import java.util.ArrayList;
@@ -99,7 +99,7 @@ public class ItemListFragment extends SharedFragment {
                     appDialogs.showCommonDualActionAlertDialog(getString(R.string.delete_label), msg, new AppDialogs.OnDualActionButtonClickListener() {
                         @Override
                         public void onClickPositive(String id) {
-                            deleteItem(item.getItemId());
+                            deleteItemApicall(item.getItemId());
                         }
 
                         @Override
@@ -130,9 +130,6 @@ public class ItemListFragment extends SharedFragment {
         //BACK PRESS
         ll_back.setOnClickListener(view -> getActivity().onBackPressed());
 
-        //get items list
-        //getItemsList();
-
     }
 
     @Override
@@ -148,11 +145,9 @@ public class ItemListFragment extends SharedFragment {
     @Override
     public void onResume() {
         super.onResume();
-
         try {
 
             if(itemListAdapter!=null) {
-                //getItemsFromLocalDB();
                 getItemsListApiCall();
             }
 
@@ -200,30 +195,53 @@ public class ItemListFragment extends SharedFragment {
         }
     }
 
-    /**
-     * find item with id and delete
-     * */
-    private void deleteItem(String str_itemId){
+    private void deleteItemApicall(int itemId){
         try {
 
-            appExecutors.diskIO().execute(() -> {
-                try {
+            showProgress();
 
-                    int item_id = Integer.parseInt(str_itemId);
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            //request params
+            DeleteItemRequest requestParams = new DeleteItemRequest();
+            requestParams.setItemId(String.valueOf(itemId));
+            Call<DeleteItemResponse> call = api.deleteItem(requestParams);
+            call.enqueue(new Callback<DeleteItemResponse>() {
+                @Override
+                public void onResponse(Call<DeleteItemResponse> call, Response<DeleteItemResponse> response) {
+                    try{
 
+                        //hide progress
+                        hideProgress();
 
+                        if(response.isSuccessful()){
+                            DeleteItemResponse deleteItemResponse = response.body();
+                            if(deleteItemResponse!=null && deleteItemResponse.getMessage()!=null){
 
-                    localDb.itemDao().deleteItemWithId(item_id);
-                    removeCategoryFromRecyclerView(str_itemId);
+                                ItemDeleteMessage itemDeleteMessage = deleteItemResponse.getMessage();
+                                if(itemDeleteMessage.getSuccess()){
+                                    removeCategoryFromRecyclerView(itemId);
+                                    showToast(getString(R.string.item_delete_success));
+                                    return;
+                                }
+                                showToast(itemDeleteMessage.getMessage());
+                                return;
+                            }
+                        }
 
-                    //show message
-                    getActivity().runOnUiThread(() -> showToast(getString(R.string.item_delete_success)));
+                        showToast(getString(R.string.please_check_internet));
 
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
 
-                }catch (Exception e){
-                    e.printStackTrace();
+                @Override
+                public void onFailure(Call<DeleteItemResponse> call, Throwable t) {
+                    Log.e("----------","failed>"+t.getMessage());
+                    hideProgress();
                 }
             });
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -233,34 +251,21 @@ public class ItemListFragment extends SharedFragment {
     /**
      * To remove category from recycler view
      * */
-    private void removeCategoryFromRecyclerView(String selectedItemId){
+    private void removeCategoryFromRecyclerView(int selectedItemId){
         try {
 
             int listSize = itemDataList.size();
             ItemData itemData;
-            int removePos = 0;
 
             if(listSize>0) {
                 for (int i = 0; i < listSize; i++) {
                     itemData = itemDataList.get(i);
-                    if (itemData.getItemId().equals(selectedItemId)) {
+                    if (itemData.getItemId() == selectedItemId) {
                         itemDataList.remove(i);
-                        removePos = i;
+                        itemListAdapter.notifyItemRemoved(i);
                         break;
                     }
                 }
-
-                final int removeRefPos = removePos;
-                getActivity().runOnUiThread(() -> {
-                    try {
-
-                        itemListAdapter.notifyItemRemoved(removeRefPos);
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                });
-
             }
 
         }catch (Exception e){

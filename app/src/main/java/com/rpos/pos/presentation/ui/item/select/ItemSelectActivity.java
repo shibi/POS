@@ -609,7 +609,8 @@ public class ItemSelectActivity extends SharedActivity {
                 public void run() {
 
                     AppDialogs appDialogs = new AppDialogs(ItemSelectActivity.this);
-                    appDialogs.showOrderItemPicker(_item.getAvailableQty(), _item.getRate(), uom_name, isMaintainStock,requestedParent,quantity -> {
+
+                    /*appDialogs.showOrderItemPicker(Float.parseFloat(_item.getAvailableQty()), _item.getRate(), uom_name, isMaintainStock,requestedParent,quantity -> {
                         Intent intent = new Intent();
                         intent.putExtra(Constants.ITEM_ID, _item.getItemId());
                         intent.putExtra(Constants.ITEM_QUANTITY, quantity);
@@ -619,7 +620,7 @@ public class ItemSelectActivity extends SharedActivity {
                         intent.putExtra(Constants.ITEM_MAINTAIN_STOCK, isMaintainStock);
                         setResult(RESULT_OK, intent);
                         finish();
-                    });
+                    });*/
                 }
             });
 

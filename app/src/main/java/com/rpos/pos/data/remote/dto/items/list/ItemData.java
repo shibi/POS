@@ -3,52 +3,44 @@ package com.rpos.pos.data.remote.dto.items.list;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.rpos.pos.data.local.entity.ItemEntity;
-
 import java.util.List;
-
 
 public class ItemData {
 
     @SerializedName("name")
     @Expose
     private String name;
-
     @SerializedName("item_id")
     @Expose
-    private String itemId;
+    private Integer itemId;
     @SerializedName("item_name")
     @Expose
     private String itemName;
-    @SerializedName("uom")
+    @SerializedName("description")
     @Expose
-    private String uom;
-    @SerializedName("category")
-    @Expose
-    private String category;
-    @SerializedName("maintain_stock")
-    @Expose
-    private Integer maintainStock;
-
+    private String description;
     @SerializedName("brand")
     @Expose
     private Object brand;
-
+    @SerializedName("uom")
+    @Expose
+    private Integer uom;
+    @SerializedName("category")
+    @Expose
+    private Integer category;
+    @SerializedName("maintain_stock")
+    @Expose
+    private Integer maintainStock;
     @SerializedName("barcodes")
     @Expose
-    private List<BarcodeData> barcodes = null;
-    @SerializedName("available_qty")
-    @Expose
-    private Integer availableQty;
-
-    @SerializedName("item_desc")
-    @Expose
-    private String description;
-
+    private List<BarcodeData> barcodes;
     @SerializedName("rate")
     @Expose
-    private float rate;
-
-    @SerializedName("itemTax")
+    private Float rate;
+    @SerializedName("available_qty")
+    @Expose
+    private Float availableQty;
+    @SerializedName("tax")
     @Expose
     private float itemTax;
 
@@ -62,11 +54,11 @@ public class ItemData {
         this.name = name;
     }
 
-    public String getItemId() {
+    public Integer getItemId() {
         return itemId;
     }
 
-    public void setItemId(String itemId) {
+    public void setItemId(Integer itemId) {
         this.itemId = itemId;
     }
 
@@ -78,11 +70,11 @@ public class ItemData {
         this.itemName = itemName;
     }
 
-    public String getUom() {
+    public Integer getUom() {
         return uom;
     }
 
-    public void setUom(String uom) {
+    public void setUom(Integer uom) {
         this.uom = uom;
     }
 
@@ -94,11 +86,11 @@ public class ItemData {
         this.brand = brand;
     }
 
-    public String getCategory() {
+    public Integer getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Integer category) {
         this.category = category;
     }
 
@@ -118,11 +110,11 @@ public class ItemData {
         this.barcodes = barcodes;
     }
 
-    public Integer getAvailableQty() {
+    public Float getAvailableQty() {
         return availableQty;
     }
 
-    public void setAvailableQty(Integer availableQty) {
+    public void setAvailableQty(Float availableQty) {
         this.availableQty = availableQty;
     }
 
@@ -160,7 +152,7 @@ public class ItemData {
     }
 
     public void convertFromItemEntity(ItemEntity itemEntity){
-        this.itemId = ""+itemEntity.getItemId();
+        /*this.itemId = itemEntity.getItemId();
         this.itemName = itemEntity.getItemName();
         this.uom = itemEntity.getUom();
 
@@ -172,6 +164,6 @@ public class ItemData {
         this.availableQty = itemEntity.getAvailableQty();
         this.description = itemEntity.getDescription();
         this.rate = itemEntity.getRate();
-        this.itemTax = itemEntity.getItemTax();
+        this.itemTax = itemEntity.getItemTax();*/
     }
 }

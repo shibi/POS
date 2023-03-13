@@ -16,16 +16,16 @@ public class UomItem {
     @NonNull
     @SerializedName("uom_id")
     @Expose
-    private String uomId;
+    private Integer uomId;
     @SerializedName("uom_name")
     @Expose
     private String uomName;
 
-    public String getUomId() {
+    public Integer getUomId() {
         return uomId;
     }
 
-    public void setUomId(String uomId) {
+    public void setUomId(Integer uomId) {
         this.uomId = uomId;
     }
 

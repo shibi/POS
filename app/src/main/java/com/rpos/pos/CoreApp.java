@@ -14,6 +14,7 @@ import com.rpos.pos.data.local.entity.ItemEntity;
 import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.items.list.ItemData;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
 import com.rpos.pos.domain.models.country.CountryItem;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
@@ -43,7 +44,7 @@ public class CoreApp extends Application {
 
     private AppDatabase appDatabase;
 
-    private List<ItemEntity> allItemsList;
+    private List<ItemData> allItemsList;
 
     private ShiftRegEntity runningShift;
 
@@ -186,11 +187,11 @@ public class CoreApp extends Application {
         uomList = list;
     }
 
-    public List<ItemEntity> getAllItemsList(){
+    public List<ItemData> getAllItemsList(){
         return allItemsList;
     }
 
-    public void setAllItemsList(List<ItemEntity> list){
+    public void setAllItemsList(List<ItemData> list){
         allItemsList = list;
     }
 

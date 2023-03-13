@@ -2,12 +2,16 @@
 package com.rpos.pos.data.remote.dto.category.list;
 
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
+@Entity(tableName = "category_table")
 public class CategoryItem {
 
+    @PrimaryKey(autoGenerate = false)
     @SerializedName("category_id")
     @Expose
     private Integer categoryId;

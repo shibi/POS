@@ -29,7 +29,7 @@ public class Testing {
             public void run() {
                 try{
 
-                    localDb.uomDao().insertSingleUom(getSampleUnitEntity("1","kilo"));
+                    localDb.uomDao().insertSingleUom(getSampleUnitEntity(1,"kilo"));
 
                     localDb.paymentModeDao().insertPaymentMode(getSamplePaymentMode("Cash", ""+Constants.PAY_TYPE_CASH));
 
@@ -37,7 +37,7 @@ public class Testing {
 
                     CategoryEntity categoryEntity = getCategory("Burger");
 
-                    localDb.categoryDao().insertCategory(categoryEntity);
+                    //localDb.categoryDao().insertCategory(categoryEntity);
 
                     localDb.itemDao().insertItem(getAnItem("Veg burger","delicious",200.0f,20, categoryEntity.getCategoryName(), "1",1));
 
@@ -56,7 +56,7 @@ public class Testing {
         });
     }
 
-    private UomItem getSampleUnitEntity(String id, String unitName){
+    private UomItem getSampleUnitEntity(int id, String unitName){
         UomItem uomItem = new UomItem();
         uomItem.setUomId(id);
         uomItem.setUomName(unitName);

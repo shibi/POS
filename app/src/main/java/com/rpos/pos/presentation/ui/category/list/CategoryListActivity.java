@@ -84,7 +84,7 @@ public class CategoryListActivity extends SharedActivity {
         categoryListAdapter = new CategoryListAdapter(categoryItemsArray, new CategoryListAdapter.CategoryClickListener() {
             @Override
             public void onClickCategoryItem(CategoryItem category) {
-                gotoCategoryViewScreen(""+category.getCategoryId(), category.getCategory());
+                gotoCategoryViewScreen(category.getCategoryId(), category.getCategory());
             }
 
             @Override
@@ -95,7 +95,6 @@ public class CategoryListActivity extends SharedActivity {
                     @Override
                     public void onClickPositive(String id) {
                         //delete item from db
-                        //deleteCategory(category.getCategoryId());
                         deleteCategoryApiCall(category.getCategoryId());
                     }
 
@@ -297,18 +296,10 @@ public class CategoryListActivity extends SharedActivity {
                     try {
 
                         //clear the previous items
-                        localDb.categoryDao().deleteAll();
+                        localDb.categoryDao().deleteAllCategories();
 
-                        List<CategoryEntity> entityList = new ArrayList<>();
-                        for (CategoryItem category: catList) {
-                            entityList.add(ConverterFactory.convertToCategoryEntity(category));
-                        }
-
-                        //add items, if there any
-                        if(entityList.size()>0) {
-                            //add the new items
-                            localDb.categoryDao().insertCategoryList(entityList);
-                        }
+                        //add the new items
+                        localDb.categoryDao().insertCategoryAsList(catList);
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -351,7 +342,7 @@ public class CategoryListActivity extends SharedActivity {
     /**
      * goto category details view
      * */
-    private void gotoCategoryViewScreen(String categoryId, String categoryName){
+    private void gotoCategoryViewScreen(int categoryId, String categoryName){
         Intent categoryViewIntent = new Intent(this, CategoryViewActivity.class);
         categoryViewIntent.putExtra(Constants.CATEGORY_ID, categoryId);
         categoryViewIntent.putExtra(Constants.CATEGORY_NAME, categoryName);

@@ -90,7 +90,7 @@ public class AddUomActivity extends SharedActivity {
 
             String lastId;
             if(uomItemList.size()>0) {
-                lastId = uomItemList.get(uomItemList.size() - 1).getUomId();
+                lastId = ""+uomItemList.get(uomItemList.size() - 1).getUomId();
             }else {
                 lastId = "1";
             }
@@ -99,7 +99,7 @@ public class AddUomActivity extends SharedActivity {
 
             UomItem newUom = new UomItem();
             newUom.setUomName(uomName);
-            newUom.setUomId(""+newId);
+            newUom.setUomId(newId);
 
             appExecutors.diskIO().execute(() -> {
 

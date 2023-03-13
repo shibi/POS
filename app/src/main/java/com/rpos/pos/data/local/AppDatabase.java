@@ -40,11 +40,12 @@ import com.rpos.pos.data.local.entity.PurchaseOrderEntity;
 import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.data.local.entity.SupplierEntity;
 import com.rpos.pos.data.local.entity.TaxSlabEntity;
+import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
 
 @Database(entities = {ItemEntity.class,
         OrderEntity.class, OrderDetailsEntity.class,
-        CategoryEntity.class, UomItem.class,
+         UomItem.class,
         InvoiceEntity.class, PaymentModeEntity.class,
         CustomerEntity.class, TaxSlabEntity.class,
         CompanyEntity.class, InvoiceItemHistory.class,
@@ -52,7 +53,7 @@ import com.rpos.pos.data.remote.dto.uom.list.UomItem;
         PurchaseOrderDetailsEntity.class, PriceListEntity.class,
         ItemPriceEntity.class, PurchaseInvoiceEntity.class,
         PurchaseInvoiceItemHistory.class , CompanyAddressEntity.class,
-        ShiftRegEntity.class }, version = 44, exportSchema = false)
+        ShiftRegEntity.class, CategoryItem.class }, version = 49, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 

@@ -26,7 +26,7 @@ import retrofit2.Response;
 
 public class CategoryViewActivity extends SharedActivity {
 
-    private String categoryId;
+    private int categoryId;
     private AppCompatEditText et_categoryName;
     private AppCompatButton btn_update;
     private LinearLayout ll_back;
@@ -55,10 +55,10 @@ public class CategoryViewActivity extends SharedActivity {
 
         Intent intent = getIntent();
         if(intent!=null){
-            categoryId = intent.getStringExtra(Constants.CATEGORY_ID);
+            categoryId = intent.getIntExtra(Constants.CATEGORY_ID, Constants.EMPTY_INT);
             String categoryName = intent.getStringExtra(Constants.CATEGORY_NAME);
 
-            if(categoryId == null || categoryId.isEmpty()){
+            if(categoryId  == Constants.EMPTY_INT){
                 showToast("Invalid category id. Please retry",this);
                 return;
             }
@@ -70,21 +70,13 @@ public class CategoryViewActivity extends SharedActivity {
         et_categoryName.setClickable(false);
         et_categoryName.setFocusable(false);
 
-
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
-
-
-        //get category details
-        //getCategoryFromLocalDb(categoryId);
-        //getCategoryDetails(categoryId);
-
 
         //HIDE UPDATE BTN, SINCE THERE IS NO UPDATE API
         btn_update.setEnabled(false);
         btn_update.setVisibility(View.GONE);
         //btn_update.setOnClickListener(view -> updateClick());
-
 
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
@@ -116,91 +108,6 @@ public class CategoryViewActivity extends SharedActivity {
     }
 
     /**
-     * api to get category details
-     * */
-    private void getCategoryDetails(String categoryId){
-        try {
-
-            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
-
-            CategoryDetailsRequest request = new CategoryDetailsRequest();
-            request.setCategoryId(categoryId);
-            Call<CategoryDetailsResponse> call = api.getCategoryDetails(request);
-            call.enqueue(new Callback<CategoryDetailsResponse>() {
-                @Override
-                public void onResponse(Call<CategoryDetailsResponse> call, Response<CategoryDetailsResponse> response) {
-                    Log.e("----------","re"+response.isSuccessful());
-                    if(response.isSuccessful()){
-                        CategoryDetailsResponse categoryDetailsResponse = response.body();
-                        if(categoryDetailsResponse!=null){
-                            List<CategoryDetail> list = categoryDetailsResponse.getMessage();
-                            if(list!=null && list.size()>0){
-
-                                CategoryDetail categoryDetail = list.get(0);
-                                et_categoryName.setText(categoryDetail.getCategory());
-                                return;
-                            }
-                        }
-
-                        showToast(getString(R.string.empty_data));
-
-                    }else {
-                        showToast(getString(R.string.empty_data));
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<CategoryDetailsResponse> call, Throwable t) {
-                    Log.e("----------","failed");
-                    showToast(getString(R.string.please_check_internet));
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * get the category details from local db
-     * */
-    private void getCategoryFromLocalDb(String _categoryId){
-        try {
-
-            appExecutors.diskIO().execute(() -> {
-                try {
-
-                    CategoryEntity categoryEntity =  localDb.categoryDao().getCategoryWithId(_categoryId);
-
-                    savedCategoryEntity = categoryEntity;
-
-                    //show data in ui
-                    populateFields(categoryEntity);
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * show name in the field with main thread
-     * */
-    private void populateFields(CategoryEntity category){
-        try {
-
-            runOnUiThread(() -> et_categoryName.setText(category.getCategoryName()));
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * on update click, check name valid and then update
      * */
     private void updateClick(){
@@ -219,7 +126,7 @@ public class CategoryViewActivity extends SharedActivity {
                 appExecutors.diskIO().execute(() -> {
                     try {
 
-                        localDb.categoryDao().insertCategory(savedCategoryEntity);
+                        //localDb.categoryDao().insertCategory(savedCategoryEntity);
                         runOnUiThread(() -> {
                             //show dialog box
                             AppDialogs appDialogs = new AppDialogs(CategoryViewActivity.this);

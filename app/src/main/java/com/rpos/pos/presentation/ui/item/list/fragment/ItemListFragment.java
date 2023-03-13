@@ -86,9 +86,15 @@ public class ItemListFragment extends SharedFragment {
         itemListAdapter = new ItemListAdapter(itemDataList, getContext(), defaultCurrencySymbol, new ItemListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(ItemData item) {
-                Intent detailIntent = new Intent(getActivity(), ItemViewActivity.class);
-                detailIntent.putExtra(Constants.ITEM_ID, item.getItemId());
-                getActivity().startActivity(detailIntent);
+                try {
+                    Intent detailIntent = new Intent(getActivity(), ItemViewActivity.class);
+                    detailIntent.putExtra(Constants.ITEM_ID, item.getItemId());
+                    if(getActivity()!=null){
+                        getActivity().startActivity(detailIntent);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -311,6 +317,9 @@ public class ItemListFragment extends SharedFragment {
                                 //
                                 itemDataList.addAll(itemList);
                                 itemListAdapter.notifyDataSetChanged();
+
+                                //store items for later use
+                                getCoreApp().setAllItemsList(itemList);
 
                                 //All data set, stop proceeding
                                 return;

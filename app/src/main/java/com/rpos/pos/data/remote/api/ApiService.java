@@ -12,6 +12,7 @@ import com.rpos.pos.data.remote.dto.customer.details.CustomerDetailsResponse;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerListResponse;
 import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
 import com.rpos.pos.data.remote.dto.items.delete.DeleteItemResponse;
+import com.rpos.pos.data.remote.dto.items.edit.ItemEditResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
 import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
@@ -23,6 +24,7 @@ import com.rpos.pos.data.remote.dto.sales.add.AddSalesInvoiceResponse;
 import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
 import com.rpos.pos.data.remote.dto.suppliers.add.AddSupplierResponse;
 import com.rpos.pos.data.remote.dto.suppliers.list.GetSuppliersListResponse;
+import com.rpos.pos.data.remote.dto.uom.delete.UomDeleteResponse;
 import com.rpos.pos.data.remote.dto.uom.list.GetUomListResponse;
 
 import com.rpos.pos.domain.requestmodel.RequestWithUserId;
@@ -34,6 +36,7 @@ import com.rpos.pos.domain.requestmodel.customer.delete.CustomerDeleteRequest;
 import com.rpos.pos.domain.requestmodel.customer.details.CustomerDetailsRequest;
 import com.rpos.pos.domain.requestmodel.item.add.AddItemRequest;
 import com.rpos.pos.domain.requestmodel.item.delete.DeleteItemRequest;
+import com.rpos.pos.domain.requestmodel.item.edit.ItemEditRequest;
 import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
 import com.rpos.pos.domain.requestmodel.purchase.add.AddPurchaseRequest;
@@ -42,6 +45,7 @@ import com.rpos.pos.domain.requestmodel.sales.view.InvoiceViewRequest;
 import com.rpos.pos.domain.requestmodel.shift.ShiftOpenRequestJson;
 import com.rpos.pos.domain.requestmodel.supplier.add.AddSupplierRequest;
 import com.rpos.pos.data.remote.dto.shift.ShiftOpenResponse;
+import com.rpos.pos.domain.requestmodel.uom.delete.UomDeleteRequest;
 
 import java.util.Map;
 
@@ -126,5 +130,9 @@ public interface ApiService {
     @POST("custom_integration.api.category.delete_category")
     Call<CategoryDeleteResponse> deleteCategory(@Body CategoryDeleteRequest params);
 
+    @POST("custom_integration.api.uom.delete_uom")
+    Call<UomDeleteResponse> deleteUom(@Body UomDeleteRequest params);
 
+    @POST("custom_integration.api.items.edit_item")
+    Call<ItemEditResponse> updateItem(@Body ItemEditRequest params);
 }

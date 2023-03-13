@@ -4,6 +4,8 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import android.content.Intent;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
@@ -18,9 +20,20 @@ import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.CategoryEntity;
 import com.rpos.pos.data.local.entity.ItemEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
+import com.rpos.pos.data.remote.dto.items.add.AddItemMessage;
+import com.rpos.pos.data.remote.dto.items.add.AddItemResponse;
+import com.rpos.pos.data.remote.dto.items.edit.ItemEditMessage;
+import com.rpos.pos.data.remote.dto.items.edit.ItemEditResponse;
+import com.rpos.pos.data.remote.dto.items.list.BarcodeData;
+import com.rpos.pos.data.remote.dto.items.list.ItemData;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
+import com.rpos.pos.domain.requestmodel.item.add.AddItemRequest;
+import com.rpos.pos.domain.requestmodel.item.edit.ItemEditRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
+import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.item.add.AddItemActivity;
 import com.rpos.pos.presentation.ui.item.add.CategorySpinnerAdapter;
@@ -28,6 +41,10 @@ import com.rpos.pos.presentation.ui.item.add.UOMSpinnerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class ItemViewActivity extends SharedActivity {
@@ -54,6 +71,11 @@ public class ItemViewActivity extends SharedActivity {
 
     private ItemEntity savedItemEntity;
     private AppDialogs progressDialog;
+
+    private ItemEditRequest itemEditRequest;
+
+    private ItemData selectedItem;
+    private String categoryId, uomId;
 
     @Override
     public int setUpLayout() {
@@ -84,13 +106,15 @@ public class ItemViewActivity extends SharedActivity {
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
 
+        selectedItem = null;
+        categoryId = "";
+        uomId = "";
+
 
         Intent data = getIntent();
         if(data!=null){
-            String str_itemId = data.getStringExtra(Constants.ITEM_ID);
-            if(str_itemId!=null && !str_itemId.isEmpty()){
-                itemId = Integer.parseInt(str_itemId);
-            }else {
+            itemId = data.getIntExtra(Constants.ITEM_ID, Constants.EMPTY_INT);
+            if(itemId == -1){
                 showToast(getString(R.string.invalid_item), ItemViewActivity.this);
                 return;
             }
@@ -117,9 +141,7 @@ public class ItemViewActivity extends SharedActivity {
         sp_uom.setAdapter(uomSpinnerAdapter);
 
         //get item details from db
-        getItemDetailsFromLocalDb(itemId);
-
-
+        getItemDetails(itemId);
 
 
         categorySpinnerAdapter = new CategorySpinnerAdapter(ItemViewActivity.this, categoryItemsList);
@@ -129,9 +151,7 @@ public class ItemViewActivity extends SharedActivity {
         sp_category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(savedItemEntity!=null) {
-                    savedItemEntity.setCategory(""+categoryItemsList.get(i).getCategoryId());
-                }
+                categoryId = ""+categoryItemsList.get(i).getCategoryId();
             }
 
             @Override
@@ -143,9 +163,7 @@ public class ItemViewActivity extends SharedActivity {
         sp_uom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(savedItemEntity!=null) {
-                    savedItemEntity.setUom(uomList.get(i).getUomId());
-                }
+                uomId = ""+uomList.get(i).getUomId();
             }
 
             @Override
@@ -165,10 +183,21 @@ public class ItemViewActivity extends SharedActivity {
      * get item details from local db
      * @param _itemId
      * */
-    private void getItemDetailsFromLocalDb(int _itemId){
+    private void getItemDetails(int _itemId){
         try {
 
-            appExecutors.diskIO().execute(() -> {
+            List<ItemData> itemsList = getCoreApp().getAllItemsList();
+            if(itemsList!=null && !itemsList.isEmpty()){
+                for (int i=0;i< itemsList.size();i++){
+                    if(itemsList.get(i).getItemId() == _itemId){
+                        selectedItem = itemsList.get(i);
+                        populateData();
+                        return;
+                    }
+                }
+            }
+
+            /*appExecutors.diskIO().execute(() -> {
                 try {
 
                     savedItemEntity = localDb.itemDao().getItemDetails(_itemId);
@@ -195,31 +224,98 @@ public class ItemViewActivity extends SharedActivity {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            });
+            });*/
 
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    /**
-     * Get saved category from local db
-     * */
-    private void getCategoryFromLocalDb(){
-        try{
+    private void populateData(){
+        try {
 
-            //all category
-            List<CategoryEntity> savedCategory = localDb.categoryDao().getAllCategory();
+            et_itemName.setText(selectedItem.getItemName());
+            et_itemDescription.setText(selectedItem.getDescription());
+            et_itemTax.setText(""+selectedItem.getItemTax());
+            et_stock.setText(""+selectedItem.getAvailableQty());
 
-            if(savedCategory == null || savedCategory.isEmpty()){
-                showToast("Category not loaded",ItemViewActivity.this);
-            }else {
-                processCategoryList(savedCategory);
+            boolean isMaintainStock = (selectedItem.getMaintainStock() == 1)?true: false;
+            checkBox_maintain_stock.setChecked(isMaintainStock);
+
+            List<BarcodeData> barcodeList = selectedItem.getBarcodes();
+            if(barcodeList!=null && !barcodeList.isEmpty()){
+                et_barcode.setText(barcodeList.get(0).getBarcode());
             }
+
+            getCategoryAndUomList();
 
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private void getCategoryAndUomList(){
+        try{
+
+            appExecutors.diskIO().execute(() -> {
+                try {
+                    //all category
+                    final List<CategoryItem> savedCategory = localDb.categoryDao().getAllCategories();
+                    final List<UomItem> savedUomsList = localDb.uomDao().getAllUnitsOfMessurements();
+
+                    if(savedCategory == null || savedCategory.isEmpty()){
+                        showToastInUiThread("No category available");
+                        return;
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            categoryItemsList.clear();
+                            categoryItemsList.addAll(savedCategory);
+                            categorySpinnerAdapter.notifyDataSetChanged();
+
+                            //select the category in spinner
+                            setCategorySpinnerSelection(selectedItem.getCategory());
+                        }
+                    });
+
+
+                    if(savedUomsList == null || savedUomsList.isEmpty()){
+                        showToastInUiThread("No uom available");
+                        return;
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            uomList.clear();
+                            uomList.addAll(savedUomsList);
+                            uomSpinnerAdapter.notifyDataSetChanged();
+
+                            //select the uom in spinner
+                            setUomSpinnerSelection(selectedItem.getUom());
+                        }
+                    });
+
+                }catch (Exception e){
+                e.printStackTrace();
+                }
+            });
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void showToastInUiThread(String msg){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showToast(msg, ItemViewActivity.this);
+            }
+        });
     }
 
     private void processCategoryList(List<CategoryEntity> savedCategory){
@@ -244,12 +340,7 @@ public class ItemViewActivity extends SharedActivity {
 
                     categorySpinnerAdapter.notifyDataSetChanged();
 
-                    for (int i=0; i< categoryItemsList.size(); i++){
-                        if(categoryItemsList.get(i).getCategoryId().equals(savedItemEntity.getCategory())){
-                            sp_category.setSelection(i, true);
-                            break;
-                        }
-                    }
+
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -261,42 +352,14 @@ public class ItemViewActivity extends SharedActivity {
         }
     }
 
-    /**
-     * get uom list
-     * */
-    private void getUomListFromDb(){
+    private void setCategorySpinnerSelection(int categoryId){
         try {
 
-            List<UomItem> savedUomsList = localDb.uomDao().getAllUnitsOfMessurements();
-            if(savedUomsList!=null && savedUomsList.size()>0) {
-                uomList.clear();
-                uomList.addAll(savedUomsList);
-                //set the loaded list to application class
-                getCoreApp().setUomList(uomList);
-
-                runOnUiThread(() -> {
-                    try {
-
-                        uomSpinnerAdapter.notifyDataSetChanged();
-                        setUomSpinnerSelection(savedItemEntity.getUom());
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                });
-            }else {
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-
-                            showToast(getString(R.string.list_empty), ItemViewActivity.this);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                });
+            for (int i = 0; i < categoryItemsList.size(); i++) {
+                if (categoryItemsList.get(i).getCategoryId() == categoryId) {
+                    sp_category.setSelection(i, true);
+                    break;
+                }
             }
 
         }catch (Exception e){
@@ -307,10 +370,10 @@ public class ItemViewActivity extends SharedActivity {
     /**
      * to set the spinner selection in specific id
      * */
-    private void setUomSpinnerSelection(String uomId){
+    private void setUomSpinnerSelection(int uomId){
         try{
             for (int i=0;i< uomList.size();i++){
-                if(uomList.get(i).getUomId().equals(uomId)){
+                if(uomList.get(i).getUomId() == uomId){
                     sp_uom.setSelection(i, true);
                     break;
                 }
@@ -378,27 +441,96 @@ public class ItemViewActivity extends SharedActivity {
             Integer stock = 0;  // N.B :- NO NEED TO PROVIDE STOCK HERE. STOCK WILL BE AUTOMATICALLY UPDATED FROM PURCHASE CHECKOUT
 
 
-            savedItemEntity.setItemName(itemName);
-            savedItemEntity.setDescription(item_description);
-            savedItemEntity.setRate(fl_rate);
-            savedItemEntity.setAvailableQty(stock);
-            savedItemEntity.setItemTax(fl_tax);
 
-            if(!item_barcode.isEmpty()) {
-                if(!item_barcode.equals(getString(R.string.barcode_empty))){
-                    List<String> barcodesList = new ArrayList<>();
-                    barcodesList.add(item_barcode);
-                    savedItemEntity.setBarcodes(barcodesList);
-                }
+            if(categoryId.isEmpty()){
+                String msg = getString(R.string.invalid_category);
+                showToast(msg, ItemViewActivity.this);
+                return;
             }
-            savedItemEntity.setMaintainStock(isMaintainStock?1:0);
+
+            if(uomId.isEmpty()){
+                String msg = getString(R.string.invalid_uom);
+                showToast(msg, ItemViewActivity.this);
+                return;
+            }
+
+            /*
+
+                    "item_group":"Products",
+
+
+
+
+
+
+                    */
+
+
+            String userId = SharedPrefHelper.getInstance(ItemViewActivity.this).getUserId();
+            if(userId.isEmpty()){
+                showToast(getString(R.string.invalid_userid), ItemViewActivity.this);
+                return;
+            }
+
+            itemEditRequest = new ItemEditRequest();
+
+            itemEditRequest.setItemId(String.valueOf(itemId));
+            itemEditRequest.setItemName(itemName);
+            itemEditRequest.setDescription(item_description);
+            itemEditRequest.setUserId(userId);
+            itemEditRequest.setCategoryId(categoryId);
+            itemEditRequest.setUom(uomId);
+            itemEditRequest.setItemGroup("Products");
+            itemEditRequest.setBarcode(item_barcode);
+            itemEditRequest.setItemTax(fl_tax);
+            itemEditRequest.setRate(fl_rate);
+            itemEditRequest.setStockQty(stock);
+            itemEditRequest.setMaintainStock(isMaintainStock?1:0);
+
+
+            updateItemDetails();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void updateItemDetails(){
+        try {
 
             showProgress();
 
-            saveItemLocally(savedItemEntity);
+            ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            Call<ItemEditResponse> call = apiService.updateItem(itemEditRequest);
+            call.enqueue(new Callback<ItemEditResponse>() {
+                @Override
+                public void onResponse(Call<ItemEditResponse> call, Response<ItemEditResponse> response) {
+                    Log.e("-----------","res"+response.isSuccessful());
+                    hideProgress();
 
+                    if(response.isSuccessful()){
+                        ItemEditResponse itemEditResponse = response.body();
+                        if(itemEditResponse!=null && itemEditResponse.getMessage()!=null){
+                            ItemEditMessage itemEditMessage = itemEditResponse.getMessage();
+                            if(itemEditMessage.getSuccess()){
+                                showSuccess();
+                                return;
+                            }else {
+                                showToast(itemEditMessage.getMessage(), ItemViewActivity.this);
+                            }
+                        }
+                    }
 
-            //addNewItem(itemName,item_description,str_uom_id,str_category_id,fl_rate,stock,item_barcode,fl_tax,isMaintainStock);
+                    showToast(getString(R.string.item_add_failed), ItemViewActivity.this);
+                }
+
+                @Override
+                public void onFailure(Call<ItemEditResponse> call, Throwable t) {
+                    showToast(getString(R.string.please_check_internet), ItemViewActivity.this);
+                    hideProgress();
+                }
+            });
+
 
         }catch (Exception e){
             e.printStackTrace();

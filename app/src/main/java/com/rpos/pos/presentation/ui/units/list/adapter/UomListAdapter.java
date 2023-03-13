@@ -1,7 +1,5 @@
 package com.rpos.pos.presentation.ui.units.list.adapter;
 
-import android.media.Image;
-import android.security.identity.EphemeralPublicKeyNotFoundException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

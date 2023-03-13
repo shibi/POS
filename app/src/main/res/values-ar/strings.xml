@@ -366,5 +366,7 @@
     <string name="mode_label">الوضع</string>
     <string name="zatca_qr_failed">Zatca Qr generation failed</string>
     <string name="printer_already_connected">Printer already connected</string>
+    <string name="invalid_category">invalid category</string>
+    <string name="invalid_uom">invalid uom id</string>
 
 </resources>

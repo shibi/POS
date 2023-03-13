@@ -85,66 +85,8 @@ public class AddCategoryActivity extends SharedActivity {
                 return;
             }
 
-            //save to local db
-            //saveCategoryToLocalDb(categoryName);
-
             //send to backend API
             saveNewCategory(categoryName);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * To save category in local db
-     * */
-    private void saveCategoryToLocalDb(String categoryName){
-        try {
-            progressDialog.showProgressBar();
-            appExecutors.diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        //get current date for saving
-                        String dateNow = DateTimeUtils.getCurrentDateTime();
-                        //create new category for saving
-                        CategoryEntity newCategory = new CategoryEntity();
-                        newCategory.setCategoryId(categoryName);
-                        newCategory.setCategoryName(categoryName);
-                        newCategory.setCategoryStatus("active");
-                        newCategory.setCreatedOn(dateNow);
-
-                        //check whether category exists with same id in local db
-                        CategoryEntity categoryExist = localDb.categoryDao().getCategoryWithId(newCategory.getCategoryId());
-                        //if null, no category exists with same id
-                        if(categoryExist == null){
-                            //add new category
-                            localDb.categoryDao().insertCategory(newCategory);
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    progressDialog.hideProgressbar();
-                                    //show success dialog
-                                    addCategorySuccess();
-                                }
-                            });
-
-                        }else {
-                            //use ui thread to show toast
-                            runOnUiThread(() -> {
-                                progressDialog.hideProgressbar();
-                                showToast(getString(R.string.categoryExists));
-                            });
-                        }
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
 
         }catch (Exception e){
             e.printStackTrace();

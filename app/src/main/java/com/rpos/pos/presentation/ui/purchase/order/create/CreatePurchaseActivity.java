@@ -281,12 +281,12 @@ public class CreatePurchaseActivity extends SharedActivity {
 
                 final List<ItemEntity> localItemList = localDb.itemDao().getAllItems();
                 //check item list size
-                if(localItemList == null || localItemList.isEmpty()){
+                /*if(localItemList == null || localItemList.isEmpty()){
                     //show alert for items empty
                     getCoreApp().setAllItemsList(null);
                 }else {
                     getCoreApp().setAllItemsList(localItemList);
-                }
+                }*/
             });
 
         }catch (Exception e){

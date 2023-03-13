@@ -139,7 +139,7 @@ public class AddItemActivity extends SharedActivity {
         sp_uom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                str_uom_id = uomList.get(i).getUomId();
+                str_uom_id = ""+uomList.get(i).getUomId();
                 uomName = uomList.get(i).getUomName();
             }
 
@@ -313,7 +313,7 @@ public class AddItemActivity extends SharedActivity {
                     //all items
                     allItemsArray = localDb.itemDao().getAllItems();
                     //all category
-                    List<CategoryEntity> savedCategory = localDb.categoryDao().getAllCategory();
+                    List<CategoryEntity> savedCategory = null;//localDb.categoryDao().getAllCategory();
 
                     if(savedCategory == null || savedCategory.isEmpty()){
                         showToast(getString(R.string.addcategoryfirst));
@@ -583,9 +583,6 @@ public class AddItemActivity extends SharedActivity {
                                     AppExecutors uomInsertExecutors = new AppExecutors();
                                     uomInsertExecutors.diskIO().execute(() -> {
                                         try {
-                                            for (int i=0;i<dataList.size();i++){
-                                                dataList.get(i).setUomId(""+i);
-                                            }
                                             localDb.uomDao().insertUom(dataList);
                                         }catch (Exception e){
                                             e.printStackTrace();

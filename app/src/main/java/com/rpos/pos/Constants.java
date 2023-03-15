@@ -139,5 +139,7 @@ public class Constants {
     public static final String SHIFT_OPEN = "Shift_open";
     public static final String SHIFT_CLOSED = "Shift_closed";
 
+    public static final String ITEM_PRODUCT_GROUP = "Products";
+
 
 }

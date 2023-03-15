@@ -38,7 +38,6 @@ import retrofit2.Response;
 public class AddItemActivity extends SharedActivity {
 
     private AppCompatEditText et_itemName,et_item_desc,et_barcode,et_itemTax;
-    private AppCompatEditText et_itemRate, et_stock;
     private CheckBox checkBox_maintainStock;
     private LinearLayout ll_back;
     private LinearLayout ll_submit;
@@ -82,8 +81,6 @@ public class AddItemActivity extends SharedActivity {
         et_item_desc = findViewById(R.id.et_item_desc);
         et_barcode = findViewById(R.id.et_barcode);
         et_itemTax = findViewById(R.id.et_itemtax);
-        et_itemRate = findViewById(R.id.et_rate);
-        et_stock = findViewById(R.id.et_stock);
         checkBox_maintainStock = findViewById(R.id.cb_maintainStock);
         ll_back = findViewById(R.id.ll_back);
         ll_submit = findViewById(R.id.ll_add_item);
@@ -196,8 +193,6 @@ public class AddItemActivity extends SharedActivity {
                         itemLocalInsertObj.getDescription(),
                         str_uom_id,
                         str_category_id,
-                        itemLocalInsertObj.getRate(),
-                        itemLocalInsertObj.getAvailableQty(),
                         barcode,itemLocalInsertObj.getItemTax(),
                         (itemLocalInsertObj.getMaintainStock()==1) );
 
@@ -222,29 +217,11 @@ public class AddItemActivity extends SharedActivity {
             String item_description = et_item_desc.getText().toString();
             String item_barcode = et_barcode.getText().toString();
             String itemTax = et_itemTax.getText().toString();
-            String itemRate = et_itemRate.getText().toString();
-            String itemStock = et_stock.getText().toString();
 
             boolean isMaintainStock = checkBox_maintainStock.isChecked();
 
             if(itemName.isEmpty()){
                 showFieldError(et_itemName, getString(R.string.item_name_required));
-                return false;
-            }
-
-            //REMOVED
-            /*if(item_description.isEmpty()){
-                showFieldError(et_item_desc, getString(R.string.description_required));
-                return;
-            }*/
-
-            if(itemRate.isEmpty() || itemRate.equals("0") || itemRate.equals("0.0")){
-                showFieldError(et_itemRate, getString(R.string.rate_required));
-                return false;
-            }
-
-            if(itemStock.isEmpty()){
-                showFieldError(et_stock, getString(R.string.enter_stock));
                 return false;
             }
 
@@ -263,15 +240,12 @@ public class AddItemActivity extends SharedActivity {
                 return false;
             }
 
-            float fl_rate = Float.parseFloat(itemRate);
             float fl_tax;
             if(itemTax.isEmpty()){
                 fl_tax = 0.0f;
             }else {
                 fl_tax = Float.parseFloat(itemTax);
             }
-            int stock = Integer.parseInt(itemStock);
-
             List<String> barcodesList = new ArrayList<>();
             barcodesList.add(item_barcode);
 
@@ -282,8 +256,6 @@ public class AddItemActivity extends SharedActivity {
             itemLocalInsertObj.setUom(str_uom_id);
             itemLocalInsertObj.setUomName(uomName);
             itemLocalInsertObj.setCategory(str_category_id);
-            itemLocalInsertObj.setRate(fl_rate);
-            itemLocalInsertObj.setAvailableQty(stock);
             itemLocalInsertObj.setItemTax(fl_tax);
             itemLocalInsertObj.setBarcodes(barcodesList);
             itemLocalInsertObj.setMaintainStock(isMaintainStock?1:0);
@@ -313,7 +285,7 @@ public class AddItemActivity extends SharedActivity {
                     //all items
                     allItemsArray = localDb.itemDao().getAllItems();
                     //all category
-                    List<CategoryEntity> savedCategory = null;//localDb.categoryDao().getAllCategory();
+                    List<CategoryItem> savedCategory = localDb.categoryDao().getAllCategories();
 
                     if(savedCategory == null || savedCategory.isEmpty()){
                         showToast(getString(R.string.addcategoryfirst));
@@ -329,7 +301,7 @@ public class AddItemActivity extends SharedActivity {
                         });
 
                     }else {
-                        processCategoryList(savedCategory);
+                        populateCategoryList(savedCategory);
                     }
 
 
@@ -401,28 +373,20 @@ public class AddItemActivity extends SharedActivity {
         }
     }
 
-    private void processCategoryList(List<CategoryEntity> savedCategory){
+    /**
+     * add category data and update spinner
+     * @param savedCategory
+     * */
+    private void populateCategoryList(List<CategoryItem> savedCategory){
         try {
 
             //clear previous items
             categoryItemsList.clear();
-
-            CategoryItem categoryItem;
-            CategoryEntity categorySaved;
-            for (int i =0;i< savedCategory.size();i++){
-                categoryItem = new CategoryItem();
-                categorySaved = savedCategory.get(i);
-
-                categoryItem.setCategoryId(Integer.parseInt(categorySaved.getCategoryId()));
-                categoryItem.setCategory(categorySaved.getCategoryName());
-                categoryItemsList.add(categoryItem);
-            }
+            categoryItemsList.addAll(savedCategory);
 
             runOnUiThread(() -> {
                 try {
-
                     categorySpinnerAdapter.notifyDataSetChanged();
-
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -434,13 +398,10 @@ public class AddItemActivity extends SharedActivity {
     }
 
 
-
-
-
     /**
      * add new item
      * */
-    private void addNewItem(String itemName,String item_description,String uomId, String categoryId,float item_rate,int item_availableStock,String item_barcode,float itemTax,boolean stockMaintain){
+    private void addNewItem(String itemName,String item_description,String uomId, String categoryId,String item_barcode,float itemTax,boolean stockMaintain){
         try {
 
             String userId = SharedPrefHelper.getInstance(this).getUserId();
@@ -449,7 +410,6 @@ public class AddItemActivity extends SharedActivity {
                 return;
             }
 
-
             ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
             AddItemRequest request = new AddItemRequest();
             request.setItemName(itemName);
@@ -457,11 +417,12 @@ public class AddItemActivity extends SharedActivity {
             request.setUserId(userId);
             request.setUom(uomId);
             request.setCategoryId(categoryId);
-            request.setRate(item_rate);
             request.setBarcode(item_barcode);
             request.setItemTax(itemTax);
             request.setMaintainStock(stockMaintain);
-            request.setItemGroup("Products");
+            request.setItemGroup(Constants.ITEM_PRODUCT_GROUP);
+
+            //request.setRate(item_rate); //not using
 
             Call<AddItemResponse> call = apiService.addItem(request);
             call.enqueue(new Callback<AddItemResponse>() {

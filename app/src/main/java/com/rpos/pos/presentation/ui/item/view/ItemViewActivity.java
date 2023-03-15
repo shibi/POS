@@ -58,7 +58,6 @@ public class ItemViewActivity extends SharedActivity {
     private AppExecutors appExecutors;
     private AppDatabase localDb;
     private List<CategoryItem> categoryItemsList;
-    private AppCompatEditText et_stock;
 
     private List<UomItem> uomList;
     private List<ItemEntity> allItemList;
@@ -69,7 +68,6 @@ public class ItemViewActivity extends SharedActivity {
     private UOMSpinnerAdapter uomSpinnerAdapter;
     private CategorySpinnerAdapter categorySpinnerAdapter;
 
-    private ItemEntity savedItemEntity;
     private AppDialogs progressDialog;
 
     private ItemEditRequest itemEditRequest;
@@ -96,7 +94,6 @@ public class ItemViewActivity extends SharedActivity {
 
         ll_back = findViewById(R.id.ll_back);
         ll_update = findViewById(R.id.ll_rightMenu);
-        et_stock = findViewById(R.id.et_stock);
 
         //spinners
         sp_uom = findViewById(R.id.sp_uom);
@@ -143,10 +140,8 @@ public class ItemViewActivity extends SharedActivity {
         //get item details from db
         getItemDetails(itemId);
 
-
         categorySpinnerAdapter = new CategorySpinnerAdapter(ItemViewActivity.this, categoryItemsList);
         sp_category.setAdapter(categorySpinnerAdapter);
-
 
         sp_category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -197,35 +192,6 @@ public class ItemViewActivity extends SharedActivity {
                 }
             }
 
-            /*appExecutors.diskIO().execute(() -> {
-                try {
-
-                    savedItemEntity = localDb.itemDao().getItemDetails(_itemId);
-                    if(savedItemEntity!=null){
-                        //update ui
-                        updateUI(savedItemEntity);
-
-                        //get the category list
-                        getCategoryFromLocalDb();
-
-                        //check pre-loaded uom list available
-                        if(uomList!=null && !uomList.isEmpty()){
-
-                            setUomSpinnerSelection(savedItemEntity.getUom());
-
-                        }else {
-                            //if no list available , load from local storage to application class
-                            //get uom list
-                            getUomListFromDb();
-                        }
-
-                    }
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });*/
-
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -237,7 +203,6 @@ public class ItemViewActivity extends SharedActivity {
             et_itemName.setText(selectedItem.getItemName());
             et_itemDescription.setText(selectedItem.getDescription());
             et_itemTax.setText(""+selectedItem.getItemTax());
-            et_stock.setText(""+selectedItem.getAvailableQty());
 
             boolean isMaintainStock = (selectedItem.getMaintainStock() == 1)?true: false;
             checkBox_maintain_stock.setChecked(isMaintainStock);
@@ -318,40 +283,6 @@ public class ItemViewActivity extends SharedActivity {
         });
     }
 
-    private void processCategoryList(List<CategoryEntity> savedCategory){
-        try {
-
-            //clear previous items
-            categoryItemsList.clear();
-
-            CategoryItem categoryItem;
-            CategoryEntity categorySaved;
-            for (int i =0;i< savedCategory.size();i++){
-                categoryItem = new CategoryItem();
-                categorySaved = savedCategory.get(i);
-
-                categoryItem.setCategoryId(Integer.parseInt(categorySaved.getCategoryId()));
-                categoryItem.setCategory(categorySaved.getCategoryName());
-                categoryItemsList.add(categoryItem);
-            }
-
-            runOnUiThread(() -> {
-                try {
-
-                    categorySpinnerAdapter.notifyDataSetChanged();
-
-
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
     private void setCategorySpinnerSelection(int categoryId){
         try {
 
@@ -383,34 +314,6 @@ public class ItemViewActivity extends SharedActivity {
         }
     }
 
-    /**
-     * update values to ui
-     * */
-    private void updateUI(ItemEntity item){
-        try {
-
-            runOnUiThread(() -> {
-
-                et_itemName.setText(item.getItemName());
-                et_itemDescription.setText(item.getDescription());
-                et_itemTax.setText(""+item.getItemTax());
-                checkBox_maintain_stock.setChecked((item.getMaintainStock() !=0));
-                et_stock.setText(""+item.getAvailableQty());
-
-                if(item.getBarcodes()!=null && item.getBarcodes().size() >0) {
-                    String barcode = item.getBarcodes().get(0);
-                    if(barcode.equals(""+Constants.EMPTY_INT)){
-                        et_barcode.setText(getString(R.string.barcode_empty));
-                    }else {
-                        et_barcode.setText(barcode);
-                    }
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     /**
      * update new values
@@ -429,18 +332,12 @@ public class ItemViewActivity extends SharedActivity {
                 return;
             }
 
-
-            float fl_rate = 0.0f;   //N.B :- ZERO AT THE BEGINNING. RATE FOR EACH ITEMS ARE UPDATED FROM ITEM PRICE SCREEN
             float fl_tax;
             if(itemTax.isEmpty()){
                 fl_tax = 0.0f;
             }else {
                 fl_tax = Float.parseFloat(itemTax);
             }
-
-            Integer stock = 0;  // N.B :- NO NEED TO PROVIDE STOCK HERE. STOCK WILL BE AUTOMATICALLY UPDATED FROM PURCHASE CHECKOUT
-
-
 
             if(categoryId.isEmpty()){
                 String msg = getString(R.string.invalid_category);
@@ -453,18 +350,6 @@ public class ItemViewActivity extends SharedActivity {
                 showToast(msg, ItemViewActivity.this);
                 return;
             }
-
-            /*
-
-                    "item_group":"Products",
-
-
-
-
-
-
-                    */
-
 
             String userId = SharedPrefHelper.getInstance(ItemViewActivity.this).getUserId();
             if(userId.isEmpty()){
@@ -480,13 +365,10 @@ public class ItemViewActivity extends SharedActivity {
             itemEditRequest.setUserId(userId);
             itemEditRequest.setCategoryId(categoryId);
             itemEditRequest.setUom(uomId);
-            itemEditRequest.setItemGroup("Products");
+            itemEditRequest.setItemGroup(Constants.ITEM_PRODUCT_GROUP);
             itemEditRequest.setBarcode(item_barcode);
             itemEditRequest.setItemTax(fl_tax);
-            itemEditRequest.setRate(fl_rate);
-            itemEditRequest.setStockQty(stock);
             itemEditRequest.setMaintainStock(isMaintainStock?1:0);
-
 
             updateItemDetails();
 
@@ -542,85 +424,9 @@ public class ItemViewActivity extends SharedActivity {
         inputfield.requestFocus();
     }
 
-    private void saveItemLocally(ItemEntity newItem){
-        try {
-
-            appExecutors.diskIO().execute(() -> {
-                try {
-
-                    String newItemName = newItem.getItemName().trim();
-                    allItemList = localDb.itemDao().getAllItems();
-                    if(allItemList!=null) {
-                        //loop through all items and check whether name exists or not ?
-                        for (ItemEntity item : allItemList) {
-                            if (item.getItemName().trim().equals(newItemName) && (item.getItemId() != newItem.getItemId())) {
-                                //use ui thread to update ui
-                                runOnUiThread(() -> {
-                                    hideProgress();
-                                    appDialogs.showCommonAlertDialog(getString(R.string.item_name_exists), null);
-                                });
-                                return;
-                            }
-                        }
-
-
-                        List<String> barcodeList = newItem.getBarcodes();
-                        if(barcodeList!=null && barcodeList.size()>0){
-                            String newBarcode = barcodeList.get(0);
-                            if(newBarcode.equals(Constants.EMPTY))
-                            if(!checkBarcodeAvailable(newItem.getItemId(), newBarcode)){
-                                runOnUiThread(()->{
-                                    et_barcode.setError(getString(R.string.barcode_used));
-                                    et_barcode.requestFocus();
-                                    hideProgress();
-                                });
-                                return;
-                            }
-                        }
-                    }
-
-                    localDb.itemDao().insertItem(newItem);
-
-                    //use ui thread to update ui
-                    runOnUiThread(() -> {
-                        hideProgress();
-                        showSuccess();
-                    });
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
     /**
-     * To check barcode is already used.
+     * to show success dialog after item update
      * */
-    private boolean checkBarcodeAvailable(int itemId, String barcode){
-        try {
-
-            String itemBarcode;
-            for(ItemEntity item:allItemList){
-                if(item.getItemId() != itemId) {
-                    if (item.getBarcodes() != null && item.getBarcodes().size() > 0) {
-                        itemBarcode = item.getBarcodes().get(0);
-                        if (!itemBarcode.isEmpty() && itemBarcode.equals(barcode)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        }catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     private void showSuccess(){
         try {
 

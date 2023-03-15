@@ -6,6 +6,8 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import com.rpos.pos.data.local.entity.TaxSlabEntity;
+import com.rpos.pos.data.remote.dto.tax.list.TaxData;
+
 import java.util.List;
 
 @Dao
@@ -22,4 +24,24 @@ public interface TaxesDao {
 
     @Delete
     void delete(TaxSlabEntity taxSlab);
+
+    //------------------------
+
+    @Insert(onConflict = REPLACE)
+    void insertSingleTax(TaxData tax);
+
+    @Insert(onConflict = REPLACE)
+    void insertTax(List<TaxData> taxDataList);
+
+    @Query("SELECT * FROM TaxDataTable")
+    List<TaxData> getAllTaxDatas();
+
+    @Query("SELECT * FROM TaxDataTable WHERE taxSlabId=:id")
+    TaxData getTaxDetailWithId(Integer id);
+
+    @Delete
+    void deleteSingleTax(TaxData taxData);
+
+    @Query("DELETE FROM TaxDataTable")
+    void deleteTaxTable();
 }

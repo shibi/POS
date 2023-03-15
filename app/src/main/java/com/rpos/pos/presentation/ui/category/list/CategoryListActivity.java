@@ -52,7 +52,6 @@ public class CategoryListActivity extends SharedActivity {
     private CategoryListAdapter categoryListAdapter;
     private ArrayList<CategoryItem> categoryItemsArray;
     private AppDialogs progressDialog;
-    private AppExecutors appExecutors;
     private AppDatabase localDb;
     private View viewEmpty;
     private AppDialogs appDialogs;
@@ -78,7 +77,6 @@ public class CategoryListActivity extends SharedActivity {
         ll_add_category = findViewById(R.id.ll_add_category);
         appDialogs = new AppDialogs(this);
 
-        appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
 
         categoryListAdapter = new CategoryListAdapter(categoryItemsArray, new CategoryListAdapter.CategoryClickListener() {

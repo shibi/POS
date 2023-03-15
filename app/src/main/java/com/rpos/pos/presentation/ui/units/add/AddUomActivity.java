@@ -1,18 +1,28 @@
 package com.rpos.pos.presentation.ui.units.add;
 
-import android.view.View;
+
 import android.widget.LinearLayout;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 import com.rpos.pos.AppExecutors;
-import com.rpos.pos.CoreApp;
+import com.rpos.pos.Constants;
 import com.rpos.pos.R;
+
 import com.rpos.pos.data.local.AppDatabase;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.uom.add.AddUomMessage;
+import com.rpos.pos.data.remote.dto.uom.add.AddUomResponse;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
+
+import com.rpos.pos.domain.requestmodel.uom.add.AddUomRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
+
 import com.rpos.pos.presentation.ui.common.SharedActivity;
-import java.util.ArrayList;
-import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AddUomActivity extends SharedActivity {
 
@@ -20,9 +30,7 @@ public class AddUomActivity extends SharedActivity {
     private AppExecutors appExecutors;
     private AppCompatEditText et_uomName;
     private AppCompatButton btn_add;
-
     private AppDatabase localDb;
-    private List<UomItem> uomItemList;
 
     @Override
     public int setUpLayout() {
@@ -41,8 +49,6 @@ public class AddUomActivity extends SharedActivity {
         btn_add = findViewById(R.id.btn_save);
         ll_back = findViewById(R.id.ll_back);
 
-        uomItemList = new ArrayList<>();
-
         appExecutors = new AppExecutors();
         localDb = getCoreApp().getLocalDb();
 
@@ -51,9 +57,6 @@ public class AddUomActivity extends SharedActivity {
 
         //back press
         ll_back.setOnClickListener(view -> onBackPressed());
-
-        //get saved list
-        getUomListFromDb();
 
     }
 
@@ -65,6 +68,7 @@ public class AddUomActivity extends SharedActivity {
     private void onClickSave(){
         try {
 
+            //validate user entered name
             String uomName = et_uomName.getText().toString();
             if(uomName.isEmpty()){
                 et_uomName.setError(getString(R.string.enter_name));
@@ -72,34 +76,75 @@ public class AddUomActivity extends SharedActivity {
                 return;
             }
 
-            String nameExists = checkNameAlreadyExists(uomName);
-            if(nameExists!=null){
+            //api call to save new uom
+            addNewUomApiCall(uomName);
 
-                String title = getString(R.string.alert);
-                String msg = "'"+nameExists+"'"+" \n"+getString(R.string.name_exists);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-                AppDialogs appDialogs = new AppDialogs(AddUomActivity.this);
-                appDialogs.showCommonSingleAlertDialog(title, msg, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        et_uomName.setText("");
+    /**
+     * api call to add new uom
+     * @param uomName name of the unit of measurement
+     * */
+    private void addNewUomApiCall(String uomName){
+        try {
+
+            ApiService apiService = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+            AddUomRequest params = new AddUomRequest();
+            params.setUomName(uomName);
+            Call<AddUomResponse> call = apiService.addNewUom(params);
+            call.enqueue(new Callback<AddUomResponse>() {
+                @Override
+                public void onResponse(Call<AddUomResponse> call, Response<AddUomResponse> response) {
+                    try {
+
+                        if(response.isSuccessful()){
+                            AddUomResponse addUomResponse = response.body();
+                            if(addUomResponse!=null && addUomResponse.getMessage()!=null){
+                                AddUomMessage addUomMessage = addUomResponse.getMessage();
+                                if(addUomMessage.getSuccess()){
+                                    if(addUomMessage.getData()!=null){
+                                        saveUomLocally(addUomMessage.getData().getUomId(), uomName);
+                                    }else {
+                                        finish();
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+
+                        showToast(getString(R.string.please_check_internet), AddUomActivity.this);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
-                });
-                return;
-            }
+                }
 
-            String lastId;
-            if(uomItemList.size()>0) {
-                lastId = ""+uomItemList.get(uomItemList.size() - 1).getUomId();
-            }else {
-                lastId = "1";
-            }
-            int newId = Integer.parseInt(lastId);
-            newId++;
+                @Override
+                public void onFailure(Call<AddUomResponse> call, Throwable t) {
+                    t.printStackTrace();
+                    showToast(getString(R.string.please_check_internet), AddUomActivity.this);
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * to save uom in device storage
+     * @param uom_id id returned from saving uom in backend.
+     * @param uom_name name of the uom
+     * */
+    private void saveUomLocally(int uom_id, String uom_name){
+        try {
 
             UomItem newUom = new UomItem();
-            newUom.setUomName(uomName);
-            newUom.setUomId(newId);
+            newUom.setUomId(uom_id);
+            newUom.setUomName(uom_name);
 
             appExecutors.diskIO().execute(() -> {
 
@@ -109,51 +154,6 @@ public class AddUomActivity extends SharedActivity {
                     AppDialogs appDialogs = new AppDialogs(AddUomActivity.this);
                     appDialogs.showCommonSuccessDialog(getString(R.string.uom_add_success), view -> finish());
                 });
-            });
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * To check the name already exists
-     * @param newName Name to add
-     * */
-    private String checkNameAlreadyExists(String newName){
-        try {
-
-            String uomName;
-            for (int i = 0; i < uomItemList.size(); i++) {
-                uomName = uomItemList.get(i).getUomName();
-                if(uomName.toLowerCase().equals(newName.toLowerCase())){
-                    return uomName;
-                }
-            }
-
-            return null;
-        }catch (Exception e){
-            return "Error";
-        }
-    }
-
-    private void getUomListFromDb(){
-        try {
-
-            AppExecutors uomExecutors = new AppExecutors();
-
-            uomExecutors.diskIO().execute(() -> {
-                try {
-
-                    List<UomItem> savedUomsList = localDb.uomDao().getAllUnitsOfMessurements();
-                    if(savedUomsList!=null && savedUomsList.size()>0) {
-                        uomItemList.clear();
-                        uomItemList.addAll(savedUomsList);
-                    }
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
             });
 
         }catch (Exception e){

@@ -1,20 +1,37 @@
 package com.rpos.pos.presentation.ui.taxes.view;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
+
+import com.google.gson.internal.$Gson$Preconditions;
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
 import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.TaxSlabEntity;
+import com.rpos.pos.data.remote.api.ApiGenerator;
+import com.rpos.pos.data.remote.api.ApiService;
+import com.rpos.pos.data.remote.dto.tax.edit.EditTaxMessage;
+import com.rpos.pos.data.remote.dto.tax.edit.EditTaxResponse;
+import com.rpos.pos.data.remote.dto.tax.list.TaxData;
+import com.rpos.pos.data.remote.dto.tax.list.TaxListResponse;
+import com.rpos.pos.data.remote.dto.tax.list.TaxMessage;
+import com.rpos.pos.domain.requestmodel.tax.edit.EditTaxRequest;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.taxes.add.AddTaxSlabActivity;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TaxViewActivity extends SharedActivity {
 
@@ -26,7 +43,7 @@ public class TaxViewActivity extends SharedActivity {
     private AppDatabase localDb;
     private AppDialogs appDialogs;
     private LinearLayout ll_back;
-    private TaxSlabEntity selectedTaxItem;
+    private TaxData selectedTaxItem;
 
     @Override
     public int setUpLayout() {
@@ -72,6 +89,8 @@ public class TaxViewActivity extends SharedActivity {
         btn_update.setOnClickListener(view -> {
             onUpdateClick();
         });
+
+        getTaxDetails();
     }
 
     @Override
@@ -84,7 +103,6 @@ public class TaxViewActivity extends SharedActivity {
     protected void onResume() {
         super.onResume();
 
-        getTaxDetails();
     }
 
     /**
@@ -96,8 +114,12 @@ public class TaxViewActivity extends SharedActivity {
             appExecutors.diskIO().execute(() -> {
                 try {
 
-                    selectedTaxItem = localDb.taxesDao().getTaxDetailsWithId(taxId);
-                    updateUI();
+                    selectedTaxItem = localDb.taxesDao().getTaxDetailWithId(taxId);
+                    if(selectedTaxItem!=null) {
+                        updateUI();
+                    }else {
+                        showToast(getString(R.string.no_such_item));
+                    }
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -116,8 +138,8 @@ public class TaxViewActivity extends SharedActivity {
         try{
 
             runOnUiThread(() -> {
-                et_taxName.setText(selectedTaxItem.getTaxSlabName());
-                et_taxPercent.setText(""+selectedTaxItem.getSlabAmount());
+                et_taxName.setText(selectedTaxItem.getSlabName());
+                et_taxPercent.setText(""+selectedTaxItem.getTaxPercentage());
             });
 
         }catch (Exception e){
@@ -130,7 +152,7 @@ public class TaxViewActivity extends SharedActivity {
         try {
 
             if(validate()){
-                saveTax();
+                updateTaxDetailsApiCall();
             }
 
         }catch (Exception e){
@@ -138,21 +160,73 @@ public class TaxViewActivity extends SharedActivity {
         }
     }
 
-    private void saveTax(){
+    private void updateTaxDetailsApiCall(){
         try {
 
-            progressDialog.showProgressBar();
+            showProgress();
 
-            String name = et_taxName.getText().toString();
-            String str_amount= et_taxPercent.getText().toString();
-            float amount = Float.parseFloat(str_amount);
+            String slabName = et_taxName.getText().toString();
+            String slabAmount = et_taxPercent.getText().toString();
 
-            selectedTaxItem.setTaxSlabName(name);
-            selectedTaxItem.setSlabAmount(amount);
+            ApiService api = ApiGenerator.createApiService(ApiService.class, Constants.API_KEY,Constants.API_SECRET);
+
+            EditTaxRequest params = new EditTaxRequest();
+            params.setTaxSlabId(taxId); // this is important
+            params.setSlabName(slabName);
+            params.setTaxPercentage(slabAmount);
+
+            Call<EditTaxResponse> call = api.editTaxDetails(params);
+            call.enqueue(new Callback<EditTaxResponse>() {
+                @Override
+                public void onResponse(Call<EditTaxResponse> call, Response<EditTaxResponse> response) {
+                    Log.e("-----------","APO"+response.isSuccessful());
+                    hideProgress();
+                    try {
+                        //check response success
+                        if(response.isSuccessful()){
+                            //get response
+                            EditTaxResponse taxListResponse = response.body();
+                            if(taxListResponse!= null && taxListResponse.getMessage()!= null){
+                                EditTaxMessage editTaxMessage = taxListResponse.getMessage();
+                                if(editTaxMessage.getSuccess()){
+                                    updateLocallySavedTaxItem(taxId, slabName, slabAmount);
+                                }else {
+                                    showToast(editTaxMessage.getMessage());
+                                }
+                                return;
+                            }
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<EditTaxResponse> call, Throwable t) {
+                    Log.e("-----------","failed");
+                    hideProgress();
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void updateLocallySavedTaxItem(int tax_id, String slabName, String str_taxPercent){
+        try {
+
+
+            float tax_amount = Float.parseFloat(str_taxPercent);
+
+            selectedTaxItem.setTaxSlabId(tax_id);
+            selectedTaxItem.setSlabName(slabName);
+            selectedTaxItem.setTaxPercentage(tax_amount);
 
             //
             appExecutors.diskIO().execute(()->{
-                localDb.taxesDao().insertTaxes(selectedTaxItem);
+                localDb.taxesDao().insertSingleTax(selectedTaxItem);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -202,5 +276,15 @@ public class TaxViewActivity extends SharedActivity {
 
     private void showToast(String msg){
         showToast(msg, this);
+    }
+
+    /**
+     * to show and hide progress
+     * */
+    private void showProgress(){
+        progressDialog.showProgressBar();
+    }
+    private void hideProgress(){
+        progressDialog.hideProgressbar();
     }
 }

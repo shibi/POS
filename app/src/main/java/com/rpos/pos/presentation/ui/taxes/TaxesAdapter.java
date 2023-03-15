@@ -13,17 +13,19 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.entity.TaxSlabEntity;
+import com.rpos.pos.data.remote.dto.tax.list.TaxData;
+
 import java.util.List;
 
 public class TaxesAdapter extends RecyclerView.Adapter<TaxesAdapter.TaxesViewHolder> {
 
-    private List<TaxSlabEntity> taxSlabEntityList;
+    private List<TaxData> taxSlabEntityList;
     private TaxClickListener listener;
     private Context mContext;
     private int lastSelectedId;
 
 
-    public TaxesAdapter(Context context,List<TaxSlabEntity> taxSlabEntityList, TaxClickListener listener) {
+    public TaxesAdapter(Context context,List<TaxData> taxSlabEntityList, TaxClickListener listener) {
         this.taxSlabEntityList = taxSlabEntityList;
         this.listener = listener;
         this.mContext = context;
@@ -40,14 +42,14 @@ public class TaxesAdapter extends RecyclerView.Adapter<TaxesAdapter.TaxesViewHol
     @Override
     public void onBindViewHolder(@NonNull TaxesViewHolder holder, int position) {
 
-        TaxSlabEntity taxes = taxSlabEntityList.get(position);
+        TaxData taxes = taxSlabEntityList.get(position);
 
-        holder.tv_slabName.setText(taxes.getTaxSlabName());
-        holder.tv_slabAmount.setText(""+taxes.getSlabAmount());
+        holder.tv_slabName.setText(taxes.getSlabName());
+        holder.tv_slabAmount.setText(""+taxes.getTaxPercentage());
 
 
-        Drawable backgroundDrawable;
-
+        //CODE TO SELECT TAX AS DEFAULT
+        /*Drawable backgroundDrawable;
         if(taxes.isSelected()){
             backgroundDrawable = mContext.getResources().getDrawable(R.drawable.shape_selected_highlight_no_curve);
             holder.tv_default.setText(R.string.default_label);
@@ -56,8 +58,9 @@ public class TaxesAdapter extends RecyclerView.Adapter<TaxesAdapter.TaxesViewHol
             backgroundDrawable = mContext.getResources().getDrawable(R.drawable.shape_primary_button_bg_selector_no_curve);
             holder.tv_default.setText("");
             holder.iv_remove.setVisibility(View.VISIBLE);
-        }
-        holder.ll_frame.setBackground(backgroundDrawable);
+        }*
+        holder.ll_frame.setBackground(backgroundDrawable);*/
+
 
         holder.iv_remove.setOnClickListener(view -> {
             try{
@@ -73,11 +76,11 @@ public class TaxesAdapter extends RecyclerView.Adapter<TaxesAdapter.TaxesViewHol
 
         holder.iv_view.setOnClickListener(view -> {
             if(listener!=null){
-                listener.onClickTaxView(taxes.getId());
+                listener.onClickTaxView(taxes.getTaxSlabId());
             }
         });
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        /*holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 for (int i=0;i<taxSlabEntityList.size();i++){
@@ -92,7 +95,7 @@ public class TaxesAdapter extends RecyclerView.Adapter<TaxesAdapter.TaxesViewHol
 
                 notifyDataSetChanged();
             }
-        });
+        });*/
 
     }
 
@@ -122,6 +125,6 @@ public class TaxesAdapter extends RecyclerView.Adapter<TaxesAdapter.TaxesViewHol
     public interface TaxClickListener{
         void onSelectTaxDefault(int taxid, String slabName,float taxRate);
         void onClickTaxView(int taxid);
-        void onClickRemove(TaxSlabEntity taxe);
+        void onClickRemove(TaxData tax);
     }
 }

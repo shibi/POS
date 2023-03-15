@@ -24,6 +24,10 @@ import com.rpos.pos.data.remote.dto.sales.add.AddSalesInvoiceResponse;
 import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
 import com.rpos.pos.data.remote.dto.suppliers.add.AddSupplierResponse;
 import com.rpos.pos.data.remote.dto.suppliers.list.GetSuppliersListResponse;
+import com.rpos.pos.data.remote.dto.tax.add.AddTaxResponse;
+import com.rpos.pos.data.remote.dto.tax.edit.EditTaxResponse;
+import com.rpos.pos.data.remote.dto.tax.list.TaxListResponse;
+import com.rpos.pos.data.remote.dto.uom.add.AddUomResponse;
 import com.rpos.pos.data.remote.dto.uom.delete.UomDeleteResponse;
 import com.rpos.pos.data.remote.dto.uom.list.GetUomListResponse;
 
@@ -45,6 +49,9 @@ import com.rpos.pos.domain.requestmodel.sales.view.InvoiceViewRequest;
 import com.rpos.pos.domain.requestmodel.shift.ShiftOpenRequestJson;
 import com.rpos.pos.domain.requestmodel.supplier.add.AddSupplierRequest;
 import com.rpos.pos.data.remote.dto.shift.ShiftOpenResponse;
+import com.rpos.pos.domain.requestmodel.tax.add.AddTaxRequest;
+import com.rpos.pos.domain.requestmodel.tax.edit.EditTaxRequest;
+import com.rpos.pos.domain.requestmodel.uom.add.AddUomRequest;
 import com.rpos.pos.domain.requestmodel.uom.delete.UomDeleteRequest;
 
 import java.util.Map;
@@ -135,4 +142,16 @@ public interface ApiService {
 
     @POST("custom_integration.api.items.edit_item")
     Call<ItemEditResponse> updateItem(@Body ItemEditRequest params);
+
+    @POST("custom_integration.api.uom.add_uom")
+    Call<AddUomResponse> addNewUom(@Body AddUomRequest params);
+
+    @GET("custom_integration.api.tax_slab.tax_slab_list")
+    Call<TaxListResponse> getAllTaxSlabList();
+
+    @POST("custom_integration.api.tax_slab.add_tax_slab")
+    Call<AddTaxResponse> addNewTaxSlab(@Body AddTaxRequest params);
+
+    @POST("custom_integration.api.tax_slab.edit_tax_slab")
+    Call<EditTaxResponse> editTaxDetails(@Body EditTaxRequest params);
 }

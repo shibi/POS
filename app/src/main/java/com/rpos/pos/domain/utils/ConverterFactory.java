@@ -3,11 +3,9 @@ package com.rpos.pos.domain.utils;
 import com.rpos.pos.data.local.entity.CategoryEntity;
 import com.rpos.pos.data.local.entity.CustomerEntity;
 import com.rpos.pos.data.local.entity.PaymentModeEntity;
-import com.rpos.pos.data.local.entity.SupplierEntity;
 import com.rpos.pos.data.remote.dto.category.list.CategoryItem;
 import com.rpos.pos.data.remote.dto.customer.list.CustomerData;
-import com.rpos.pos.data.remote.dto.payment_modes.PaymentModeListMessage;
-import com.rpos.pos.data.remote.dto.suppliers.list.SuppliersData;
+import com.rpos.pos.data.remote.dto.payment_modes.list.PaymentModeListMessage;
 
 public class ConverterFactory {
 

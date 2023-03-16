@@ -1,6 +1,5 @@
 package com.rpos.pos.data.remote.api;
 
-import com.rpos.pos.data.remote.dto.ZatcaResponse;
 import com.rpos.pos.data.remote.dto.address.list.GetAddressListResponse;
 import com.rpos.pos.data.remote.dto.category.add.AddCategoryResponse;
 import com.rpos.pos.data.remote.dto.category.delete.CategoryDeleteResponse;
@@ -15,10 +14,9 @@ import com.rpos.pos.data.remote.dto.items.delete.DeleteItemResponse;
 import com.rpos.pos.data.remote.dto.items.edit.ItemEditResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
-import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
+import com.rpos.pos.data.remote.dto.payment_modes.list.PaymentModesListResponse;
 import com.rpos.pos.data.remote.dto.purchase.add.AddPurchaseResponse;
 import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListResponse;
-import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgram;
 import com.rpos.pos.data.remote.dto.royalty.RoyaltyProgramListResponse;
 import com.rpos.pos.data.remote.dto.sales.add.AddSalesInvoiceResponse;
 import com.rpos.pos.data.remote.dto.sales.list.SalesListResponse;
@@ -54,13 +52,10 @@ import com.rpos.pos.domain.requestmodel.tax.edit.EditTaxRequest;
 import com.rpos.pos.domain.requestmodel.uom.add.AddUomRequest;
 import com.rpos.pos.domain.requestmodel.uom.delete.UomDeleteRequest;
 
-import java.util.Map;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.QueryMap;
 
 public interface ApiService {
 

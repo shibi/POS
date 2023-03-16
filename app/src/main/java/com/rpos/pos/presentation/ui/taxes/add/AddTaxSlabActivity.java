@@ -184,8 +184,10 @@ public class AddTaxSlabActivity extends SharedActivity {
                 @Override
                 public void run() {
                     try {
+
                         AppDialogs appDialogs = new AppDialogs(AddTaxSlabActivity.this);
                         appDialogs.showCommonSuccessDialog(getString(R.string.tax_add_success), view -> finish());
+
                     }catch (Exception e){
                         e.printStackTrace();
                     }

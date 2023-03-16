@@ -1,28 +1,24 @@
 package com.rpos.pos.presentation.ui.paymentmodes.list;
 
 import android.content.Intent;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
-import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.PaymentModeEntity;
 import com.rpos.pos.data.remote.api.ApiGenerator;
 import com.rpos.pos.data.remote.api.ApiService;
-import com.rpos.pos.data.remote.dto.payment_modes.PaymentModeListMessage;
-import com.rpos.pos.data.remote.dto.payment_modes.PaymentModesListResponse;
-import com.rpos.pos.data.remote.dto.uom.list.UomItem;
+import com.rpos.pos.data.remote.dto.payment_modes.list.PaymentModeListMessage;
+import com.rpos.pos.data.remote.dto.payment_modes.list.PaymentModesListResponse;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.ConverterFactory;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.paymentmodes.add.AddPayModeActivity;
 import com.rpos.pos.presentation.ui.paymentmodes.list.adapter.PayModeListAdapter;
-import com.rpos.pos.presentation.ui.units.list.UOMListActivity;
 
 import java.util.ArrayList;
 import java.util.List;

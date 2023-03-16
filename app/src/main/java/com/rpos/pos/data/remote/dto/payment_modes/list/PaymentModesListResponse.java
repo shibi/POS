@@ -1,4 +1,4 @@
-package com.rpos.pos.data.remote.dto.payment_modes;
+package com.rpos.pos.data.remote.dto.payment_modes.list;
 
 import java.util.List;
 

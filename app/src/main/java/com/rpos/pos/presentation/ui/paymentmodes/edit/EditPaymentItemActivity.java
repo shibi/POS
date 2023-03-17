@@ -35,12 +35,9 @@ public class EditPaymentItemActivity extends SharedActivity {
     private String payment_type;
     private String str_payment_type;
 
-    private AppExecutors appExecutors;
-    private AppDatabase localDb;
     private AppDialogs progressDialog;
     private AppDialogs appDialogs;
 
-    private List<PaymentModeEntity> payModeList;
     private String paymentModeId;
 
     @Override
@@ -68,12 +65,10 @@ public class EditPaymentItemActivity extends SharedActivity {
         progressDialog = new AppDialogs(this);
         appDialogs = new AppDialogs(this);
 
-        appExecutors = new AppExecutors();
-        localDb = getCoreApp().getLocalDb();
-
         payment_type = "";
         str_payment_type = "";
         paymentModeId = "";
+
         Intent data = getIntent();
         if(data!=null){
             paymentModeId = data.getStringExtra(Constants.PAYMENT_MODE_ID);

@@ -14,6 +14,7 @@ import com.rpos.pos.data.remote.dto.items.delete.DeleteItemResponse;
 import com.rpos.pos.data.remote.dto.items.edit.ItemEditResponse;
 import com.rpos.pos.data.remote.dto.items.list.GetItemsListResponse;
 import com.rpos.pos.data.remote.dto.login.LoginResponse;
+import com.rpos.pos.data.remote.dto.payment_modes.details.PaymentModeDetailsResponse;
 import com.rpos.pos.data.remote.dto.payment_modes.list.PaymentModesListResponse;
 import com.rpos.pos.data.remote.dto.purchase.add.AddPurchaseResponse;
 import com.rpos.pos.data.remote.dto.purchase.list.PurchaseListResponse;
@@ -41,6 +42,7 @@ import com.rpos.pos.domain.requestmodel.item.delete.DeleteItemRequest;
 import com.rpos.pos.domain.requestmodel.item.edit.ItemEditRequest;
 import com.rpos.pos.domain.requestmodel.item.getlist.GetItemListRequest;
 import com.rpos.pos.domain.requestmodel.login.LoginRequestJson;
+import com.rpos.pos.domain.requestmodel.payment.details.PaymentModeDetailsRequest;
 import com.rpos.pos.domain.requestmodel.purchase.add.AddPurchaseRequest;
 import com.rpos.pos.domain.requestmodel.sales.add.AddSalesRequest;
 import com.rpos.pos.domain.requestmodel.sales.view.InvoiceViewRequest;
@@ -149,4 +151,7 @@ public interface ApiService {
 
     @POST("custom_integration.api.tax_slab.edit_tax_slab")
     Call<EditTaxResponse> editTaxDetails(@Body EditTaxRequest params);
+
+    @POST("custom_integration.api.payment_mode.view_payment_mode")
+    Call<PaymentModeDetailsResponse> getPaymentModeItemDetails(@Body PaymentModeDetailsRequest params);
 }

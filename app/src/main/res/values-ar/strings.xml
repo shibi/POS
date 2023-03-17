@@ -368,5 +368,8 @@
     <string name="printer_already_connected">Printer already connected</string>
     <string name="invalid_category">invalid category</string>
     <string name="invalid_uom">invalid uom id</string>
+    <string name="edit_payment">Edit Payment</string>
+    <string name="general">General</string>
+    <string name="phone">Phone</string>
 
 </resources>

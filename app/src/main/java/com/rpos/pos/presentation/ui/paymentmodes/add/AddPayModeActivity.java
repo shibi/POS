@@ -1,6 +1,5 @@
 package com.rpos.pos.presentation.ui.paymentmodes.add;
 
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
@@ -9,7 +8,6 @@ import androidx.appcompat.widget.AppCompatEditText;
 
 import com.rpos.pos.AppExecutors;
 import com.rpos.pos.Constants;
-import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.PaymentModeEntity;

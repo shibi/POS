@@ -23,73 +23,77 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.POS"
         android:usesCleartextTraffic="true"
         tools:replace="android:theme">
 
+
+        <activity
+            android:name=".presentation.ui.paymentmodes.edit.EditPaymentItemActivity"
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.report.ReportViewerActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.report.ReportActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.settings.company_address.CompanyAddressActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.purchase.bill.PurchaseBillView"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.purchase.order.payment.PurchasePaymentActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.price_variations.itemprice.edit.ItemPriceEditActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.price_variations.pricelist.select.SelectPriceListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.price_variations.itemprice.add.AddItemPriceActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.price_variations.itemprice.list.ItemPriceListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.price_variations.pricelist.add.AddPriceListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.price_variations.pricelist.list.PriceListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.purchase.order.checkout.PurchaseOrderCheckout"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.purchase.order.details.PurchaseOrderDetailsActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.purchase.order.list.PurchaseOrderListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.supplier.selection.SupplierSelectionActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.purchase.order.create.CreatePurchaseActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.print.bluetooth.BluetoothPrintActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.settings.company_details.CompanyDetailsActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.barcode_scanner.ItemBarcodeScanner"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.taxes.view.TaxViewActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.taxes.add.AddTaxSlabActivity"
             android:exported="false" />
@@ -98,80 +102,80 @@
             android:exported="false" />
         <activity
             android:name=".presentation.ui.paymentmodes.add.AddPayModeActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.units.add.AddUomActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.units.list.UOMListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.paymentmodes.list.PaymentModeListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:theme="@style/ThemeWhiteStatusBar"
-            android:exported="false"/>
+            android:exported="false"
+            android:theme="@style/ThemeWhiteStatusBar" />
         <activity
             android:name=".presentation.ui.sales.bill.BillViewActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.sales.payment.PaymentActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.sales.order.checkout.CheckoutActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.ui.sales.order.details.OrderDetailsActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.sales.order.list.OrderQueueActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.item.select.ItemSelectActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.customer.select.CustomerSelectActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.sales.order.create.CreateOrderActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.customer.details.CustomerDetailsActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.category.add.AddCategoryActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.address.add.AddAddressActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.address.list.AddressListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.supplier.add.AddSuppliersActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.supplier.lsit.SuppliersListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.purchase.list.PurchaseActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.category.view.CategoryViewActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.category.list.CategoryListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.customer.addcustomer.AddCustomerActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.customer.list.CustomerListActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.shift.ShiftActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presentation.ui.settings.SettingsActivity"
             android:exported="false"

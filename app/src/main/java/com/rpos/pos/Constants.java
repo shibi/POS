@@ -54,6 +54,7 @@ public class Constants {
     public static final String FILTER_SORT = "SORT";
     public static final String FILTER_SEARCH = "SEARCH";
 
+    public static final String PAYMENT_MODE_ID = "payment_mode_list";
 
     public static final String ITEM_ID = "itemID";
     public static final String ITEM_NAME = "itemName";
@@ -97,6 +98,14 @@ public class Constants {
     public static final int PAY_TYPE_CHEQUE = 4;
     public static final int PAY_TYPE_TRANSFER = 5;
     public static final int PAY_TYPE_CREDIT_SALE = 6;
+    public static final int PAY_TYPE_GENERAL = 7;
+    public static final int PAY_TYPE_PHONE = 8;
+
+    //types: - Cash, Bank, General and Phone
+    public static final String PAY_TYPE_NAME_CASH = "Cash";
+    public static final String PAY_TYPE_NAME_BANK = "Bank";
+    public static final String PAY_TYPE_NAME_GENERAL = "General";
+    public static final String PAY_TYPE_NAME_PHONE = "Phone";
 
     public static final int FILTER_ALL = 0;
     public static final int FILTER_PAID = 1;

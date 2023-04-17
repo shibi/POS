@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -23,6 +24,8 @@ import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.ShiftRegEntity;
 import com.rpos.pos.domain.utils.AppDialogs;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.BluetoothUtil;
+import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.category.list.CategoryListActivity;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.customer.list.CustomerListActivity;
@@ -51,6 +54,7 @@ public class DashboardActivity extends SharedActivity{
     private String currentFragmentTag = "";
     private AppDialogs appDialogs;
     private ImageView iv_appLogo;
+    private SharedPrefHelper prefHelper;
 
     @Override
     public int setUpLayout() {
@@ -70,6 +74,8 @@ public class DashboardActivity extends SharedActivity{
         iv_appLogo = findViewById(R.id.iv_dash_logo);
         AppCompatTextView tv_version = findViewById(R.id.tv_version);
 
+        prefHelper = SharedPrefHelper.getInstance(this);
+
         //to display current version
         String versionLabel = getString(R.string.version_label);
         tv_version.setText(versionLabel +" v"+ BuildConfig.VERSION_NAME);
@@ -85,7 +91,6 @@ public class DashboardActivity extends SharedActivity{
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 try {
-
                     switch (i)
                     {
                         case R.id.rb_left:
@@ -114,6 +119,57 @@ public class DashboardActivity extends SharedActivity{
         //get custom logo available
         getAvailableCustomLogo();
 
+        //check for bluetooth
+        boolean isBluetoothSelected = (prefHelper.getPrinterConnectionMethod() == Constants.PRINTER_METHOD_BLUETOOTH);
+        if(isBluetoothSelected){
+            if(!BluetoothUtil.isBlueToothPrinter){
+                setMethod(Constants.PRINTER_METHOD_BLUETOOTH);
+            }else {
+                setService();
+            }
+        }
+    }
+
+    /**
+     * Configure printer control via Bluetooth or API
+     */
+    private void setMethod(int position){
+
+        if(position == 0){
+
+            BluetoothUtil.disconnectBlueTooth(this);
+            BluetoothUtil.isBlueToothPrinter = false;
+
+        }else{
+
+            if(!BluetoothUtil.connectBlueTooth(this)){
+                BluetoothUtil.isBlueToothPrinter = false;
+            }else{
+                BluetoothUtil.isBlueToothPrinter = true;
+                showToast(getString(R.string.bluetooth_printer_connected), this);
+            }
+        }
+    }
+
+    /**
+     *  Set print service connection status
+     */
+    private void setService(){
+        if(SunmiPrintHelper.getInstance().sunmiPrinter == SunmiPrintHelper.FoundSunmiPrinter){
+            Log.e("---------","..found printer");
+        }else if(SunmiPrintHelper.getInstance().sunmiPrinter == SunmiPrintHelper.CheckSunmiPrinter){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("---------","..check restart");
+                    setService();
+                }
+            }, 2000);
+        }else if(SunmiPrintHelper.getInstance().sunmiPrinter == SunmiPrintHelper.LostSunmiPrinter){
+            Log.e("---------","..lost printer");
+        } else{
+            Log.e("---------","..all else");
+        }
     }
 
     /**
@@ -127,7 +183,6 @@ public class DashboardActivity extends SharedActivity{
             e.printStackTrace();
         }
     }
-
 
 
     @Override

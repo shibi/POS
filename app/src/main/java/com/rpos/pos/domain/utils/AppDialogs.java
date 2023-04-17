@@ -178,6 +178,22 @@ public class AppDialogs {
                 listener);
     }
 
+    public void showBluetoothConnected(OnDualActionButtonClickListener listener){
+
+        String str_title = mContext.getString(R.string.connection_bluetooth);
+        String str_msg = mContext.getString(R.string.bluetooth_printer_connected);
+        String yes_label = mContext.getString(R.string.sample_print);
+        String cancel_label = mContext.getResources().getString(R.string.btn_cancel);
+
+        createDualActionAlertDialogBox(str_title,
+                str_msg ,
+                R.drawable.ic_bluetooth,
+                false,
+                yes_label,
+                cancel_label,
+                listener);
+    }
+
 
     public void showCommonSuccessDialog(String msg, View.OnClickListener listener){
         createSingleActionDialog(mContext.getResources().getString(R.string.success),msg,false,mContext.getResources().getString(R.string.btn_ok),listener);

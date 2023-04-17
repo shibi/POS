@@ -41,6 +41,10 @@ public class SharedPrefHelper {
     private static final String SP_DEFAULT_BUYING_PRICE_LIST_ID = "DefaultBuyingPriceListId";
     private static final String SP_DEFAULT_SELLING_PRICE_LIST_ID = "DefaultSellingPriceListId";
 
+
+    private static final String SP_PRINTER_CONNECTION_METHOD = "printerConnectionMethod";
+
+
     private static final String SP_APP_LOGO_PATH = "AppLogoPath";
 
     private static Context mContext;
@@ -364,5 +368,29 @@ public class SharedPrefHelper {
         }
     }
 
+
+    //printer connection method
+    public void setPrinterConnectionMethod(int method) {
+        try {
+
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(Config.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt(SP_PRINTER_CONNECTION_METHOD, method);
+            editor.apply();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public int getPrinterConnectionMethod() {
+        try {
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(Config.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            int printerConnectionMethod = sharedPreferences.getInt(SP_PRINTER_CONNECTION_METHOD, Constants.EMPTY_INT);
+            return printerConnectionMethod;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Constants.EMPTY_INT;
+        }
+    }
 
 }

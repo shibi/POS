@@ -374,5 +374,10 @@
     <string name="report_confirmation_message">هل تريد طباعة التقرير</string>
     <string name="exit_label">مخرج</string>
     <string name="exit_confirmation">هل ترغب فعلا بالخروج؟</string>
+    <string name="printer_connection">Printer connection</string>
+    <string name="connection_bluetooth">BlueTooth</string>
+    <string name="connection_api">API</string>
+    <string name="bluetooth_printer_connected">Bluetooth InnerPrinter connected</string>
+    <string name="sample_print">Sample print</string>
 
 </resources>

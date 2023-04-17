@@ -358,7 +358,7 @@
     <string name="toast_6">Bluetooth connect failed!</string>
     <string name="toast_7"> Only a single Qr code is printed for the AIDL mode</string>
     <string name="toast_8">Now QrCode size must be less than 7!</string>
-    <string name="toast_9">BarCode type or conent error!</string>
+    <string name="toast_9">BarCode type or content error!</string>
     <string name="toast_10">Please set the printer as black label mode!</string>
     <string name="toast_11">Settings->System->Advanced->InnerPrinter-> set black markfunction</string>
     <string name="toast_12">Please set the printer to label mode!</string>
@@ -374,5 +374,10 @@
     <string name="report_confirmation_message">Do you want to print report</string>
     <string name="exit_label">Exit</string>
     <string name="exit_confirmation">Are you sure want to exit?</string>
+    <string name="printer_connection">Printer connection</string>
+    <string name="connection_bluetooth">BlueTooth</string>
+    <string name="connection_api">API</string>
+    <string name="bluetooth_printer_connected">Bluetooth InnerPrinter connected</string>
+    <string name="sample_print">Sample print</string>
 
 </resources>

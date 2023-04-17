@@ -116,6 +116,8 @@ public class Constants {
     public static final int EMPTY_INT = -1;
     public static final String NONE="none";
 
+    public static final int PRINTER_METHOD_API = 0;
+    public static final int PRINTER_METHOD_BLUETOOTH = 1;
 
     public static final int COUNTRY_SAUDI_ARABIA = 4;
 

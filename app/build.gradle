@@ -68,4 +68,8 @@ dependencies {
     
     //SUNMI V2 printer support library
     implementation 'com.sunmi:printerlibrary:1.0.18'
+
+
+    //Used for Demo Ui interface display, has nothing to do with function
+    implementation 'com.sunmi:sunmiui:1.1.27'
 }

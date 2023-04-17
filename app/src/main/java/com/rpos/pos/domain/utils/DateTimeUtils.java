@@ -180,6 +180,7 @@ public class DateTimeUtils {
         //TODO Here you will get the second
         long elapsedSeconds = different / secondsInMilli;
 
+        Log.e("-----------","elaD:"+elapsedDays);
         String hh = (elapsedHours<10)?"0"+elapsedHours:""+elapsedHours;
         String mm = (elapsedMinutes<10)?"0"+elapsedMinutes:""+elapsedMinutes;
         String ss = (elapsedSeconds<10)?"0"+elapsedSeconds:""+elapsedSeconds;

@@ -327,7 +327,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/bluetooth_printer"
+                            android:text="@string/printer_connection"
                             android:textColor="@color/color_accent_secondary"
                             android:gravity="start"
                             android:layout_marginTop="3dp"
@@ -344,12 +344,23 @@
                         android:layout_weight="2"
                         android:gravity="end">
 
-                        <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/btn_bt_pair"
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tv_print_conn_selected"
                             android:layout_width="wrap_content"
-                            android:layout_height="40dp"
-                            android:text="@string/check"
-                            android:layout_marginEnd="20dp"/>
+                            android:layout_height="wrap_content"
+                            android:text="API"
+                            android:textColor="@color/color_accent_secondary"
+                            android:gravity="start"
+                            android:paddingStart="30dp"
+                            android:paddingEnd="30dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
+                            android:background="@drawable/shape_bordered_textview_bg"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginBottom="3dp"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="30dp"
+                            />
 
                     </LinearLayout>
 

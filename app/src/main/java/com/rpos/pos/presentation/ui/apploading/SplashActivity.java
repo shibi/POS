@@ -9,6 +9,7 @@ import com.rpos.pos.R;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.rpos.pos.presentation.ui.login.LoginActivity;
 
+//bluetooth support
 public class SplashActivity extends SharedActivity {
 
     @Override

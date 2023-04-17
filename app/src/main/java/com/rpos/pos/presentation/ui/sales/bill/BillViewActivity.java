@@ -380,7 +380,7 @@ public class BillViewActivity extends SharedActivity {
     private void print(){
         try {
             //check if not connected to bluetooth printer
-            /*if (!BluetoothUtil.isBlueToothPrinter) {*/
+            if (!BluetoothUtil.isBlueToothPrinter) {
 
                 //using sunmi printing interface to print
                 //prepares printing data and prints
@@ -402,10 +402,9 @@ public class BillViewActivity extends SharedActivity {
                     }
                 });
 
-            /*} else {
-
-                //printByBluTooth(content);
-            }*/
+            } else {
+                printByBluTooth();
+            }
 
         }catch (Exception e){
             showToast("sales print error", this);
@@ -413,36 +412,8 @@ public class BillViewActivity extends SharedActivity {
         }
     }
 
-    private void printByBluTooth(String content) {
-        try {
-            Boolean isBold = false;
-            if (isBold) {
-                BluetoothUtil.sendData(ESCUtil.boldOn());
-            } else {
-                BluetoothUtil.sendData(ESCUtil.boldOff());
-            }
-
-            Boolean isUnderLine = false;
-            if (isUnderLine) {
-                BluetoothUtil.sendData(ESCUtil.underlineWithOneDotWidthOn());
-            } else {
-                BluetoothUtil.sendData(ESCUtil.underlineOff());
-            }
-
-            if (record < 17) {
-                BluetoothUtil.sendData(ESCUtil.singleByte());
-                BluetoothUtil.sendData(ESCUtil.setCodeSystemSingle(codeParse(record)));
-            } else {
-                BluetoothUtil.sendData(ESCUtil.singleByteOff());
-                BluetoothUtil.sendData(ESCUtil.setCodeSystem(codeParse(record)));
-            }
-
-            BluetoothUtil.sendData(content.getBytes(mStrings[record]));
-            BluetoothUtil.sendData(ESCUtil.nextLine(3));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void printByBluTooth() {
+        BluetoothUtil.printSalesInvoice(BillViewActivity.this, currentInvoice, null, printItemsList, null);
     }
     private byte codeParse(int value) {
         byte res = 0x00;

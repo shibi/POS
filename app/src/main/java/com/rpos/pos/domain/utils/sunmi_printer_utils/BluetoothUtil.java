@@ -6,10 +6,17 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.rpos.pos.Constants;
+import com.rpos.pos.CoreApp;
 import com.rpos.pos.R;
+import com.rpos.pos.data.local.entity.CompanyAddressEntity;
+import com.rpos.pos.data.local.entity.InvoiceEntity;
+import com.rpos.pos.data.local.entity.InvoiceItemHistory;
+import com.rpos.pos.domain.utils.DateTimeUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,6 +24,8 @@ import java.util.UUID;
  *  Simple package for connecting a sunmi printer via Bluetooth
  */
 public class BluetoothUtil {
+
+    private static String[] mStrings = new String[]{"CP437", "CP850", "CP860", "CP863", "CP865", "CP857", "CP737", "CP928", "Windows-1252", "CP866", "CP852", "CP858", "CP874", "Windows-775", "CP855", "CP862", "CP864", "GB18030", "BIG5", "KSC5601", "utf-8"};
 
     private static final UUID PRINTER_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -49,6 +58,7 @@ public class BluetoothUtil {
         return  socket;
     }
 
+    private static int record = 17;
     /**
      * connect bluetooth
      */
@@ -110,4 +120,179 @@ public class BluetoothUtil {
             //TODO handle disconnect event
         }
     }
+
+    private static byte codeParse(int value) {
+        byte res = 0x00;
+        switch (value) {
+            case 0:
+                res = 0x00;
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                res = (byte) (value + 1);
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                res = (byte) (value + 8);
+                break;
+            case 12:
+                res = 21;
+                break;
+            case 13:
+                res = 33;
+                break;
+            case 14:
+                res = 34;
+                break;
+            case 15:
+                res = 36;
+                break;
+            case 16:
+                res = 37;
+                break;
+            case 17:
+            case 18:
+            case 19:
+                res = (byte) (value - 17);
+                break;
+            case 20:
+                res = (byte) 0xff;
+                break;
+            default:
+                break;
+        }
+        return (byte) res;
+    }
+
+    public static void printSalesInvoice(Context context, InvoiceEntity currentInvoice, CompanyAddressEntity companyDetails, List<InvoiceItemHistory> printItemsList, String printerQrData){
+        try{
+
+            String line = "-------------------------------";
+            String companyName, address, phone, email;
+            if (companyDetails != null) {
+
+                if (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                    companyName = companyDetails.getCompanyNameEng();
+                } else {
+                    companyName = companyDetails.getCompanyNameAr();
+                }
+                address = companyDetails.getAddress();
+                phone = "Ph: " + companyDetails.getMobile();
+                email = "email: " + companyDetails.getEmail();
+            } else {
+                companyName = "POS";
+                address = "Address";
+                phone = "Ph: +91 9876543210";
+                email = "email: email@gmail.com";
+            }
+
+            BluetoothUtil.sendData(ESCUtil.alignCenter());
+            BluetoothUtil.sendData(ESCUtil.boldOn());
+            if (record < 17) {
+                BluetoothUtil.sendData(ESCUtil.singleByte());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystemSingle(codeParse(record)));
+            } else {
+                BluetoothUtil.sendData(ESCUtil.singleByteOff());
+                BluetoothUtil.sendData(ESCUtil.setCodeSystem(codeParse(record)));
+            }
+
+            printTextWithLineBreak(companyName, 1);
+
+            BluetoothUtil.sendData(ESCUtil.boldOff());
+
+            printTextWithLineBreak(address, 1);
+
+            printTextWithLineBreak(phone, 1);
+
+            printTextWithLineBreak(email, 1);
+
+            printLine(1);
+
+            byte[] ALIGNMENT = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) ? ESCUtil.alignLeft() : ESCUtil.alignRight();
+            BluetoothUtil.sendData(ALIGNMENT);
+
+
+            String billTo;
+            String invoiceNo;
+            String billType;
+            String currency;
+            String billDate;
+
+            String label_to = context.getString(R.string.to_label);
+            String label_inv = context.getString(R.string.invoice_no);
+            String label_type = context.getString(R.string.bill_type);
+            String label_currency = context.getString(R.string.currency);
+            String label_date = context.getString(R.string.bill_date);
+
+            String COLON_SEPARATOR = " : ";
+            String str_type = context.getString(R.string.sales_invoice);
+
+            if (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
+                billTo = label_to + COLON_SEPARATOR + currentInvoice.getCustomerName();
+                invoiceNo = label_inv + COLON_SEPARATOR + "INV#" + currentInvoice.getId();
+                billType = label_type + COLON_SEPARATOR + str_type;
+                currency = label_currency + COLON_SEPARATOR + currentInvoice.getCurrency();
+                billDate = label_date + COLON_SEPARATOR + DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+            } else {
+                billTo = currentInvoice.getCustomerName() + COLON_SEPARATOR + label_to;
+                invoiceNo = "INV#" + currentInvoice.getId() + COLON_SEPARATOR + label_inv;
+                billType = str_type + COLON_SEPARATOR + label_type;
+                currency = currentInvoice.getCurrency() + COLON_SEPARATOR + label_currency;
+                billDate = label_date + COLON_SEPARATOR + DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
+            }
+
+            printTextWithLineBreak(billTo, 1);
+            printTextWithLineBreak(invoiceNo, 1);
+            printTextWithLineBreak(billType, 1);
+            printTextWithLineBreak(currency, 1);
+            printTextWithLineBreak(billDate, 3);
+            printLine(1);
+
+            String itemName;
+            String itemQty;
+            for (int i=0;i< printItemsList.size();i++){
+                BluetoothUtil.sendData(ESCUtil.alignLeft());
+                itemName = printItemsList.get(i).getItemName();
+                printTextWithLineBreak(itemName, 1);
+                itemQty = ""+printItemsList.get(i).getQuantity()+ " X "+printItemsList.get(i).getItemRate() + "        "+printItemsList.get(i).getTotal();
+                printTextWithLineBreak(itemQty, 1);
+            }
+
+            printLine(3);
+
+
+
+        }catch (Exception e){
+            e.getMessage();
+        }
+    }
+
+    private static void printTextWithLineBreak(String content, int lineNum){
+        try {
+
+            BluetoothUtil.sendData(content.getBytes(mStrings[record]));
+            BluetoothUtil.sendData(ESCUtil.nextLine(lineNum));
+
+        }catch (Exception e){
+            e.getMessage();
+        }
+    }
+
+    private static void printLine(int lineNum) throws Exception{
+        try {
+            String line = "-------------------------------";
+            BluetoothUtil.sendData(line.getBytes(mStrings[record]));
+            BluetoothUtil.sendData(ESCUtil.nextLine(lineNum));
+        }catch (Exception e){
+            throw e;
+        }
+    }
+
 }

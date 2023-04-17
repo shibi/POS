@@ -110,19 +110,19 @@ public class DashboardActivity extends SharedActivity{
         int home_layout = SharedPrefHelper.getInstance(DashboardActivity.this).getHomeScreenDefaultLayout();
         if(home_layout == -1 || home_layout == Constants.HOME_SCREEN_LIST) {
             loadFragment(new HomeListFragment(), Constants.FRAGMENT_HOME_LIST);
-            //rg_switch_tab.check(R.id.rb_left);
         }else {
             loadFragment(new HomeCardFragment(), Constants.FRAGMENT_HOME_CARD);
-            //rg_switch_tab.check(R.id.rb_right);
         }
 
         //get custom logo available
         getAvailableCustomLogo();
 
-        //check for bluetooth
+        //check saved connection method is bluetooth
         boolean isBluetoothSelected = (prefHelper.getPrinterConnectionMethod() == Constants.PRINTER_METHOD_BLUETOOTH);
         if(isBluetoothSelected){
+            //if true, check bluetooth printer connected
             if(!BluetoothUtil.isBlueToothPrinter){
+                //if not connected , try connect
                 setMethod(Constants.PRINTER_METHOD_BLUETOOTH);
             }else {
                 setService();

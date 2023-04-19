@@ -391,10 +391,16 @@ public class SettingsActivity extends PrintableContentActivity {
         if(position == 0){
             BluetoothUtil.disconnectBlueTooth(SettingsActivity.this);
             BluetoothUtil.isBlueToothPrinter = false;
+
+            //save printer method
+            prefHelper.setPrinterConnectionMethod(Constants.PRINTER_METHOD_API);
+
         }else{
 
             if(!BluetoothUtil.connectBlueTooth(SettingsActivity.this)){
                 BluetoothUtil.isBlueToothPrinter = false;
+                //save printer method
+                prefHelper.setPrinterConnectionMethod(Constants.PRINTER_METHOD_API);
             }else{
                 BluetoothUtil.isBlueToothPrinter = true;
                 tv_selected_printer_method.setText(R.string.connection_bluetooth);

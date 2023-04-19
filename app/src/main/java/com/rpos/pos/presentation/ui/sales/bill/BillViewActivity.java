@@ -28,12 +28,10 @@ import com.rpos.pos.domain.utils.DateTimeUtils;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.domain.utils.ZatcaDataGenerator;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.BluetoothUtil;
-import com.rpos.pos.domain.utils.sunmi_printer_utils.ESCUtil;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
 import com.sunmi.peripheral.printer.InnerResultCallback;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,9 +56,6 @@ public class BillViewActivity extends SharedActivity {
     private CompanyAddressEntity companyAddressEntity;
     private AppDialogs printerProgress;
 
-    private String[] mStrings = new String[]{"CP437", "CP850", "CP860", "CP863", "CP865", "CP857", "CP737", "CP928", "Windows-1252", "CP866", "CP852", "CP858", "CP874", "Windows-775", "CP855", "CP862", "CP864", "GB18030", "BIG5", "KSC5601", "utf-8"};
-    private int record;
-
     //For to pass to printing
     private List<InvoiceItemHistory> printItemsList;
     private String printerQrData;
@@ -77,8 +72,6 @@ public class BillViewActivity extends SharedActivity {
 
     @Override
     public void initViews() {
-
-        record = 17;
 
         tv_billTo = findViewById(R.id.tv_invoiceTo);
         tv_billNo = findViewById(R.id.tv_invoiceNo);
@@ -140,8 +133,8 @@ public class BillViewActivity extends SharedActivity {
         btn_print.setOnClickListener(view -> {
             try{
 
-                //prepare printing data and prints
-                print();
+                //to select printing method and prints
+                printReceipt();
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -341,7 +334,7 @@ public class BillViewActivity extends SharedActivity {
 
             String qrData = ZatcaDataGenerator.getZatca(sellerName, taxNumber, date, String.valueOf(total),String.valueOf(taxAmount));
             printerQrData = qrData;
-            generateQr(qrData);
+            generateQrBitmap(qrData);
 
             if(printerQrData!=null && printerQrData.equals(Constants.EMPTY)){
                 AppDialogs appDialogs = new AppDialogs(BillViewActivity.this);
@@ -362,7 +355,7 @@ public class BillViewActivity extends SharedActivity {
      * to generate qr code from zatca base64 string
      * @param base64String
      * */
-    private void generateQr(String base64String){
+    private void generateQrBitmap(String base64String){
         try {
 
             //generate qr code from data and display in bill
@@ -375,35 +368,17 @@ public class BillViewActivity extends SharedActivity {
     }
 
     /**
-     * printer helper class to prepare data and to print
+     * to select a method for receipt printing
      * */
-    private void print(){
+    private void printReceipt(){
         try {
             //check if not connected to bluetooth printer
             if (!BluetoothUtil.isBlueToothPrinter) {
-
-                //using sunmi printing interface to print
-                //prepares printing data and prints
-                SunmiPrintHelper.getInstance().printTransaction_sales(BillViewActivity.this,currentInvoice,companyAddressEntity,printItemsList,printerQrData, new InnerResultCallback() {
-                    @Override
-                    public void onRunResult(boolean isSuccess) throws RemoteException {
-                    }
-
-                    @Override
-                    public void onReturnString(String result) throws RemoteException {
-                    }
-
-                    @Override
-                    public void onRaiseException(int code, String msg) throws RemoteException {
-                    }
-
-                    @Override
-                    public void onPrintResult(int code, String msg) throws RemoteException {
-                    }
-                });
-
+                //print with sunmi device inbuilt printing interface api
+                printByInBuiltApiInterface();
             } else {
-                printByBluTooth();
+                //if bluetooth connected,
+                printByBlueTooth();
             }
 
         }catch (Exception e){
@@ -412,57 +387,40 @@ public class BillViewActivity extends SharedActivity {
         }
     }
 
-    private void printByBluTooth() {
-        BluetoothUtil.printSalesInvoice(BillViewActivity.this, currentInvoice, null, printItemsList, null);
-    }
-    private byte codeParse(int value) {
-        byte res = 0x00;
-        switch (value) {
-            case 0:
-                res = 0x00;
-                break;
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                res = (byte) (value + 1);
-                break;
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-                res = (byte) (value + 8);
-                break;
-            case 12:
-                res = 21;
-                break;
-            case 13:
-                res = 33;
-                break;
-            case 14:
-                res = 34;
-                break;
-            case 15:
-                res = 36;
-                break;
-            case 16:
-                res = 37;
-                break;
-            case 17:
-            case 18:
-            case 19:
-                res = (byte) (value - 17);
-                break;
-            case 20:
-                res = (byte) 0xff;
-                break;
-            default:
-                break;
+    /**
+     * to use the sunmi device inbuilt printing api interface
+     * */
+    private void printByInBuiltApiInterface(){
+        try {
+            //using sunmi printing interface to print
+            //prepares printing data and prints
+            SunmiPrintHelper.getInstance().printTransaction_sales(BillViewActivity.this,currentInvoice,companyAddressEntity,printItemsList,printerQrData, new InnerResultCallback() {
+                @Override
+                public void onRunResult(boolean isSuccess) throws RemoteException {
+                }
+
+                @Override
+                public void onReturnString(String result) throws RemoteException {
+                }
+
+                @Override
+                public void onRaiseException(int code, String msg) throws RemoteException {
+                }
+
+                @Override
+                public void onPrintResult(int code, String msg) throws RemoteException {
+                }
+            });
+
+        }catch (Exception e){
+            e.getMessage();
         }
-        return (byte) res;
     }
 
+    /**
+     * to print via bluetooth printer
+     * */
+    private void printByBlueTooth() {
+        BluetoothUtil.printSalesInvoice(BillViewActivity.this, currentInvoice, null, printItemsList, null);
+    }
 }

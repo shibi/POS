@@ -2,12 +2,18 @@ package com.rpos.pos;
 
 import android.app.Application;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.data.local.entity.CurrencyItem;
 import com.rpos.pos.data.local.entity.ItemEntity;
@@ -17,6 +23,7 @@ import com.rpos.pos.data.remote.api.ApiService;
 import com.rpos.pos.data.remote.dto.uom.list.UomItem;
 import com.rpos.pos.domain.models.country.CountryItem;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
+import com.rpos.pos.domain.utils.opencsv.CSVWriter;
 import com.rpos.pos.domain.utils.sunmi_printer_utils.SunmiPrintHelper;
 
 import org.json.JSONArray;
@@ -26,6 +33,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -228,6 +236,43 @@ public class CoreApp extends Application {
     public ShiftRegEntity getRunningShift(){
         return runningShift;
     }
+
+
+    /*public void exportDbToCSV(SupportSQLiteDatabase db, String fileName){
+        try {
+
+            File exportDir = new File(Environment.getExternalStorageDirectory(), "");
+            if (!exportDir.exists()) {
+                exportDir.mkdirs();
+            }
+
+            File file = new File(exportDir, fileName + ".csv");
+            try {
+                file.createNewFile();
+                CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
+                Cursor curCSV = db.query("SELECT * FROM " + TableName, null);
+
+                csvWrite.writeNext(curCSV.getColumnNames());
+                while (curCSV.moveToNext()) {
+                    //Which column you want to exprort
+                    String arrStr[] = new String[curCSV.getColumnCount()];
+                    for (int i = 0; i < curCSV.getColumnCount() - 1; i++)
+                        arrStr[i] = curCSV.getString(i);
+                    csvWrite.writeNext(arrStr);
+                }
+                csvWrite.close();
+                curCSV.close();
+                Toast.makeText(this, "Exported", Toast.LENGTH_SHORT).show();
+
+            } catch (Exception sqlEx) {
+                Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
+            }
+
+        }catch (Exception e){
+            e.getMessage();
+        }
+    }*/
+
 
     /**
      * to clear all default values saved in shared preference

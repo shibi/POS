@@ -174,21 +174,25 @@ public class BluetoothUtil {
     public static void printSalesInvoice(Context context, InvoiceEntity currentInvoice, CompanyAddressEntity companyDetails, List<InvoiceItemHistory> printItemsList, String printerQrData){
         try{
 
-            String line = "-------------------------------";
             String companyName, address, phone, email;
+            String ph_label = context.getResources().getString(R.string.phone_label);
+            String email_label = context.getResources().getString(R.string.email);
             if (companyDetails != null) {
 
                 if (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
                     companyName = companyDetails.getCompanyNameEng();
+                    phone = ph_label + ": " + companyDetails.getMobile();
+                    email = email_label + ": " + companyDetails.getEmail();
                 } else {
                     companyName = companyDetails.getCompanyNameAr();
+                    phone = companyDetails.getMobile() + ": "+ ph_label;
+                    email = companyDetails.getEmail()+": "+ email_label;
                 }
                 address = companyDetails.getAddress();
-                phone = "Ph: " + companyDetails.getMobile();
-                email = "email: " + companyDetails.getEmail();
+
             } else {
-                companyName = "POS";
-                address = "Address";
+                companyName = "TEST";
+                address = "Enter address";
                 phone = "Ph: +91 9876543210";
                 email = "email: email@gmail.com";
             }
@@ -215,9 +219,9 @@ public class BluetoothUtil {
 
             printLine(1);
 
+            //Setting alignment according to language
             byte[] ALIGNMENT = (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) ? ESCUtil.alignLeft() : ESCUtil.alignRight();
             BluetoothUtil.sendData(ALIGNMENT);
-
 
             String billTo;
             String invoiceNo;
@@ -230,8 +234,8 @@ public class BluetoothUtil {
             String label_type = context.getString(R.string.bill_type);
             String label_currency = context.getString(R.string.currency);
             String label_date = context.getString(R.string.bill_date);
-
             String COLON_SEPARATOR = " : ";
+
             String str_type = context.getString(R.string.sales_invoice);
 
             if (CoreApp.DEFAULT_LANG.equals(Constants.LANG_EN)) {
@@ -244,7 +248,7 @@ public class BluetoothUtil {
                 billTo = currentInvoice.getCustomerName() + COLON_SEPARATOR + label_to;
                 invoiceNo = "INV#" + currentInvoice.getId() + COLON_SEPARATOR + label_inv;
                 billType = str_type + COLON_SEPARATOR + label_type;
-                currency = currentInvoice.getCurrency() + COLON_SEPARATOR + label_currency;
+                currency = label_currency + COLON_SEPARATOR + currentInvoice.getCurrency();
                 billDate = label_date + COLON_SEPARATOR + DateTimeUtils.convertTimerStampToDateTime(currentInvoice.getTimestamp());
             }
 
@@ -252,7 +256,7 @@ public class BluetoothUtil {
             printTextWithLineBreak(invoiceNo, 1);
             printTextWithLineBreak(billType, 1);
             printTextWithLineBreak(currency, 1);
-            printTextWithLineBreak(billDate, 3);
+            printTextWithLineBreak(billDate, 1);
             printLine(1);
 
             String itemName;
@@ -274,6 +278,11 @@ public class BluetoothUtil {
         }
     }
 
+    /**
+     * to print the text content and goto next line start
+     * @param content printable text content
+     * @param lineNum number of lines needed to skip after text content. ( 3 is better)
+     * */
     private static void printTextWithLineBreak(String content, int lineNum){
         try {
 
@@ -285,11 +294,16 @@ public class BluetoothUtil {
         }
     }
 
+    /**
+     * To print a line
+     * */
     private static void printLine(int lineNum) throws Exception{
         try {
+
             String line = "-------------------------------";
             BluetoothUtil.sendData(line.getBytes(mStrings[record]));
             BluetoothUtil.sendData(ESCUtil.nextLine(lineNum));
+
         }catch (Exception e){
             throw e;
         }

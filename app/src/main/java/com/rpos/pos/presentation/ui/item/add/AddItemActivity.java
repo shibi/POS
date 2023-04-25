@@ -88,6 +88,8 @@ public class AddItemActivity extends SharedActivity {
         uomName = "";
         isSaveClicked = false;
 
+        appExecutors = new AppExecutors();
+        localDb = getCoreApp().getLocalDb();
 
         //list
         categoryItemsList = new ArrayList<>();
@@ -112,15 +114,8 @@ public class AddItemActivity extends SharedActivity {
         categorySpinnerAdapter = new CategorySpinnerAdapter(AddItemActivity.this, categoryItemsList);
         sp_category.setAdapter(categorySpinnerAdapter);
 
-        appExecutors = new AppExecutors();
-        localDb = getCoreApp().getLocalDb();
-
-
         //get the category list
-        //getCategoryListApi();
         getCategoryFromLocalDb();
-
-
 
         //on click
         ll_submit.setOnClickListener(view -> {
@@ -303,11 +298,10 @@ public class AddItemActivity extends SharedActivity {
                     List<CategoryEntity> savedCategory = localDb.categoryDao().getAllCategory();
 
                     if(savedCategory == null || savedCategory.isEmpty()){
-                        showToast(getString(R.string.addcategoryfirst));
-
                         runOnUiThread(() -> {
+                            showToast(getString(R.string.addcategoryfirst));
                             AppDialogs appDialogs = new AppDialogs(AddItemActivity.this);
-                            appDialogs.showCommonAlertDialog("Add Category first and proceed", new View.OnClickListener() {
+                            appDialogs.showCommonAlertDialog(getString(R.string.addcategoryfirst), new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
                                     finish();

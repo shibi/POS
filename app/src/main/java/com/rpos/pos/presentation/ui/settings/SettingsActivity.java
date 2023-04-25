@@ -52,6 +52,9 @@ import com.rpos.pos.presentation.ui.customer.select.CustomerSelectActivity;
 import com.rpos.pos.presentation.ui.dashboard.DashboardActivity;
 import com.rpos.pos.presentation.ui.settings.adapter.CountrySpinnerAdapter;
 import com.rpos.pos.presentation.ui.settings.adapter.CurrencySpinnerAdapter;
+import com.rpos.pos.presentation.ui.settings.data_backup.BackupActivity;
+
+import org.apache.poi.ss.formula.ptg.Area2DPtgBase;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -134,6 +137,7 @@ public class SettingsActivity extends PrintableContentActivity {
         ll_logout = findViewById(R.id.ll_rightMenu);
         btn_bill_address_edit = findViewById(R.id.btn_bill_edit);
         btn_icon_open = findViewById(R.id.btn_appicon_open);
+        AppCompatButton btn_db_backup = findViewById(R.id.btn_backup_settings);
 
 
         localDb = getCoreApp().getLocalDb();
@@ -335,7 +339,9 @@ public class SettingsActivity extends PrintableContentActivity {
         tv_selected_printer_method.setOnClickListener(view -> {
             try {
 
-                final ListDialog listDialog = DialogCreater.createListDialog(SettingsActivity.this, "Connect Method", "cancel", new String[]{"Api", "Bluetooth"});
+                String connectMethod = getString(R.string.connect_method);
+
+                final ListDialog listDialog = DialogCreater.createListDialog(SettingsActivity.this, connectMethod, getResources().getString(R.string.btn_cancel), new String[]{"Api", "Bluetooth"});
                 listDialog.setItemClickListener(new ListDialog.ItemClickListener() {
                     @Override
                     public void OnItemClick(int position) {
@@ -360,6 +366,10 @@ public class SettingsActivity extends PrintableContentActivity {
 
         //app icon view
         btn_icon_open.setOnClickListener(this::showFileChoose);
+
+        //goto backup activity
+        btn_db_backup.setOnClickListener(this::gotoBackupAndRestoreActivity);
+
 
         //initBluetoothView();
 
@@ -643,6 +653,14 @@ public class SettingsActivity extends PrintableContentActivity {
         }catch (Exception e){
 
         }
+    }
+
+    /**
+     * to redirect to backup activity
+     * */
+    private void gotoBackupAndRestoreActivity(View view){
+        Intent backupIntent = new Intent(this, BackupActivity.class);
+        startActivity(backupIntent);
     }
 
     /**

@@ -379,5 +379,12 @@
     <string name="connection_api">API</string>
     <string name="bluetooth_printer_connected">Bluetooth InnerPrinter connected</string>
     <string name="sample_print">Sample print</string>
+    <string name="phone_label">هاتف</string>
+    <string name="connect_method">Connect Method</string>
+    <string name="backup">Backup</string>
+    <string name="database_backup">Database backup</string>
+    <string name="database_import">Database import</string>
+    <string name="export_data_to_excel">Export data to excel</string>
+    <string name="export_data_to_google_drive">Export to google drive</string>
 
 </resources>

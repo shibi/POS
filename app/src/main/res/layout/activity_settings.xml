@@ -613,6 +613,53 @@
 
                 </LinearLayout>
 
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/backup"
+                            android:textColor="@color/color_accent_secondary"
+                            android:gravity="start"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginBottom="3dp"
+                            android:layout_marginStart="20dp"
+                            android:paddingTop="14dp"
+                            android:paddingBottom="14dp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:gravity="end">
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_backup_settings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="38dp"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp"
+                            android:text="configure"
+                            android:layout_marginEnd="20dp"/>
+
+                    </LinearLayout>
+
+
+
+                </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="200dp">

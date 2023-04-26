@@ -396,5 +396,6 @@
     <string name="db_restore_success">Database restored successfully</string>
     <string name="db_restore_failed">Db restore failed</string>
     <string name="restore_file_not_found">Restore file does not exists</string>
+    <string name="backup_then_upload_to_drive">No backups available. Backup first and upload to drive</string>
 
 </resources>

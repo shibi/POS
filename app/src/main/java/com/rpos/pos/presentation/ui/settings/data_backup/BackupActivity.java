@@ -22,7 +22,6 @@ import com.rpos.pos.Config;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
 import com.rpos.pos.domain.utils.AppDialogs;
-import com.rpos.pos.domain.utils.DatabaseHelp;
 import com.rpos.pos.domain.utils.File.FileHelper;
 import com.rpos.pos.domain.utils.SharedPrefHelper;
 import com.rpos.pos.presentation.ui.common.SharedActivity;
@@ -42,7 +41,6 @@ public class BackupActivity extends SharedActivity {
 
     private LinearLayout ll_back;
     private CardView cardLocalBackUp, cardLocalImport, cardBackupToDrive;
-    private DatabaseHelp databaseHelp;
     private final int PERMISSION_READ_STORAGE = 102;
 
     private String BACKUP_RESTORE_ROLLBACK_FILE_NAME = "db_restore_temp";
@@ -63,7 +61,6 @@ public class BackupActivity extends SharedActivity {
     public void initViews() {
 
         ll_back = findViewById(R.id.ll_back);
-        databaseHelp = new DatabaseHelp(this);
         progressDialog = new AppDialogs(this);
 
         cardLocalBackUp = findViewById(R.id.card_local_backup);
@@ -359,7 +356,7 @@ public class BackupActivity extends SharedActivity {
             File sourceDirectory = new File(getBackupDirectory(), BACKUP_DIRECTORY_NAME);
             //check whether directory exists
             if(!sourceDirectory.exists()){
-                showToast("No backups available. Backup first and upload to drive");
+                showToast(getString(R.string.backup_then_upload_to_drive));
                 return;
             }
 

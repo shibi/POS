@@ -3,16 +3,21 @@ package com.rpos.pos.presentation.ui.settings.data_backup;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
+import com.rpos.pos.BuildConfig;
 import com.rpos.pos.Config;
 import com.rpos.pos.R;
 import com.rpos.pos.data.local.AppDatabase;
@@ -36,7 +41,7 @@ import static com.rpos.pos.Config.BACKUP_DIRECTORY_NAME;
 public class BackupActivity extends SharedActivity {
 
     private LinearLayout ll_back;
-    private CardView cardLocalBackUp, cardLocalImport, cardExportToExcel, cardBackupToDrive;
+    private CardView cardLocalBackUp, cardLocalImport, cardBackupToDrive;
     private DatabaseHelp databaseHelp;
     private final int PERMISSION_READ_STORAGE = 102;
 
@@ -63,7 +68,7 @@ public class BackupActivity extends SharedActivity {
 
         cardLocalBackUp = findViewById(R.id.card_local_backup);
         cardLocalImport = findViewById(R.id.card_local_db_import);
-        cardExportToExcel = findViewById(R.id.card_export_to_excel);
+        //cardExportToExcel = findViewById(R.id.card_export_to_excel);
         cardBackupToDrive = findViewById(R.id.card_backup_to_drive);
 
         //check permission read and write
@@ -80,6 +85,8 @@ public class BackupActivity extends SharedActivity {
 
         //listener for restore db click
         cardLocalImport.setOnClickListener(this::onRestoreClicked);
+
+        cardBackupToDrive.setOnClickListener(this::showDBFilePicker);
 
         //BACK PRESS
         ll_back.setOnClickListener(view -> onBackPressed());
@@ -306,10 +313,9 @@ public class BackupActivity extends SharedActivity {
 
             File backupSourceDirectory = new File(getBackupDirectory(), BACKUP_DIRECTORY_NAME);
 
-            FileHelper.fileChooser(BackupActivity.this, backupSourceDirectory, new FileHelper.FileSelectionListener() {
+            FileHelper.fileChooser(BackupActivity.this, backupSourceDirectory,getString(R.string.restore), new FileHelper.FileSelectionListener() {
                 @Override
                 public void onFileReceive(File file) {
-                    Log.e("----------","choosen:"+file.getPath());
                     try {
 
                         FileInputStream inputStream = new FileInputStream(file);
@@ -334,8 +340,47 @@ public class BackupActivity extends SharedActivity {
         return getCoreApp().getPublicDirectory(1); // 1 for document folder
     }
 
+    private void showDBFilePicker(View view){
+        try {
+
+            File sourceDirectory = new File(getBackupDirectory(), BACKUP_DIRECTORY_NAME);
+
+            FileHelper.fileChooser(BackupActivity.this, sourceDirectory,getString(R.string.choose_file), new FileHelper.FileSelectionListener() {
+                @Override
+                public void onFileReceive(File file) {
+                    shareFile(file.getPath());
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void shareFile(String filePath) {
+        try {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+
+            Intent intentShareFile = new Intent(Intent.ACTION_SEND);
+            File fileWithinMyDir = new File(filePath);
+
+            if (fileWithinMyDir.exists()) {
+
+                Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", fileWithinMyDir);
+
+                intentShareFile.setType("application/*");
+                intentShareFile.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intentShareFile.putExtra(Intent.EXTRA_STREAM, uri);
+                startActivity(Intent.createChooser(intentShareFile, getString(R.string.share_file)));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private void showToast(String msg){
         showToast(msg, BackupActivity.this);
     }
-
 }

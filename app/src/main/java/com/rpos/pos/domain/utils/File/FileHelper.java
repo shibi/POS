@@ -37,7 +37,7 @@ public class FileHelper {
         }
     }
 
-    public static void fileChooser(Context context, File directory, FileSelectionListener listener){
+    public static void fileChooser(Context context, File directory, String title, FileSelectionListener listener){
 
         File folder = directory;//new File(filePath + File.separator + directory);
         if (folder.exists()) {
@@ -49,7 +49,7 @@ public class FileHelper {
                 arrayAdapter.add(file.getName());
 
             AlertDialog.Builder builderSingle = new AlertDialog.Builder(context);
-            builderSingle.setTitle("Restore");
+            builderSingle.setTitle(title);
             builderSingle.setNegativeButton(
                     R.string.btn_cancel,
                     (dialog, which) -> dialog.dismiss());
@@ -60,12 +60,13 @@ public class FileHelper {
                             //importDB(files[which].getPath());
                             listener.onFileReceive(files[which]);
                         } catch (Exception e) {
-                            Toast.makeText(context, "Unable to restore", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                            Toast.makeText(context, "Unable to pick file", Toast.LENGTH_SHORT).show();
                         }
                     });
             builderSingle.show();
         } else
-            Toast.makeText(context, "Backup folder not found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getResources().getString(R.string.backup_folder_not_found), Toast.LENGTH_SHORT).show();
     }
 
 

@@ -389,5 +389,9 @@
     <string name="db_export_success">Database exported successfully</string>
     <string name="db_file_creation_failed">Unable to create database backup</string>
     <string name="db_unable_to_export">Unable to export database</string>
+    <string name="share_file">Share File</string>
+    <string name="choose_file">Choose File</string>
+    <string name="restore">Restore</string>
+    <string name="backup_folder_not_found">Backup folder not found</string>
 
 </resources>

@@ -393,5 +393,8 @@
     <string name="choose_file">Choose File</string>
     <string name="restore">Restore</string>
     <string name="backup_folder_not_found">Backup folder not found</string>
+    <string name="db_restore_success">Database restored successfully</string>
+    <string name="db_restore_failed">Db restore failed</string>
+    <string name="restore_file_not_found">Restore file does not exists</string>
 
 </resources>

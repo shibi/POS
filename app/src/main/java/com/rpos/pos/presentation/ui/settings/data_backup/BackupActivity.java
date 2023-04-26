@@ -171,26 +171,8 @@ public class BackupActivity extends SharedActivity {
                 //sharedPreferences.putString("backupFileName", fileName).apply();
                 sharedPreferences.setLastDBSavedTime(System.currentTimeMillis());
 
-                try {
-
-                    new CountDownTimer(2000,1000){
-
-                        @Override
-                        public void onTick(long l) {
-
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            progressDialog.hideProgressbar();
-                            showToast(getString(R.string.db_export_success));
-                        }
-                    }.start();
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
+                //delays for 2 minutes and show success then hides progress bar
+                showActionSuccess(getString(R.string.db_export_success));
 
             }else {
                 progressDialog.hideProgressbar();
@@ -294,15 +276,21 @@ public class BackupActivity extends SharedActivity {
 
                 FileHelper.copyFile((FileInputStream) inputStreamNewDB, new FileOutputStream(oldDB));
                 //Take the user to home screen and there we will validate if the database file was actually restored correctly.
+
+                //delays for 2 minutes and show success then hides progress bar
+                showActionSuccess(getString(R.string.db_restore_success));
+
             } catch (IOException e) {
                 Log.d("LOGGER", "ex for is of restore: " + e);
                 e.printStackTrace();
+                showToast(getString(R.string.db_restore_failed));
+                progressDialog.hideProgressbar();
             }
         } else {
+            showToast(getString(R.string.restore_file_not_found));
+            progressDialog.hideProgressbar();
             Log.d("LOGGER", "Restore - file does not exists");
         }
-
-        progressDialog.hideProgressbar();
     }
 
     /**
@@ -340,10 +328,41 @@ public class BackupActivity extends SharedActivity {
         return getCoreApp().getPublicDirectory(1); // 1 for document folder
     }
 
+    /**
+     * to show success toast
+     * hides progressbar
+     * */
+    private void showActionSuccess(String msg){
+        try {
+            new CountDownTimer(2000,1000){
+                @Override
+                public void onTick(long l) {
+                }
+                @Override
+                public void onFinish() {
+                    progressDialog.hideProgressbar();
+                    showToast(msg);
+                }
+            }.start();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * shows file picker for db files
+     * */
     private void showDBFilePicker(View view){
         try {
-
+            //show only the backup directory
             File sourceDirectory = new File(getBackupDirectory(), BACKUP_DIRECTORY_NAME);
+            //check whether directory exists
+            if(!sourceDirectory.exists()){
+                showToast("No backups available. Backup first and upload to drive");
+                return;
+            }
+
 
             FileHelper.fileChooser(BackupActivity.this, sourceDirectory,getString(R.string.choose_file), new FileHelper.FileSelectionListener() {
                 @Override

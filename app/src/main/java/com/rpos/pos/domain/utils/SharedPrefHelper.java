@@ -47,6 +47,9 @@ public class SharedPrefHelper {
 
     private static final String SP_APP_LOGO_PATH = "AppLogoPath";
 
+
+    private static final String SP_LAST_DB_BACKUP_TIME = "lastDbBackupTime";
+
     private static Context mContext;
 
 
@@ -304,6 +307,31 @@ public class SharedPrefHelper {
         } catch (Exception e) {
             e.printStackTrace();
             return "";
+        }
+    }
+
+
+    //
+    public void setLastDBSavedTime(long timeMilliSecond) {
+        try {
+
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(Config.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putLong(SP_LAST_DB_BACKUP_TIME, timeMilliSecond);
+            editor.apply();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Long getLastDBSavedTime() {
+        try {
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(Config.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            return sharedPreferences.getLong(SP_LAST_DB_BACKUP_TIME, -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

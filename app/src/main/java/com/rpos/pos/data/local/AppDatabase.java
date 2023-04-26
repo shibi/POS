@@ -56,6 +56,8 @@ import com.rpos.pos.data.remote.dto.uom.list.UomItem;
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
+    
+
     public abstract ItemDao itemDao();
     public abstract OrdersDao ordersDao();
     public abstract CategoryDao categoryDao();

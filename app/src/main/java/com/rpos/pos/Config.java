@@ -89,6 +89,10 @@ public interface Config {
     String SALES_REPORT_FILE_PREFIX = "SalesReport";
     String PURCHASE_REPORT_FILE_PREFIX = "PurchaseReport";
 
+    int MAXIMUM_DATABASE_FILE = 5;
+
+    String BACKUP_DIRECTORY_NAME = "Pos_Reports/backup";
+
 }
 
 

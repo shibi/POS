@@ -237,6 +237,24 @@ public class CoreApp extends Application {
         return runningShift;
     }
 
+    public File getDirectoryPath(){
+        return this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+    }
+
+    /**
+     * TO get the public directory of sd card
+     * @param directory_type folder type - download, document, PICTURE etc..
+     * */
+    public File getPublicDirectory(int directory_type){
+        switch (directory_type)
+        {
+            case 1:
+                return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            default:
+                return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        }
+    }
+
 
     /*public void exportDbToCSV(SupportSQLiteDatabase db, String fileName){
         try {

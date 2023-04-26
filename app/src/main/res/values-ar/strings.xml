@@ -386,5 +386,8 @@
     <string name="database_import">Database import</string>
     <string name="export_data_to_excel">Export data to excel</string>
     <string name="export_data_to_google_drive">Export to google drive</string>
+    <string name="db_export_success">Database exported successfully</string>
+    <string name="db_file_creation_failed">Unable to create database backup</string>
+    <string name="db_unable_to_export">Unable to export database</string>
 
 </resources>

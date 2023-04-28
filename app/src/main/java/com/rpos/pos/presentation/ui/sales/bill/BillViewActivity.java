@@ -372,14 +372,18 @@ public class BillViewActivity extends SharedActivity {
      * */
     private void printReceipt(){
         try {
+
+            //FOR Testing purpose, using only api interface
+
+
             //check if not connected to bluetooth printer
-            if (!BluetoothUtil.isBlueToothPrinter) {
+        //    if (!BluetoothUtil.isBlueToothPrinter) {
                 //print with sunmi device inbuilt printing interface api
                 printByInBuiltApiInterface();
-            } else {
+        //    } else {
                 //if bluetooth connected,
-                printByBlueTooth();
-            }
+        //        printByBlueTooth();
+        //    }
 
         }catch (Exception e){
             showToast("sales print error", this);

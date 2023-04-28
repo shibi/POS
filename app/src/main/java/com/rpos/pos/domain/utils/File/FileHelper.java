@@ -22,6 +22,10 @@ import java.util.Date;
 
 public class FileHelper {
 
+    /**
+     * to copy source file to destination file
+     *  file to file copy
+     * */
     public static void copyFile(FileInputStream fromFile, FileOutputStream toFile) throws IOException {
         FileChannel fromChannel = null;
         FileChannel toChannel = null;

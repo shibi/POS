@@ -397,5 +397,8 @@
     <string name="db_restore_failed">Db restore failed</string>
     <string name="restore_file_not_found">Restore file does not exists</string>
     <string name="backup_then_upload_to_drive">No backups available. Backup first and upload to drive</string>
+    <string name="selected_api">Selected API for printer</string>
+    <string name="backup_and_restore">Backup and restore</string>
+    <string name="setup">Setup</string>
 
 </resources>

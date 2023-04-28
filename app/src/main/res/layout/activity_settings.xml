@@ -628,7 +628,7 @@
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/backup"
+                            android:text="@string/backup_and_restore"
                             android:textColor="@color/color_accent_secondary"
                             android:gravity="start"
                             android:layout_marginTop="3dp"
@@ -642,16 +642,18 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="2"
+                        android:layout_weight="1"
                         android:gravity="end">
 
                         <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btn_backup_settings"
                             android:layout_width="wrap_content"
-                            android:layout_height="38dp"
-                            android:paddingStart="15dp"
-                            android:paddingEnd="15dp"
-                            android:text="configure"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:paddingTop="5dp"
+                            android:paddingBottom="5dp"
+                            android:text="@string/setup"
                             android:layout_marginEnd="20dp"/>
 
                     </LinearLayout>

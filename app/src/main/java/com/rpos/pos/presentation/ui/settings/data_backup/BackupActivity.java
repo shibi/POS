@@ -46,6 +46,7 @@ public class BackupActivity extends SharedActivity {
     private String BACKUP_RESTORE_ROLLBACK_FILE_NAME = "db_restore_temp";
 
     private AppDialogs progressDialog;
+    private final int DIRECTORY_DOCUMENTS = 1;
 
     @Override
     public int setUpLayout() {
@@ -106,10 +107,13 @@ public class BackupActivity extends SharedActivity {
     /**
      * to check permission and request permission
      * */
-    private boolean checkReadStoragePermissionAvailable() {
+    private void checkReadStoragePermissionAvailable() {
 
+        //check storage permission granted
         if (hasStoragePermissionGranted()) {
-            return true;
+
+            //do nothing
+
         } else {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -120,7 +124,6 @@ public class BackupActivity extends SharedActivity {
                 throw e;
             }
         }
-        return false;
     }
 
     /**
@@ -322,7 +325,7 @@ public class BackupActivity extends SharedActivity {
      * saving data in document folder (directory type : 1)
      * */
     private File getBackupDirectory(){
-        return getCoreApp().getPublicDirectory(1); // 1 for document folder
+        return getCoreApp().getPublicDirectory(DIRECTORY_DOCUMENTS); // 1 for document folder
     }
 
     /**

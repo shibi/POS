@@ -401,24 +401,26 @@ public class SettingsActivity extends PrintableContentActivity {
         if(position == 0){
             BluetoothUtil.disconnectBlueTooth(SettingsActivity.this);
             BluetoothUtil.isBlueToothPrinter = false;
-
-            //save printer method
-            prefHelper.setPrinterConnectionMethod(Constants.PRINTER_METHOD_API);
+            //method api
+            selectMethodAPI();
 
         }else{
 
             if(!BluetoothUtil.connectBlueTooth(SettingsActivity.this)){
                 BluetoothUtil.isBlueToothPrinter = false;
-                //save printer method
-                prefHelper.setPrinterConnectionMethod(Constants.PRINTER_METHOD_API);
-            }else{
-                BluetoothUtil.isBlueToothPrinter = true;
-                tv_selected_printer_method.setText(R.string.connection_bluetooth);
 
+                //select method api
+                selectMethodAPI();
+
+            }else{
+
+                BluetoothUtil.isBlueToothPrinter = true;
+
+                tv_selected_printer_method.setText(R.string.connection_bluetooth);
                 //save printer method
                 prefHelper.setPrinterConnectionMethod(Constants.PRINTER_METHOD_BLUETOOTH);
+                showToast(getString(R.string.bluetooth_printer_connected));
 
-                showToast(getString(R.string.bluetooth_printer_connected), SettingsActivity.this);
                 appDialogs.showBluetoothConnected(new AppDialogs.OnDualActionButtonClickListener() {
                     @Override
                     public void onClickPositive(String id) {
@@ -432,6 +434,26 @@ public class SettingsActivity extends PrintableContentActivity {
                     }
                 });
             }
+        }
+    }
+
+    /**
+     * API method selected
+     * */
+    private void selectMethodAPI(){
+        try {
+
+            //save printer method
+            prefHelper.setPrinterConnectionMethod(Constants.PRINTER_METHOD_API);
+
+            //change the button label
+            tv_selected_printer_method.setText(R.string.connection_api);
+
+            //show toast message
+            showToast(getString(R.string.selected_api));
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -724,7 +746,7 @@ public class SettingsActivity extends PrintableContentActivity {
                             //show success
                             appDialogs.showCommonSuccessDialog(getString(R.string.log_save_success), null);
                         }else {
-                            showToast(getString(R.string.no_image), SettingsActivity.this);
+                            showToast(getString(R.string.no_image));
                         }
 
                     }catch (IOException e){
@@ -962,6 +984,10 @@ public class SettingsActivity extends PrintableContentActivity {
         Intent dashboardIntent = new Intent(this, DashboardActivity.class);
         startActivity(dashboardIntent);
         finish();
+    }
+
+    private void showToast(String msg){
+        showToast(msg, SettingsActivity.this);
     }
 
     @Override
